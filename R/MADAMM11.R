@@ -1,152 +1,3 @@
-#' Fit a  pliable lasso model over a path of regularization values
-#' to fit the plasso model with ADMM
-#' @import Matrix
-#' @import bigalgebra
-#' @import Rcpp
-#' @import RcppArmadillo
-#' @import MASS
-#' @import foreach
-#' @import doParallel
-#' @import pracma
-#' @import class
-#' @import dplyr
-#' @import stats
-#' @import graphics
-#' @import tidyr
-#' @import parallel
-
-
-
-
-
-convNd2T <- function(Nd, w, w_max){
-  # Nd : node list
-  # w : a vector of weights for internal nodes
-  # Tree : VxK matrix
-  #	V is the number of leaf nodes and internal nodes
-  #	K is the number of tasks
-  #	Element (v,k) is set to 1 if task k has a membership to
-  #	the cluster represented by node v. Otherwise, it's 0.
-  # Tw : V vector
-
-  #===========================
-  find_leaves <- function(Nd, ch, K, Jt, w, Tw){
-
-    for(ii in 1:length(ch)){
-      if(Nd[ch[ii], 2] > K){
-        leaves0 <- find_leaves(Nd, which(Nd[,1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
-        Jt <- leaves0$Jt
-        Tw <- leaves0$Tw
-      }else
-        Jt <- c(Jt, Nd[ch[ii], 2])
-    }
-
-    Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
-
-    return(list(Jt=Jt, Tw=Tw))
-  }
-  #===========================
-
-  # of leaf nodes
-  K <- Nd[1,1] - 1
-  #V = Nd(size(Nd,1),1);
-  #V = Nd(size(Nd,1),1)-1;		# without the root
-  if(sum(w < w_max)<1){
-    V <- 1 + K
-  }else{
-    ind0 <- which(w < w_max)    # only the internal nodes with w<w_max
-    V <- ind0[length(ind0)] + K
-  }
-
-  # for leaf nodes
-  I <- 1:K
-  J <- 1:K
-
-  Tw <- rep(1, V)
-
-  # for internal nodes
-  for(i in (K+1):V){
-    Jt <- NULL
-
-    Tw[i] <- Tw[i] * (1 - w[i-K])
-    leaves0 <- find_leaves(Nd, which(Nd[,1] == i), K, Jt, w[i-K], Tw)
-    Jt <- leaves0$Jt
-    Tw <- leaves0$Tw
-
-    I <- c(I, rep(1,length(Jt)) * i)
-    J <- c(J, Jt)
-  }
-
-  Tree <- sparseMatrix(i=I, j=J, x=rep(1, length(I)), dims=c(V, K))
-
-  return(list(Tree=Tree, Tw=Tw))
-
-}
-
-
-convH2T <- function(H, w_max){
-  K <- dim(H)[1] + 1
-  Nd <- cbind(rep((K+1):(2*K-1), each = 2), as.vector(t(H[,1:2])))
-  W_norm <- H[,3]/max(H[,3])
-  conv0 <- convNd2T(Nd, W_norm, w_max)
-
-  return(conv0)
-}
-
-fastCorr <- function(A){
-  C <- crossprod(scale(A))/(dim(A)[1]-1)
-  return(C)
-}
-
-#' Fit the hierarchical tree structure 
-#' @param y  N by D matrix of response variables 
-#' #' @param h is the tree cut off
-#' @return  A trained the tree with the following components:
-#' Tree: the tree matrix stored in 1's and 0's 
-#' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix. 
-
-#' @export
-tree.parms <- function(y=y, h=.7){
-  m <- dim(y)[2]
-  myDist0 <- 1 - abs(fastCorr(y))
-  myDist <- myDist0[lower.tri(myDist0)]
-  a0 <- dist(t(y))
-  a0[1:length(a0)] <- myDist
-  # hierarchical clustering for multivariate responses
-  myCluster_0 <- hclust(a0, method = "complete")
-  myCluster <- cbind(ifelse(myCluster_0$merge < 0, - myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)
-
-  conv0 <- convH2T(myCluster, h)
-  Tree <- conv0$Tree
-  if(is.null(dim(Tree)))
-    Tree <- matrix(Tree, nrow=1)
-  Tw <- conv0$Tw
-  idx <- c(apply(Tree,1,sum) == 1)
-  Tree <- Tree[!idx,]
-  if(is.null(dim(Tree)))
-    Tree <- matrix(Tree, nrow=1)
-  Tw <- Tw[!idx]
-
-  no_group<-	which(colSums(Tree)==0)
-  if(length(no_group)!=0){
-    tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
-    tree_matrix[c(1:nrow(Tree)),]<-Tree
-    count=nrow(Tree)+1
-    for (i in no_group) {
-
-      tree_matrix[count,i]<-1
-      count=count+1
-    }
-
-  }else{tree_matrix=Tree}
-  tree_weight<-rep(0,length(Tw)+length(no_group))
-  tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
-
-
-  return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
-}
-
-
 #' Simulate data for the model 
 #' @param p: column for X which is the main effect 
 #' @param n: number of observations 
@@ -260,6 +111,137 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
   # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
   # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
   return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
+}
+
+
+
+
+
+convNd2T <- function(Nd, w, w_max){
+  # Nd : node list
+  # w : a vector of weights for internal nodes
+  # Tree : VxK matrix
+  #	V is the number of leaf nodes and internal nodes
+  #	K is the number of tasks
+  #	Element (v,k) is set to 1 if task k has a membership to
+  #	the cluster represented by node v. Otherwise, it's 0.
+  # Tw : V vector
+  
+  #===========================
+  find_leaves <- function(Nd, ch, K, Jt, w, Tw){
+    
+    for(ii in 1:length(ch)){
+      if(Nd[ch[ii], 2] > K){
+        leaves0 <- find_leaves(Nd, which(Nd[,1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
+        Jt <- leaves0$Jt
+        Tw <- leaves0$Tw
+      }else
+        Jt <- c(Jt, Nd[ch[ii], 2])
+    }
+    
+    Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
+    
+    return(list(Jt=Jt, Tw=Tw))
+  }
+  #===========================
+  
+  # of leaf nodes
+  K <- Nd[1,1] - 1
+  #V = Nd(size(Nd,1),1);
+  #V = Nd(size(Nd,1),1)-1;		# without the root
+  if(sum(w < w_max)<1){
+    V <- 1 + K
+  }else{
+    ind0 <- which(w < w_max)    # only the internal nodes with w<w_max
+    V <- ind0[length(ind0)] + K
+  }
+  
+  # for leaf nodes
+  I <- 1:K
+  J <- 1:K
+  
+  Tw <- rep(1, V)
+  
+  # for internal nodes
+  for(i in (K+1):V){
+    Jt <- NULL
+    
+    Tw[i] <- Tw[i] * (1 - w[i-K])
+    leaves0 <- find_leaves(Nd, which(Nd[,1] == i), K, Jt, w[i-K], Tw)
+    Jt <- leaves0$Jt
+    Tw <- leaves0$Tw
+    
+    I <- c(I, rep(1,length(Jt)) * i)
+    J <- c(J, Jt)
+  }
+  
+  Tree <- sparseMatrix(i=I, j=J, x=rep(1, length(I)), dims=c(V, K))
+  
+  return(list(Tree=Tree, Tw=Tw))
+  
+}
+
+
+convH2T <- function(H, w_max){
+  K <- dim(H)[1] + 1
+  Nd <- cbind(rep((K+1):(2*K-1), each = 2), as.vector(t(H[,1:2])))
+  W_norm <- H[,3]/max(H[,3])
+  conv0 <- convNd2T(Nd, W_norm, w_max)
+  
+  return(conv0)
+}
+
+fastCorr <- function(A){
+  C <- crossprod(scale(A))/(dim(A)[1]-1)
+  return(C)
+}
+
+#' Fit the hierarchical tree structure 
+#' @param y  N by D matrix of response variables 
+#' #' @param h is the tree cut off
+#' @return  A trained the tree with the following components:
+#' Tree: the tree matrix stored in 1's and 0's 
+#' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix. 
+
+#' @export
+tree.parms <- function(y=y, h=.7){
+  m <- dim(y)[2]
+  myDist0 <- 1 - abs(fastCorr(y))
+  myDist <- myDist0[lower.tri(myDist0)]
+  a0 <- dist(t(y))
+  a0[1:length(a0)] <- myDist
+  # hierarchical clustering for multivariate responses
+  myCluster_0 <- hclust(a0, method = "complete")
+  myCluster <- cbind(ifelse(myCluster_0$merge < 0, - myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)
+  
+  conv0 <- convH2T(myCluster, h)
+  Tree <- conv0$Tree
+  if(is.null(dim(Tree)))
+    Tree <- matrix(Tree, nrow=1)
+  Tw <- conv0$Tw
+  idx <- c(apply(Tree,1,sum) == 1)
+  Tree <- Tree[!idx,]
+  if(is.null(dim(Tree)))
+    Tree <- matrix(Tree, nrow=1)
+  Tw <- Tw[!idx]
+  
+  no_group<-	which(colSums(Tree)==0)
+  if(length(no_group)!=0){
+    tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
+    tree_matrix[c(1:nrow(Tree)),]<-Tree
+    count=nrow(Tree)+1
+    for (i in no_group) {
+      
+      tree_matrix[count,i]<-1
+      count=count+1
+    }
+    
+  }else{tree_matrix=Tree}
+  tree_weight<-rep(0,length(Tw)+length(no_group))
+  tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
+  
+  
+  return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
 }
 
 
@@ -400,7 +382,7 @@ cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50
   
   out=list(lambda=fit$Lambdas,cvm=cvm,cvsd=cvsd,cvup = cvm +
              cvsd, cvlo = cvm - cvsd, nz=c(fit$path$nzero),lambda.min=fit$Lambdas[imin,1],lambda.1se=fit$Lambdas[imin.1se,1])
-  
+  class(out)="cv.MADMMplasso"
   
   return(out)
 }
@@ -671,6 +653,7 @@ generate.my.w<- function(X=matrix(),Z=matrix(), quad = TRUE){
   if(quad == FALSE){
     W<- W[,-ind]
   }
+  
   return(W)
 
 }
@@ -1113,7 +1096,11 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   # print(dim(W_hat)); print(dim(beta_hat11))
   y_hat<-model(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
   
-  return(list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,V=V,Q=Q,O=O,P=P,E=E,H=H,EE=EE,HH=HH,beta_hat=beta_hat,y_hat=y_hat))
+  out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,V=V,Q=Q,O=O,P=P,E=E,H=H,EE=EE,HH=HH,beta_hat=beta_hat,y_hat=y_hat)
+  class(out)="admm.MADMMplasso"
+  
+  return(out)
+  
   
 }
 
@@ -1607,18 +1594,22 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # print(c(length(lam_list),length(n_main_terms),length(non_zero_theta),length(obj)  ) )
   
   pred<-data.frame(Lambda=lam,nzero=n_main_terms,nzero_inter=non_zero_theta,OBJ_main=obj)
-  
+  out=list(beta0=BETA0,beta=BETA,BETA_hat=BETA_hat,theta0=THETA0,theta=THETA,path=pred,Lambdas=lam,non_zero=n_main_terms,LOSS=obj,it.obj=my_obj,Y_HAT=Y_HAT)
+  class(out)="MADMMplasso"
   # Return results
-  return (list(beta0=BETA0,beta=BETA,BETA_hat=BETA_hat,theta0=THETA0,theta=THETA,path=pred,Lambdas=lam,non_zero=n_main_terms,LOSS=obj,it.obj=my_obj,Y_HAT=Y_HAT))
+  return (out)
 }
 
 
+#' Compute predicted values from a fitted pliable  object
 
-
-
-
-
-
+#' Make predictions from a fitted pliable lasso model
+#' @param object object returned from a call to pliable
+#' @param X  N by p matrix of predictors
+#' @param Z  n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning
+#'   algorithm that predicts z from test features x  and possibly other features.
+#' @param y N by D matrix  of responses.
+#'  @return  predicted values
 #' @export
 predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
   lambda.arg=lambda
@@ -1628,7 +1619,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
   
   if(!is.null(lambda.arg)){
     
-    isel=as.numeric(knn1(matrix(object$Lambdas[,1],ncol=1),matrix(lambda.arg[,1],ncol=1),1:length(object$Lambdas[,1])))
+    isel=as.numeric(knn1(matrix(object$Lambdas[,1],ncol=1),matrix(lambda.arg,ncol=1),1:length(object$Lambdas[,1])))
     
   }
   
@@ -1792,8 +1783,10 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
 }
 
 
-
-#' @export
+#' plot coefficients from a "MADMMplasso" object
+#'
+#' Produces a coefficient profile plot of the coefficient paths for a fitted
+#' \code{"MADMMplasso"} object for each response.
 
 plot.MADMMplasso=
   function(x){
@@ -1875,27 +1868,34 @@ plotCoeff=
   }
 
 
-#' @export
+
 
 plot.cv.MADMMplasso=
   function(x){
     
     cvobj=x
+    xlab = "log(Lambda)"
     plot.args = list(x = log(as.matrix(cvobj$lambda[,1])), y = as.matrix(cvobj$cvm),
-                     ylim = range(cvobj$cvup, cvobj$cvlo), xlab = "log(lambda)", ylab = "Error",
+                     ylim = range(cvobj$cvup, cvobj$cvlo), xlab = xlab, ylab = "Error",
                      type = "n")
     
+    
+    new.args = list(...)
+    if (length(new.args))
+      plot.args[names(new.args)] = new.args
     do.call("plot", plot.args)
+    error.bars( log(cvobj$lambda[,1]), cvobj$cvup,cvobj$cvlo,
+                width = 0.01, col = "darkgrey")
     points(log(as.matrix(cvobj$lambda[,1])), as.matrix(cvobj$cvm), pch = 20,
            col = "red")
-    
-    abline(v= log(cvobj$lambda.min), lty = 3)
-    abline(v= log(cvobj$lambda.1se), lty = 3)
     axis(side = 3, at =  log(as.matrix(cvobj$lambda[,1])), labels = paste(as.matrix(cvobj$nz)),
          tick = FALSE, line = 0)
     
-    error.bars( log(cvobj$lambda[,1]), cvobj$cvup,cvobj$cvlo,
-                width = 0.01, col = "darkgrey")
+    abline(v= log(cvobj$lambda.min), lty = 3)
+    abline(v= log(cvobj$lambda.1se), lty = 3)
+    invisible()
+    
+    
     
     
   }
