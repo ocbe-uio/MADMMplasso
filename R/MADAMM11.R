@@ -14,126 +14,6 @@
 #' @import parallel
 
 
-
-#' Simulate data for the model 
-#' @param p: column for X which is the main effect 
-#' @param n: number of observations 
-#' #' @param m: number of responses
-
-#' @return  The simulated data with the following components:
-#'  Beta: matrix of actual beta coefficients  p by D
-#'  Theta: a D by p by K array of actual theta coefficients 
-#'  Y: a N by D matrix of response variables
-#'  X: a N by p matrix of covariates
-#'  Z: a N by K matrix of modifiers
-
-
-#' @export
-sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
-  b<-10
-  if(!is.na(p)){
-    # generate covariance matrix
-    Ap1<-matrix(rep(rho,(p/b)^2),nrow=p/b)
-    diag(Ap1)<-rep(1,p/b)
-    # Ap2<-matrix(rep(rho,(p[2]/b)^2),nrow=p[2]/b)
-    #diag(Ap2)<-rep(1,p[2]/b)
-    #Bp12<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[1]/b)
-    #Bp21<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[2]/b)
-    Xsigma1<-Ap1
-    #Xsigma2<-Ap2
-    # Xsigma12<-Bp12
-    #Xsigma21<-Bp21
-    for(i in 2:b){
-      Xsigma1<-bdiag(Xsigma1,Ap1)
-      # Xsigma12<-bdiag(Xsigma12,Bp12)
-      #Xsigma2<-bdiag(Xsigma2,Ap2)
-      #Xsigma21<-bdiag(Xsigma21,Bp21)
-    }
-
-    Xsigma<-rbind(cbind(Xsigma1))
-    X<-	mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
-    #X1<-X[,1:p[1]]
-    #X2<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
-    #X[,(p[1]+1):(p[1]+p[2])]<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
-    # generate uncorrelated error term
-    esd<-diag(m)
-    e<-mvrnorm(n,mu=rep(0,m),Sigma=esd)
-
-    ## generate beta1 matrix
-    Beta1<-matrix(0,nrow=m,ncol=p)
-    theta<-array(0,c(p,nz,m))
-    Beta1[,1]<-B.elem
-    theta[24,4,c(1:3)]<-0.6
-    for(i in 1:2){
-      Beta1[((i-1)*m/2+1):(i*m/2),(1+(i-1)*2+1):(1+i*2)]<-B.elem
-      theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
-    }
-    for(i in 1:4){
-      Beta1[((i-1)*m/4+1):(i*m/4),(1+4*2+(i-1)*4+1):(1+4*2+i*4)]<-B.elem
-      theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
-    }
-    for(i in 1:8){
-      Beta1[((i-1)*m/8+1):(i*m/8),(1+2*2+4*4+(i-1)*8+1):(1+2*2+4*4+i*8)]<-B.elem
-      theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
-    }
-
-
-
-    ## generate beta2 matrix
-    #   Beta2<-matrix(0,nrow=m,ncol=p[2])
-    #   Beta2[,1]<-B.elem[2]
-    #   for(i in 1:3){
-    #     Beta2[((i-1)*m/3+1):(i*m/3),(1+(i-1)*2+1):(1+i*2)]<-B.elem[2]
-    #   }
-    #   for(i in 1:6){
-    #     Beta2[((i-1)*m/6+1):(i*m/6),(1+2*3+(i-1)*4+1):(1+2*3+i*4)]<-B.elem[2]
-    #   }
-    #   for(i in 1:12){
-    #     Beta2[((i-1)*m/12+1):(i*m/12),(1+2*3+4*6+(i-1)*8+1):(1+2*3+4*6+i*8)]<-B.elem[2]
-    #   }
-    #   Beta<-t(cbind(Beta1, Beta2))
-    # }else{
-    #   cat("Ooops!!! Please specify 2-dim p vector, for example p=c(500,150)\n")
-  }
-  Beta<-t((Beta1))
-
-  mx=colMeans(X)
-
-  sx=sqrt(apply(X,2,var))
-  X=scale(X,mx,sx)
-  Z= matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
-  # Z =matrix(rnorm(n*nz),n,nz)
-  #mz=colMeans(Z)
-  # sz=sqrt(apply(Z,2,var))
-
-  #Z=scale(Z,mz,sz)
-
-  pliable = matrix(0,n,m)
-  for (ee in 1:m) {
-    pliable[,ee]<-	compute_pliable(X, Z, theta[,,ee])
-
-  }
-  # meta_matrix<-matrix(0,p[1]+p[1]*nz,m)
-  # for (i in 1:m) {
-  #   meta_matrix[c(1:p),i]<-Beta[,i]
-  #   meta_matrix[-c(1:p),i]<-as.vector(theta[,,i] )
-  # }
-
-
-  #X=matrix(as.numeric(X),N,p)
-  # X= scale(X)
-  Y<-X%*%Beta+pliable+e
-  #Y<-X%*%Beta+e
-
-  # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
-  # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
-  return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
-}
-
-
-
-
-
 convNd2T <- function(Nd, w, w_max){
   # Nd : node list
   # w : a vector of weights for internal nodes
@@ -260,6 +140,126 @@ tree.parms <- function(y=y, h=.7){
   
   return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
 }
+
+
+#' Simulate data for the model 
+#' @param p: column for X which is the main effect 
+#' @param n: number of observations 
+#' #' @param m: number of responses
+
+#' @return  The simulated data with the following components:
+#'  Beta: matrix of actual beta coefficients  p by D
+#'  Theta: a D by p by K array of actual theta coefficients 
+#'  Y: a N by D matrix of response variables
+#'  X: a N by p matrix of covariates
+#'  Z: a N by K matrix of modifiers
+
+
+#' @export
+sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
+  b<-10
+  if(!is.na(p)){
+    # generate covariance matrix
+    Ap1<-matrix(rep(rho,(p/b)^2),nrow=p/b)
+    diag(Ap1)<-rep(1,p/b)
+    # Ap2<-matrix(rep(rho,(p[2]/b)^2),nrow=p[2]/b)
+    #diag(Ap2)<-rep(1,p[2]/b)
+    #Bp12<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[1]/b)
+    #Bp21<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[2]/b)
+    Xsigma1<-Ap1
+    #Xsigma2<-Ap2
+    # Xsigma12<-Bp12
+    #Xsigma21<-Bp21
+    for(i in 2:b){
+      Xsigma1<-bdiag(Xsigma1,Ap1)
+      # Xsigma12<-bdiag(Xsigma12,Bp12)
+      #Xsigma2<-bdiag(Xsigma2,Ap2)
+      #Xsigma21<-bdiag(Xsigma21,Bp21)
+    }
+
+    Xsigma<-rbind(cbind(Xsigma1))
+    X<-	mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
+    #X1<-X[,1:p[1]]
+    #X2<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
+    #X[,(p[1]+1):(p[1]+p[2])]<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
+    # generate uncorrelated error term
+    esd<-diag(m)
+    e<-mvrnorm(n,mu=rep(0,m),Sigma=esd)
+
+    ## generate beta1 matrix
+    Beta1<-matrix(0,nrow=m,ncol=p)
+    theta<-array(0,c(p,nz,m))
+    Beta1[,1]<-B.elem
+    theta[24,4,c(1:3)]<-0.6
+    for(i in 1:2){
+      Beta1[((i-1)*m/2+1):(i*m/2),(1+(i-1)*2+1):(1+i*2)]<-B.elem
+      theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
+    }
+    for(i in 1:4){
+      Beta1[((i-1)*m/4+1):(i*m/4),(1+4*2+(i-1)*4+1):(1+4*2+i*4)]<-B.elem
+      theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
+    }
+    for(i in 1:8){
+      Beta1[((i-1)*m/8+1):(i*m/8),(1+2*2+4*4+(i-1)*8+1):(1+2*2+4*4+i*8)]<-B.elem
+      theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
+    }
+
+
+
+    ## generate beta2 matrix
+    #   Beta2<-matrix(0,nrow=m,ncol=p[2])
+    #   Beta2[,1]<-B.elem[2]
+    #   for(i in 1:3){
+    #     Beta2[((i-1)*m/3+1):(i*m/3),(1+(i-1)*2+1):(1+i*2)]<-B.elem[2]
+    #   }
+    #   for(i in 1:6){
+    #     Beta2[((i-1)*m/6+1):(i*m/6),(1+2*3+(i-1)*4+1):(1+2*3+i*4)]<-B.elem[2]
+    #   }
+    #   for(i in 1:12){
+    #     Beta2[((i-1)*m/12+1):(i*m/12),(1+2*3+4*6+(i-1)*8+1):(1+2*3+4*6+i*8)]<-B.elem[2]
+    #   }
+    #   Beta<-t(cbind(Beta1, Beta2))
+    # }else{
+    #   cat("Ooops!!! Please specify 2-dim p vector, for example p=c(500,150)\n")
+  }
+  Beta<-t((Beta1))
+
+  mx=colMeans(X)
+
+  sx=sqrt(apply(X,2,var))
+  X=scale(X,mx,sx)
+  Z= matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
+  # Z =matrix(rnorm(n*nz),n,nz)
+  #mz=colMeans(Z)
+  # sz=sqrt(apply(Z,2,var))
+
+  #Z=scale(Z,mz,sz)
+
+  pliable = matrix(0,n,m)
+  for (ee in 1:m) {
+    pliable[,ee]<-	compute_pliable(X, Z, theta[,,ee])
+
+  }
+  # meta_matrix<-matrix(0,p[1]+p[1]*nz,m)
+  # for (i in 1:m) {
+  #   meta_matrix[c(1:p),i]<-Beta[,i]
+  #   meta_matrix[-c(1:p),i]<-as.vector(theta[,,i] )
+  # }
+
+
+  #X=matrix(as.numeric(X),N,p)
+  # X= scale(X)
+  Y<-X%*%Beta+pliable+e
+  #Y<-X%*%Beta+e
+
+  # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
+  # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
+  return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
+}
+
+
+
+
 
 
 # Rcpp::cppFunction(
