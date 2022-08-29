@@ -1,685 +1,3 @@
-#' @import Matrix
-#' @import bigalgebra
-#' @import Rcpp
-#' @import RcppArmadillo
-#' @import MASS
-#' @import foreach
-#' @import doParallel
-#' @import pracma
-#' @import class
-#' @import dplyr
-#' @import stats
-#' @import graphics
-#' @import tidyr
-#' @import parallel
-
-
-convNd2T <- function(Nd, w, w_max){
-  # Nd : node list
-  # w : a vector of weights for internal nodes
-  # Tree : VxK matrix
-  #	V is the number of leaf nodes and internal nodes
-  #	K is the number of tasks
-  #	Element (v,k) is set to 1 if task k has a membership to
-  #	the cluster represented by node v. Otherwise, it's 0.
-  # Tw : V vector
-  
-  #===========================
-  find_leaves <- function(Nd, ch, K, Jt, w, Tw){
-    
-    for(ii in 1:length(ch)){
-      if(Nd[ch[ii], 2] > K){
-        leaves0 <- find_leaves(Nd, which(Nd[,1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
-        Jt <- leaves0$Jt
-        Tw <- leaves0$Tw
-      }else
-        Jt <- c(Jt, Nd[ch[ii], 2])
-    }
-    
-    Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
-    
-    return(list(Jt=Jt, Tw=Tw))
-  }
-  #===========================
-  
-  # of leaf nodes
-  K <- Nd[1,1] - 1
-  #V = Nd(size(Nd,1),1);
-  #V = Nd(size(Nd,1),1)-1;		# without the root
-  if(sum(w < w_max)<1){
-    V <- 1 + K
-  }else{
-    ind0 <- which(w < w_max)    # only the internal nodes with w<w_max
-    V <- ind0[length(ind0)] + K
-  }
-  
-  # for leaf nodes
-  I <- 1:K
-  J <- 1:K
-  
-  Tw <- rep(1, V)
-  
-  # for internal nodes
-  for(i in (K+1):V){
-    Jt <- NULL
-    
-    Tw[i] <- Tw[i] * (1 - w[i-K])
-    leaves0 <- find_leaves(Nd, which(Nd[,1] == i), K, Jt, w[i-K], Tw)
-    Jt <- leaves0$Jt
-    Tw <- leaves0$Tw
-    
-    I <- c(I, rep(1,length(Jt)) * i)
-    J <- c(J, Jt)
-  }
-  
-  Tree <- sparseMatrix(i=I, j=J, x=rep(1, length(I)), dims=c(V, K))
-  
-  return(list(Tree=Tree, Tw=Tw))
-  
-}
-
-
-convH2T <- function(H, w_max){
-  K <- dim(H)[1] + 1
-  Nd <- cbind(rep((K+1):(2*K-1), each = 2), as.vector(t(H[,1:2])))
-  W_norm <- H[,3]/max(H[,3])
-  conv0 <- convNd2T(Nd, W_norm, w_max)
-  
-  return(conv0)
-}
-
-fastCorr <- function(A){
-  C <- crossprod(scale(A))/(dim(A)[1]-1)
-  return(C)
-}
-
-#' Fit the hierarchical tree structure 
-#' @param y  N by D matrix of response variables 
-#' #' @param h is the tree cut off
-#' @return  A trained the tree with the following components:
-#' Tree: the tree matrix stored in 1's and 0's 
-#' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix. 
-
-#' @export
-tree.parms <- function(y=y, h=.7){
-  m <- dim(y)[2]
-  myDist0 <- 1 - abs(fastCorr(y))
-  myDist <- myDist0[lower.tri(myDist0)]
-  a0 <- dist(t(y))
-  a0[1:length(a0)] <- myDist
-  # hierarchical clustering for multivariate responses
-  myCluster_0 <- hclust(a0, method = "complete")
-  myCluster <- cbind(ifelse(myCluster_0$merge < 0, - myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)
-  
-  conv0 <- convH2T(myCluster, h)
-  Tree <- conv0$Tree
-  if(is.null(dim(Tree)))
-    Tree <- matrix(Tree, nrow=1)
-  Tw <- conv0$Tw
-  idx <- c(apply(Tree,1,sum) == 1)
-  Tree <- Tree[!idx,]
-  if(is.null(dim(Tree)))
-    Tree <- matrix(Tree, nrow=1)
-  Tw <- Tw[!idx]
-  
-  no_group<-	which(colSums(Tree)==0)
-  if(length(no_group)!=0){
-    tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
-    tree_matrix[c(1:nrow(Tree)),]<-Tree
-    count=nrow(Tree)+1
-    for (i in no_group) {
-      
-      tree_matrix[count,i]<-1
-      count=count+1
-    }
-    
-  }else{tree_matrix=Tree}
-  tree_weight<-rep(0,length(Tw)+length(no_group))
-  tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
-  
-  
-  return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
-}
-
-
-#' Simulate data for the model 
-#' @param p: column for X which is the main effect 
-#' @param n: number of observations 
-#' #' @param m: number of responses
-
-#' @return  The simulated data with the following components:
-#'  Beta: matrix of actual beta coefficients  p by D
-#'  Theta: a D by p by K array of actual theta coefficients 
-#'  Y: a N by D matrix of response variables
-#'  X: a N by p matrix of covariates
-#'  Z: a N by K matrix of modifiers
-
-
-#' @export
-sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
-  b<-10
-  if(!is.na(p)){
-    # generate covariance matrix
-    Ap1<-matrix(rep(rho,(p/b)^2),nrow=p/b)
-    diag(Ap1)<-rep(1,p/b)
-    # Ap2<-matrix(rep(rho,(p[2]/b)^2),nrow=p[2]/b)
-    #diag(Ap2)<-rep(1,p[2]/b)
-    #Bp12<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[1]/b)
-    #Bp21<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[2]/b)
-    Xsigma1<-Ap1
-    #Xsigma2<-Ap2
-    # Xsigma12<-Bp12
-    #Xsigma21<-Bp21
-    for(i in 2:b){
-      Xsigma1<-bdiag(Xsigma1,Ap1)
-      # Xsigma12<-bdiag(Xsigma12,Bp12)
-      #Xsigma2<-bdiag(Xsigma2,Ap2)
-      #Xsigma21<-bdiag(Xsigma21,Bp21)
-    }
-
-    Xsigma<-rbind(cbind(Xsigma1))
-    X<-	mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
-    #X1<-X[,1:p[1]]
-    #X2<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
-    #X[,(p[1]+1):(p[1]+p[2])]<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
-    # generate uncorrelated error term
-    esd<-diag(m)
-    e<-mvrnorm(n,mu=rep(0,m),Sigma=esd)
-
-    ## generate beta1 matrix
-    Beta1<-matrix(0,nrow=m,ncol=p)
-    theta<-array(0,c(p,nz,m))
-    Beta1[,1]<-B.elem
-    theta[24,4,c(1:3)]<-0.6
-    for(i in 1:2){
-      Beta1[((i-1)*m/2+1):(i*m/2),(1+(i-1)*2+1):(1+i*2)]<-B.elem
-      theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
-    }
-    for(i in 1:4){
-      Beta1[((i-1)*m/4+1):(i*m/4),(1+4*2+(i-1)*4+1):(1+4*2+i*4)]<-B.elem
-      theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
-    }
-    for(i in 1:8){
-      Beta1[((i-1)*m/8+1):(i*m/8),(1+2*2+4*4+(i-1)*8+1):(1+2*2+4*4+i*8)]<-B.elem
-      theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
-    }
-
-
-
-    ## generate beta2 matrix
-    #   Beta2<-matrix(0,nrow=m,ncol=p[2])
-    #   Beta2[,1]<-B.elem[2]
-    #   for(i in 1:3){
-    #     Beta2[((i-1)*m/3+1):(i*m/3),(1+(i-1)*2+1):(1+i*2)]<-B.elem[2]
-    #   }
-    #   for(i in 1:6){
-    #     Beta2[((i-1)*m/6+1):(i*m/6),(1+2*3+(i-1)*4+1):(1+2*3+i*4)]<-B.elem[2]
-    #   }
-    #   for(i in 1:12){
-    #     Beta2[((i-1)*m/12+1):(i*m/12),(1+2*3+4*6+(i-1)*8+1):(1+2*3+4*6+i*8)]<-B.elem[2]
-    #   }
-    #   Beta<-t(cbind(Beta1, Beta2))
-    # }else{
-    #   cat("Ooops!!! Please specify 2-dim p vector, for example p=c(500,150)\n")
-  }
-  Beta<-t((Beta1))
-
-  mx=colMeans(X)
-
-  sx=sqrt(apply(X,2,var))
-  X=scale(X,mx,sx)
-  Z= matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
-  # Z =matrix(rnorm(n*nz),n,nz)
-  #mz=colMeans(Z)
-  # sz=sqrt(apply(Z,2,var))
-
-  #Z=scale(Z,mz,sz)
-
-  pliable = matrix(0,n,m)
-  for (ee in 1:m) {
-    pliable[,ee]<-	compute_pliable(X, Z, theta[,,ee])
-
-  }
-  # meta_matrix<-matrix(0,p[1]+p[1]*nz,m)
-  # for (i in 1:m) {
-  #   meta_matrix[c(1:p),i]<-Beta[,i]
-  #   meta_matrix[-c(1:p),i]<-as.vector(theta[,,i] )
-  # }
-
-
-  #X=matrix(as.numeric(X),N,p)
-  # X= scale(X)
-  Y<-X%*%Beta+pliable+e
-  #Y<-X%*%Beta+e
-
-  # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
-  # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
-  return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
-}
-
-
-
-
-
-
-# Rcpp::cppFunction(
-#   depends = "RcppArmadillo",
-#   code    = "
-#     arma::mat tcrossprod_cpp(const arma::mat& x, const arma::mat& y) {
-#       return(x * y.t());
-#     }
-#   "
-# )
-
-
-
-errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
-
-
-#' Carries out cross-validation for  a  pliable lasso model over a path of regularization values
-#' @param fit  object returned by the pliable function
-#' @param X  N by p matrix of predictors
-#' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
-#' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
-#' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
-#' @param nfolds  number of cross-validation folds
-#' #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
-#' @return  predicted values
-
-#' @export
-
-cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel=T,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
-  BIG=10e9
-  no<-nrow(X)
-  ni<-ncol(X)
-  nz<-ncol(Z)
-  ggg=vector("list",nfolds)
-  
-  yhat=array(NA,c(no,dim(y)[2],length(lambda[,1]) ))
-  
-  # yhat=matrix(0,nfolds,length(result$Lambdas))
-  my_nzero<-matrix(0,nfolds,length(lambda[,1]))
-  
-  
-  if(is.null(foldid)) foldid = sample(rep(1:nfolds, ceiling(no/nfolds)), no, replace=FALSE)  #foldid = sample(rep(seq(nfolds), length = no))
-  
-  nfolds=length(table(foldid))
-  
-  status.in=NULL
-  
-  for(ii in 1:nfolds){
-    print(c("fold,", ii))
-    oo=foldid==ii
-    
-    
-    
-    ggg[[ii]]<-   MADMMplasso(X=X[!oo,,drop=F],Z=Z[!oo,,drop=F],y=y[!oo,,drop=F],alpha = alpha,my_lambda=lambda,lambda_min=.01,max_it=max_it,e.abs=e.abs,e.rel=e.rel,nlambda=length(lambda[,1]), rho=rho,tree = TT,my_print = my_print,alph=alph,cv=T,parallel = parallel,pal=pal,gg=gg,tol=tol,cl=cl)
-    
-    
-    
-    cv_p<-predict.MADMMplasso(ggg[[ii]] ,X=X[oo,,drop=F],Z=Z[oo,],y=y[oo,])
-    #PADMM_predict_lasso<-function(object ,X,Z,y,lambda=NULL)
-    
-    #  Coeff<-lapply(seq_len(max(y)),
-    #               function(j)(matrix(0,ncol(X),nlambda)))
-    
-    ggg[[ii]]<-0
-    #for (i in 1:nlambda) {
-    #  f<-Matrix(unlist(ggg[[ii]]$beta[i]),ncol(X),max(y),sparse = T)
-    # for (j in 1:max(y)) {
-    #  Coeff[[j]][,i]<-f[,j]
-    #}
-    
-    # }
-    
-    #nnn_zero<-matrix(0,max(y),nlambda)
-    
-    #for (i in 1:max(y)) {
-    #  q<-matrix(unlist(Coeff[[i]]),ncol(X),nlambda)
-    # nnn_zero[i,]<-colSums(q!=0)
-    
-    
-    # }
-    #non_zero<-matrix(0,nlambda)
-    #for (i in 1:nlambda) {
-    # non_zero[i]<-max(nnn_zero[,i])
-    #}
-    
-    #print(cv_p$deviance)
-    # my_nzero[ii,]<-non_zero
-    # print(unlist(cv_p$y_hat))
-    # print(yhat[oo,])
-    yhat[oo, , seq(nlambda)] = cv_p$y_hat[, , seq(nlambda)]
-    
-    
-    #(result ,X,Z,y,lambda=NULL)
-  }
-  
-  #print(yhat)
-  ym=array(y,dim(yhat))
-  #print(ym)
-  #err<-matrix(0,length(lambda[,1]),dim(y)[2])
-  # for (ii in 1:dim(y)[2]) {
-  err<-apply((ym - yhat)^2,c( 1,3), sum)
-  
-  #
-  mat=err
-  outmat = matrix(NA, nfolds, ncol(mat))
-  good = matrix(0, nfolds, ncol(mat))
-  mat[is.infinite(mat)] = NA
-  for (i in seq(nfolds)) {
-    mati = mat[foldid == i, , drop = FALSE]
-    # wi = weights[foldid == i]
-    outmat[i, ] = apply(mati, 2, mean, na.rm = TRUE)
-    # good[i, seq(nlams[i])] = 1
-  }
-  #
-  #
-  #err= yhat
-  
-  #err=outmat
-  
-  #err <- lapply(seq_len(length(lambda[,1])),
-  #                   function(j) (norm(ym[,,j]-yhat[,,j],type = "F"))^2/(2*N) )
-  
-  #err<-matrix(unlist(err),1)
-  #non_zero<-matrix(0,nlambda)
-  
-  non_zero<-c(fit$path$nzero)
-  
-  cvm=(apply(err,2,mean,na.rm=T))/dim(y)[2]
-  nn=apply(!is.na(err),2,sum,na.rm=T)
-  cvsd=sqrt(apply(err,2,var,na.rm=T)/(dim(y)[2]*nn))
-  
-  #cvm<-colMeans(cvm); cvsd<-colMeans(cvsd)
-  cvm.nz=cvm
-  cvm.nz[non_zero==0]=BIG
-  imin=which.min(cvm.nz)
-  imin.1se=which(cvm< cvm[imin]+cvsd[imin])[1]
-  
-  out=list(lambda=fit$Lambdas,cvm=cvm,cvsd=cvsd,cvup = cvm +
-             cvsd, cvlo = cvm - cvsd, nz=c(fit$path$nzero),lambda.min=fit$Lambdas[imin,1],lambda.1se=fit$Lambdas[imin.1se,1])
-  class(out)="cv.MADMMplasso"
-  
-  return(out)
-}
-
-
-
-#' @export
-error.bars <-function(x, upper, lower, width = 0.02, ...) {
-  xlim <- range(x)
-  barw <- diff(xlim) * width
-  segments(x, upper, x, lower, ...)
-  segments(x - barw, upper, x + barw, upper, ...)
-  segments(x - barw, lower, x + barw, lower, ...)
- # range(upper, lower)
-}
-
-
-
-
-
-S_func <- function(x, a) {  # Soft Thresholding Operator
-  return(pmax(abs(x) - a,0) * sign(x))
-}
-
-#' @export
-compute_pliable<-function(X, Z, theta){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-
-  xz_theta <- lapply(seq_len(p),
-                     function(j) (matrix(X[, j], nrow = N, ncol = K) * Z) %*% t(theta)[, j])
-  xz_term<- (Reduce(f = '+', x = xz_theta))
-
-  return(xz_term)
-
-
-}
-
-
-#' @export
-model<-function(beta0, theta0, beta, theta, X, Z){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-  D=dim(beta0)[2]
-  #The pliable lasso model described in the paper
-  #y ~ f(X)
-
-  #formulated as
-
-  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
-
-
-
-
-  #beta0<-array(0,c(1,1,D))
-
-  #print(D)
-
-  intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
-  #intercepts1<-matrix(0,N,D)
-  #intercepts1[,]<-intercepts
-  #print(intercepts)
-  shared_model = X%*%(beta)
-  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
- # pliable = matrix(0,N,D)
-  #for (e in 1:D) {
-  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-
-  #}
-
-
-
-  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
-
-  return(intercepts+  shared_model )
-}
-
-
-
-model_intercept<-function( beta0, theta0, beta, theta, X, Z){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-  D=dim(beta0)[2]
-  #The pliable lasso model described in the paper
-  #y ~ f(X)
-
-  #formulated as
-
-  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
-
-
-
-
-  #beta0<-array(0,c(1,1,D))
-
-  #print(D)
-
-  #intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
-  #intercepts1<-matrix(0,N,D)
-  #intercepts1[,]<-intercepts
-  #print(intercepts)
-  shared_model = X%*%(beta)
-  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
-  # pliable = matrix(0,N,D)
-  #for (e in 1:D) {
-  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-
-  #}
-
-
-
-  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
-
-  return(  shared_model )
-}
-
-#
-
-
-
-
-objective<-function(beta0,theta0,beta,theta,X,Z,y,alpha,lambda,p,N,IB,W,beta1){
-  #print(length(y))
-
-  loss<- ( norm(y-model(beta0, theta0, beta=beta1, theta, X=W, Z), type="F")^2 )
-  # print(length(matrix(model(beta0, theta0, beta, theta, X, Z),N,1 )))
-  #rbind(matrix(y,nrow  =length(y),ncol =1),matrix(model(beta0, theta0, beta, theta, X, Z),nrow=nrow(X),ncol =1 ))
-  mse=(1 / (2*N )) * loss
-  #beta<-matrix(beta,p,1);theta<-matrix(theta,p,K)
-  #mse = nll_p(beta0,theta0,beta,theta,X,Z,y)
-
-  #lambda=lambda
-
-
-  l_1<-sum(abs(beta))
-  pliable_norm<-matrix(0,dim(y)[2])
-  for (ee in 1:dim(y)[2]) {
-
-    beta11<-beta[,ee]; theta11<-theta[,,ee]
-    norm_1_l=   lapply(seq_len(p),
-                       function(g)(  lambda[ee]*(1-alpha)*(norm(matrix(c(beta11[g],theta11[g,])),type = "F") +norm(matrix(c(theta11[g,])),type = "F") ) + lambda[ee]*alpha* sum(abs(theta11[g,]))      ))
-    #
-
-
-    pliable_norm[ee]<- sum(unlist(norm_1_l))
-
-  }
-  objective_l <- mse +(1-alpha)*min(lambda/4)*IB+(1-alpha)*min(lambda/4)*l_1+ sum(pliable_norm)
-  #pr<-(sign(y_hat_l))
-
-
-  # prob_d <-matrix((pr))
-  #objective_l=apply(apply(prob_d, 2, FUN="!=", y), 2, sum)/length(y)
-
-  return( objective_l)
-}
-
-
-
-count_nonzero_a<-function(x){
-  if (length(dim(x))==3 ) {
-    count1<-matrix(0,dim(x)[3])
-    for (ww in 1:dim(x)[3] ) {
-      n = sum(x[,,ww]!=0)
-      # for (i in 1: length(x[,,ww])){
-      #   tet<-x[,,ww]
-      #   if ( isTRUE(abs(tet[i])>0)==T ){
-      #     n=n + 1
-      #   }
-      # }
-      
-      count1[ww]<-n
-    }
-    n=max(count1)
-  } else{
-    count1<-matrix(0,dim(x)[2])
-    for (ww in 1:dim(x)[2] ) {
-      n = sum(x[,ww]!=0)
-      # for (i in 1: length(x[,ww])){
-      #   tet<-x[,ww]
-      #   if (isTRUE(abs(tet[i])>0)==T ){
-      #     n=n + 1
-      #   }
-      # }
-      
-      count1[ww]<-n
-    }
-    n=max(count1)
-    
-    
-    
-  }
-  
-  
-  
-  return (n)
-  
-}
-
-
-
-
-#' @export
-
-reg<-function(r,Z){
-  K=ncol(Z)
-  N=nrow(Z)
-  #r=rowMeans(r)
-  #r=matrix(r,ncol = 1)
-  beta01<-matrix(0,1,ncol(r))
-  theta01<-matrix(0,ncol(Z),ncol(r))
-  for (e in 1:ncol(r)) {
-    
-    
-    #my_one<-matrix(1,nrow(Z))
-    #my_w=data.frame(Z)
-    #my_w<-as.matrix(my_w)
-    #my_inv<-pinv((t(my_w)%*%my_w)/N)
-    #my_res<-my_inv%*%( (t(my_w)%*%r[,e])/N )
-    #new<- lm(r[,e]~1,na.action=na.exclude,singular.ok = TRUE)
-    
-    
-    #beta01[e]<-matrix(my_res[(K+1)])
-    new1<- lm(r[,e]~Z,singular.ok = TRUE)
-    beta01[e]<-matrix(new1$coefficients[1])
-    theta01[,e]<- as.vector(new1$coefficients[-1] )
-    #theta01[,e]<- matrix(my_res[c(1:K )])
-    
-  }
-  # print(beta0)
-  # print(theta0)
-  return(list(beta0=beta01,theta0=theta01))
-}
-
-
-
-
-
-quick.func<- function(xz = c(),xn){
-  as.vector(xz[1:xn]%o%xz[-(1:xn)])
-}
-
-#' Generate the matrix \widetilde{W} as used in Appendix I for use in the function.
-#' @export
-generate.my.w<- function(X=matrix(),Z=matrix(), quad = TRUE){
-
-  p1<- ncol(X)
-  p2<- ncol(Z)
-
-  if(quad == FALSE){
-    p<- p1
-    if(p1!=p2) stop("To remove quadtratic terms p1 must be equal to p2")
-    ind<- (1:p)*p + (2*(1:p)+1)
-  }
-
-  #Just in case we have only one oberservation? Not sure why I did this
-  if(is.vector(X)) p1<- length(X)
-  if(is.vector(Z)) p2<- length(Z)
-
-  #Add the intercept
-  x<- X
-  z<- cbind(1,Z)
-
-  W<- t(apply(cbind(x,z),1,quick.func,xn= p1))
-  if(quad == FALSE){
-    W<- W[,-ind]
-  }
-  
-  return(W)
-
-}
-
-
-twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
-
-
-
 #' Fit the ADMM part of  model for a given lambda vale
 #' @param X  n by p matrix of predictors
 #' @param Z n by nz matrix of modifying variables. The elements of z  may represent quantitative or categorical variables, or a mixture of the two.
@@ -1616,6 +934,673 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # Return results
   return (out)
 }
+
+
+convNd2T <- function(Nd, w, w_max){
+  # Nd : node list
+  # w : a vector of weights for internal nodes
+  # Tree : VxK matrix
+  #	V is the number of leaf nodes and internal nodes
+  #	K is the number of tasks
+  #	Element (v,k) is set to 1 if task k has a membership to
+  #	the cluster represented by node v. Otherwise, it's 0.
+  # Tw : V vector
+  
+  #===========================
+  find_leaves <- function(Nd, ch, K, Jt, w, Tw){
+    
+    for(ii in 1:length(ch)){
+      if(Nd[ch[ii], 2] > K){
+        leaves0 <- find_leaves(Nd, which(Nd[,1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
+        Jt <- leaves0$Jt
+        Tw <- leaves0$Tw
+      }else
+        Jt <- c(Jt, Nd[ch[ii], 2])
+    }
+    
+    Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
+    
+    return(list(Jt=Jt, Tw=Tw))
+  }
+  #===========================
+  
+  # of leaf nodes
+  K <- Nd[1,1] - 1
+  #V = Nd(size(Nd,1),1);
+  #V = Nd(size(Nd,1),1)-1;		# without the root
+  if(sum(w < w_max)<1){
+    V <- 1 + K
+  }else{
+    ind0 <- which(w < w_max)    # only the internal nodes with w<w_max
+    V <- ind0[length(ind0)] + K
+  }
+  
+  # for leaf nodes
+  I <- 1:K
+  J <- 1:K
+  
+  Tw <- rep(1, V)
+  
+  # for internal nodes
+  for(i in (K+1):V){
+    Jt <- NULL
+    
+    Tw[i] <- Tw[i] * (1 - w[i-K])
+    leaves0 <- find_leaves(Nd, which(Nd[,1] == i), K, Jt, w[i-K], Tw)
+    Jt <- leaves0$Jt
+    Tw <- leaves0$Tw
+    
+    I <- c(I, rep(1,length(Jt)) * i)
+    J <- c(J, Jt)
+  }
+  
+  Tree <- sparseMatrix(i=I, j=J, x=rep(1, length(I)), dims=c(V, K))
+  
+  return(list(Tree=Tree, Tw=Tw))
+  
+}
+
+
+convH2T <- function(H, w_max){
+  K <- dim(H)[1] + 1
+  Nd <- cbind(rep((K+1):(2*K-1), each = 2), as.vector(t(H[,1:2])))
+  W_norm <- H[,3]/max(H[,3])
+  conv0 <- convNd2T(Nd, W_norm, w_max)
+  
+  return(conv0)
+}
+
+fastCorr <- function(A){
+  C <- crossprod(scale(A))/(dim(A)[1]-1)
+  return(C)
+}
+
+#' Fit the hierarchical tree structure 
+#' @param y  N by D matrix of response variables 
+#' #' @param h is the tree cut off
+#' @return  A trained the tree with the following components:
+#' Tree: the tree matrix stored in 1's and 0's 
+#' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix. 
+
+#' @export
+tree.parms <- function(y=y, h=.7){
+  m <- dim(y)[2]
+  myDist0 <- 1 - abs(fastCorr(y))
+  myDist <- myDist0[lower.tri(myDist0)]
+  a0 <- dist(t(y))
+  a0[1:length(a0)] <- myDist
+  # hierarchical clustering for multivariate responses
+  myCluster_0 <- hclust(a0, method = "complete")
+  myCluster <- cbind(ifelse(myCluster_0$merge < 0, - myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)
+  
+  conv0 <- convH2T(myCluster, h)
+  Tree <- conv0$Tree
+  if(is.null(dim(Tree)))
+    Tree <- matrix(Tree, nrow=1)
+  Tw <- conv0$Tw
+  idx <- c(apply(Tree,1,sum) == 1)
+  Tree <- Tree[!idx,]
+  if(is.null(dim(Tree)))
+    Tree <- matrix(Tree, nrow=1)
+  Tw <- Tw[!idx]
+  
+  no_group<-	which(colSums(Tree)==0)
+  if(length(no_group)!=0){
+    tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
+    tree_matrix[c(1:nrow(Tree)),]<-Tree
+    count=nrow(Tree)+1
+    for (i in no_group) {
+      
+      tree_matrix[count,i]<-1
+      count=count+1
+    }
+    
+  }else{tree_matrix=Tree}
+  tree_weight<-rep(0,length(Tw)+length(no_group))
+  tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
+  
+  
+  return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
+}
+
+
+#' Simulate data for the model 
+#' @param p: column for X which is the main effect 
+#' @param n: number of observations 
+#' #' @param m: number of responses
+
+#' @return  The simulated data with the following components:
+#'  Beta: matrix of actual beta coefficients  p by D
+#'  Theta: a D by p by K array of actual theta coefficients 
+#'  Y: a N by D matrix of response variables
+#'  X: a N by p matrix of covariates
+#'  Z: a N by K matrix of modifiers
+
+
+#' @export
+sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
+  b<-10
+  if(!is.na(p)){
+    # generate covariance matrix
+    Ap1<-matrix(rep(rho,(p/b)^2),nrow=p/b)
+    diag(Ap1)<-rep(1,p/b)
+    # Ap2<-matrix(rep(rho,(p[2]/b)^2),nrow=p[2]/b)
+    #diag(Ap2)<-rep(1,p[2]/b)
+    #Bp12<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[1]/b)
+    #Bp21<-matrix(rep(rho,p[1]/b*p[2]/b),nrow=p[2]/b)
+    Xsigma1<-Ap1
+    #Xsigma2<-Ap2
+    # Xsigma12<-Bp12
+    #Xsigma21<-Bp21
+    for(i in 2:b){
+      Xsigma1<-bdiag(Xsigma1,Ap1)
+      # Xsigma12<-bdiag(Xsigma12,Bp12)
+      #Xsigma2<-bdiag(Xsigma2,Ap2)
+      #Xsigma21<-bdiag(Xsigma21,Bp21)
+    }
+
+    Xsigma<-rbind(cbind(Xsigma1))
+    X<-	mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
+    #X1<-X[,1:p[1]]
+    #X2<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
+    #X[,(p[1]+1):(p[1]+p[2])]<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
+    # generate uncorrelated error term
+    esd<-diag(m)
+    e<-mvrnorm(n,mu=rep(0,m),Sigma=esd)
+
+    ## generate beta1 matrix
+    Beta1<-matrix(0,nrow=m,ncol=p)
+    theta<-array(0,c(p,nz,m))
+    Beta1[,1]<-B.elem
+    theta[24,4,c(1:3)]<-0.6
+    for(i in 1:2){
+      Beta1[((i-1)*m/2+1):(i*m/2),(1+(i-1)*2+1):(1+i*2)]<-B.elem
+      theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
+    }
+    for(i in 1:4){
+      Beta1[((i-1)*m/4+1):(i*m/4),(1+4*2+(i-1)*4+1):(1+4*2+i*4)]<-B.elem
+      theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
+    }
+    for(i in 1:8){
+      Beta1[((i-1)*m/8+1):(i*m/8),(1+2*2+4*4+(i-1)*8+1):(1+2*2+4*4+i*8)]<-B.elem
+      theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
+    }
+
+
+
+    ## generate beta2 matrix
+    #   Beta2<-matrix(0,nrow=m,ncol=p[2])
+    #   Beta2[,1]<-B.elem[2]
+    #   for(i in 1:3){
+    #     Beta2[((i-1)*m/3+1):(i*m/3),(1+(i-1)*2+1):(1+i*2)]<-B.elem[2]
+    #   }
+    #   for(i in 1:6){
+    #     Beta2[((i-1)*m/6+1):(i*m/6),(1+2*3+(i-1)*4+1):(1+2*3+i*4)]<-B.elem[2]
+    #   }
+    #   for(i in 1:12){
+    #     Beta2[((i-1)*m/12+1):(i*m/12),(1+2*3+4*6+(i-1)*8+1):(1+2*3+4*6+i*8)]<-B.elem[2]
+    #   }
+    #   Beta<-t(cbind(Beta1, Beta2))
+    # }else{
+    #   cat("Ooops!!! Please specify 2-dim p vector, for example p=c(500,150)\n")
+  }
+  Beta<-t((Beta1))
+
+  mx=colMeans(X)
+
+  sx=sqrt(apply(X,2,var))
+  X=scale(X,mx,sx)
+  Z= matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
+  # Z =matrix(rnorm(n*nz),n,nz)
+  #mz=colMeans(Z)
+  # sz=sqrt(apply(Z,2,var))
+
+  #Z=scale(Z,mz,sz)
+
+  pliable = matrix(0,n,m)
+  for (ee in 1:m) {
+    pliable[,ee]<-	compute_pliable(X, Z, theta[,,ee])
+
+  }
+  # meta_matrix<-matrix(0,p[1]+p[1]*nz,m)
+  # for (i in 1:m) {
+  #   meta_matrix[c(1:p),i]<-Beta[,i]
+  #   meta_matrix[-c(1:p),i]<-as.vector(theta[,,i] )
+  # }
+
+
+  #X=matrix(as.numeric(X),N,p)
+  # X= scale(X)
+  Y<-X%*%Beta+pliable+e
+  #Y<-X%*%Beta+e
+
+  # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
+  # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
+  return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
+}
+
+
+
+
+
+
+# Rcpp::cppFunction(
+#   depends = "RcppArmadillo",
+#   code    = "
+#     arma::mat tcrossprod_cpp(const arma::mat& x, const arma::mat& y) {
+#       return(x * y.t());
+#     }
+#   "
+# )
+
+
+
+errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
+
+
+#' Carries out cross-validation for  a  pliable lasso model over a path of regularization values
+#' @param fit  object returned by the pliable function
+#' @param X  N by p matrix of predictors
+#' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
+#' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
+#' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
+#' @param nfolds  number of cross-validation folds
+#' #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
+#' @return  predicted values
+
+#' @export
+
+cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel=T,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
+  BIG=10e9
+  no<-nrow(X)
+  ni<-ncol(X)
+  nz<-ncol(Z)
+  ggg=vector("list",nfolds)
+  
+  yhat=array(NA,c(no,dim(y)[2],length(lambda[,1]) ))
+  
+  # yhat=matrix(0,nfolds,length(result$Lambdas))
+  my_nzero<-matrix(0,nfolds,length(lambda[,1]))
+  
+  
+  if(is.null(foldid)) foldid = sample(rep(1:nfolds, ceiling(no/nfolds)), no, replace=FALSE)  #foldid = sample(rep(seq(nfolds), length = no))
+  
+  nfolds=length(table(foldid))
+  
+  status.in=NULL
+  
+  for(ii in 1:nfolds){
+    print(c("fold,", ii))
+    oo=foldid==ii
+    
+    
+    
+    ggg[[ii]]<-   MADMMplasso(X=X[!oo,,drop=F],Z=Z[!oo,,drop=F],y=y[!oo,,drop=F],alpha = alpha,my_lambda=lambda,lambda_min=.01,max_it=max_it,e.abs=e.abs,e.rel=e.rel,nlambda=length(lambda[,1]), rho=rho,tree = TT,my_print = my_print,alph=alph,cv=T,parallel = parallel,pal=pal,gg=gg,tol=tol,cl=cl)
+    
+    
+    
+    cv_p<-predict.MADMMplasso(ggg[[ii]] ,X=X[oo,,drop=F],Z=Z[oo,],y=y[oo,])
+    #PADMM_predict_lasso<-function(object ,X,Z,y,lambda=NULL)
+    
+    #  Coeff<-lapply(seq_len(max(y)),
+    #               function(j)(matrix(0,ncol(X),nlambda)))
+    
+    ggg[[ii]]<-0
+    #for (i in 1:nlambda) {
+    #  f<-Matrix(unlist(ggg[[ii]]$beta[i]),ncol(X),max(y),sparse = T)
+    # for (j in 1:max(y)) {
+    #  Coeff[[j]][,i]<-f[,j]
+    #}
+    
+    # }
+    
+    #nnn_zero<-matrix(0,max(y),nlambda)
+    
+    #for (i in 1:max(y)) {
+    #  q<-matrix(unlist(Coeff[[i]]),ncol(X),nlambda)
+    # nnn_zero[i,]<-colSums(q!=0)
+    
+    
+    # }
+    #non_zero<-matrix(0,nlambda)
+    #for (i in 1:nlambda) {
+    # non_zero[i]<-max(nnn_zero[,i])
+    #}
+    
+    #print(cv_p$deviance)
+    # my_nzero[ii,]<-non_zero
+    # print(unlist(cv_p$y_hat))
+    # print(yhat[oo,])
+    yhat[oo, , seq(nlambda)] = cv_p$y_hat[, , seq(nlambda)]
+    
+    
+    #(result ,X,Z,y,lambda=NULL)
+  }
+  
+  #print(yhat)
+  ym=array(y,dim(yhat))
+  #print(ym)
+  #err<-matrix(0,length(lambda[,1]),dim(y)[2])
+  # for (ii in 1:dim(y)[2]) {
+  err<-apply((ym - yhat)^2,c( 1,3), sum)
+  
+  #
+  mat=err
+  outmat = matrix(NA, nfolds, ncol(mat))
+  good = matrix(0, nfolds, ncol(mat))
+  mat[is.infinite(mat)] = NA
+  for (i in seq(nfolds)) {
+    mati = mat[foldid == i, , drop = FALSE]
+    # wi = weights[foldid == i]
+    outmat[i, ] = apply(mati, 2, mean, na.rm = TRUE)
+    # good[i, seq(nlams[i])] = 1
+  }
+  #
+  #
+  #err= yhat
+  
+  #err=outmat
+  
+  #err <- lapply(seq_len(length(lambda[,1])),
+  #                   function(j) (norm(ym[,,j]-yhat[,,j],type = "F"))^2/(2*N) )
+  
+  #err<-matrix(unlist(err),1)
+  #non_zero<-matrix(0,nlambda)
+  
+  non_zero<-c(fit$path$nzero)
+  
+  cvm=(apply(err,2,mean,na.rm=T))/dim(y)[2]
+  nn=apply(!is.na(err),2,sum,na.rm=T)
+  cvsd=sqrt(apply(err,2,var,na.rm=T)/(dim(y)[2]*nn))
+  
+  #cvm<-colMeans(cvm); cvsd<-colMeans(cvsd)
+  cvm.nz=cvm
+  cvm.nz[non_zero==0]=BIG
+  imin=which.min(cvm.nz)
+  imin.1se=which(cvm< cvm[imin]+cvsd[imin])[1]
+  
+  out=list(lambda=fit$Lambdas,cvm=cvm,cvsd=cvsd,cvup = cvm +
+             cvsd, cvlo = cvm - cvsd, nz=c(fit$path$nzero),lambda.min=fit$Lambdas[imin,1],lambda.1se=fit$Lambdas[imin.1se,1])
+  class(out)="cv.MADMMplasso"
+  
+  return(out)
+}
+
+
+
+#' @export
+error.bars <-function(x, upper, lower, width = 0.02, ...) {
+  xlim <- range(x)
+  barw <- diff(xlim) * width
+  segments(x, upper, x, lower, ...)
+  segments(x - barw, upper, x + barw, upper, ...)
+  segments(x - barw, lower, x + barw, lower, ...)
+ # range(upper, lower)
+}
+
+
+
+
+
+S_func <- function(x, a) {  # Soft Thresholding Operator
+  return(pmax(abs(x) - a,0) * sign(x))
+}
+
+#' @export
+compute_pliable<-function(X, Z, theta){
+  p=ncol(X)
+  N=nrow(X)
+  K=ncol(Z)
+
+  xz_theta <- lapply(seq_len(p),
+                     function(j) (matrix(X[, j], nrow = N, ncol = K) * Z) %*% t(theta)[, j])
+  xz_term<- (Reduce(f = '+', x = xz_theta))
+
+  return(xz_term)
+
+
+}
+
+
+#' @export
+model<-function(beta0, theta0, beta, theta, X, Z){
+  p=ncol(X)
+  N=nrow(X)
+  K=ncol(Z)
+  D=dim(beta0)[2]
+  #The pliable lasso model described in the paper
+  #y ~ f(X)
+
+  #formulated as
+
+  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
+
+
+
+
+  #beta0<-array(0,c(1,1,D))
+
+  #print(D)
+
+  intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
+  #intercepts1<-matrix(0,N,D)
+  #intercepts1[,]<-intercepts
+  #print(intercepts)
+  shared_model = X%*%(beta)
+  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
+ # pliable = matrix(0,N,D)
+  #for (e in 1:D) {
+  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
+
+  #}
+
+
+
+  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
+
+  return(intercepts+  shared_model )
+}
+
+
+
+model_intercept<-function( beta0, theta0, beta, theta, X, Z){
+  p=ncol(X)
+  N=nrow(X)
+  K=ncol(Z)
+  D=dim(beta0)[2]
+  #The pliable lasso model described in the paper
+  #y ~ f(X)
+
+  #formulated as
+
+  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
+
+
+
+
+  #beta0<-array(0,c(1,1,D))
+
+  #print(D)
+
+  #intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
+  #intercepts1<-matrix(0,N,D)
+  #intercepts1[,]<-intercepts
+  #print(intercepts)
+  shared_model = X%*%(beta)
+  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
+  # pliable = matrix(0,N,D)
+  #for (e in 1:D) {
+  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
+
+  #}
+
+
+
+  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
+
+  return(  shared_model )
+}
+
+#
+
+
+
+
+objective<-function(beta0,theta0,beta,theta,X,Z,y,alpha,lambda,p,N,IB,W,beta1){
+  #print(length(y))
+
+  loss<- ( norm(y-model(beta0, theta0, beta=beta1, theta, X=W, Z), type="F")^2 )
+  # print(length(matrix(model(beta0, theta0, beta, theta, X, Z),N,1 )))
+  #rbind(matrix(y,nrow  =length(y),ncol =1),matrix(model(beta0, theta0, beta, theta, X, Z),nrow=nrow(X),ncol =1 ))
+  mse=(1 / (2*N )) * loss
+  #beta<-matrix(beta,p,1);theta<-matrix(theta,p,K)
+  #mse = nll_p(beta0,theta0,beta,theta,X,Z,y)
+
+  #lambda=lambda
+
+
+  l_1<-sum(abs(beta))
+  pliable_norm<-matrix(0,dim(y)[2])
+  for (ee in 1:dim(y)[2]) {
+
+    beta11<-beta[,ee]; theta11<-theta[,,ee]
+    norm_1_l=   lapply(seq_len(p),
+                       function(g)(  lambda[ee]*(1-alpha)*(norm(matrix(c(beta11[g],theta11[g,])),type = "F") +norm(matrix(c(theta11[g,])),type = "F") ) + lambda[ee]*alpha* sum(abs(theta11[g,]))      ))
+    #
+
+
+    pliable_norm[ee]<- sum(unlist(norm_1_l))
+
+  }
+  objective_l <- mse +(1-alpha)*min(lambda/4)*IB+(1-alpha)*min(lambda/4)*l_1+ sum(pliable_norm)
+  #pr<-(sign(y_hat_l))
+
+
+  # prob_d <-matrix((pr))
+  #objective_l=apply(apply(prob_d, 2, FUN="!=", y), 2, sum)/length(y)
+
+  return( objective_l)
+}
+
+
+
+count_nonzero_a<-function(x){
+  if (length(dim(x))==3 ) {
+    count1<-matrix(0,dim(x)[3])
+    for (ww in 1:dim(x)[3] ) {
+      n = sum(x[,,ww]!=0)
+      # for (i in 1: length(x[,,ww])){
+      #   tet<-x[,,ww]
+      #   if ( isTRUE(abs(tet[i])>0)==T ){
+      #     n=n + 1
+      #   }
+      # }
+      
+      count1[ww]<-n
+    }
+    n=max(count1)
+  } else{
+    count1<-matrix(0,dim(x)[2])
+    for (ww in 1:dim(x)[2] ) {
+      n = sum(x[,ww]!=0)
+      # for (i in 1: length(x[,ww])){
+      #   tet<-x[,ww]
+      #   if (isTRUE(abs(tet[i])>0)==T ){
+      #     n=n + 1
+      #   }
+      # }
+      
+      count1[ww]<-n
+    }
+    n=max(count1)
+    
+    
+    
+  }
+  
+  
+  
+  return (n)
+  
+}
+
+
+
+
+#' @export
+
+reg<-function(r,Z){
+  K=ncol(Z)
+  N=nrow(Z)
+  #r=rowMeans(r)
+  #r=matrix(r,ncol = 1)
+  beta01<-matrix(0,1,ncol(r))
+  theta01<-matrix(0,ncol(Z),ncol(r))
+  for (e in 1:ncol(r)) {
+    
+    
+    #my_one<-matrix(1,nrow(Z))
+    #my_w=data.frame(Z)
+    #my_w<-as.matrix(my_w)
+    #my_inv<-pinv((t(my_w)%*%my_w)/N)
+    #my_res<-my_inv%*%( (t(my_w)%*%r[,e])/N )
+    #new<- lm(r[,e]~1,na.action=na.exclude,singular.ok = TRUE)
+    
+    
+    #beta01[e]<-matrix(my_res[(K+1)])
+    new1<- lm(r[,e]~Z,singular.ok = TRUE)
+    beta01[e]<-matrix(new1$coefficients[1])
+    theta01[,e]<- as.vector(new1$coefficients[-1] )
+    #theta01[,e]<- matrix(my_res[c(1:K )])
+    
+  }
+  # print(beta0)
+  # print(theta0)
+  return(list(beta0=beta01,theta0=theta01))
+}
+
+
+
+
+
+quick.func<- function(xz = c(),xn){
+  as.vector(xz[1:xn]%o%xz[-(1:xn)])
+}
+
+#' Generate the matrix \widetilde{W} as used in Appendix I for use in the function.
+#' @export
+generate.my.w<- function(X=matrix(),Z=matrix(), quad = TRUE){
+
+  p1<- ncol(X)
+  p2<- ncol(Z)
+
+  if(quad == FALSE){
+    p<- p1
+    if(p1!=p2) stop("To remove quadtratic terms p1 must be equal to p2")
+    ind<- (1:p)*p + (2*(1:p)+1)
+  }
+
+  #Just in case we have only one oberservation? Not sure why I did this
+  if(is.vector(X)) p1<- length(X)
+  if(is.vector(Z)) p2<- length(Z)
+
+  #Add the intercept
+  x<- X
+  z<- cbind(1,Z)
+
+  W<- t(apply(cbind(x,z),1,quick.func,xn= p1))
+  if(quad == FALSE){
+    W<- W[,-ind]
+  }
+  
+  return(W)
+
+}
+
+
+twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
+
+
 
 
 #' Compute predicted values from a fitted pliable  object

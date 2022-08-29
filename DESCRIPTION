@@ -5,7 +5,7 @@ Authors@R:
     person("Theophilus", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre"))
 Description: This system allows one to model a multi response problem that has correlation among the
 	responses and also has main and interaction effects among the covariates.
-Imports:
+Depends:
     dplyr,
     tidyr,
     Matrix,
@@ -20,10 +20,8 @@ Imports:
     graphics,
     parallel,
     stats
-License: MIT + file LICENSE
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
-Suggests: 
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
