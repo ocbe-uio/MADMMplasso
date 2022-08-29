@@ -1061,7 +1061,7 @@ tree.parms <- function(y=y, h=.7){
   #tree_weight<-rep(0,length(Tw)+length(no_group))
   #tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
   out=list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y))
-  class(out)="tree.parms"
+  
   return(out )
 }
 
@@ -1179,7 +1179,7 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
   # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
   # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
   out=list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p)
-  class(out)="sim2"
+  #class(out)="sim2"
   return(out)
 }
 
@@ -1791,11 +1791,6 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
   return(out)
 }
 
-
-#' plot coefficients from a "MADMMplasso" object
-#'
-#' Produces a coefficient profile plot of the coefficient paths for a fitted
-#' \code{"MADMMplasso"} object for each response.
 
 plot.MADMMplasso=
   function(x){
