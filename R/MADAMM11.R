@@ -1060,9 +1060,9 @@ tree.parms <- function(y=y, h=.7){
   #}else{tree_matrix=Tree}
   #tree_weight<-rep(0,length(Tw)+length(no_group))
   #tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
-  
-  
-  return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
+  out=list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y))
+  class(out)="tree.parms"
+  return(out )
 }
 
 
@@ -1178,7 +1178,9 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
 
   # Z <- matrix(rbinom(n = n*nz, size = 1, prob = 0.5), nrow = n, ncol = nz)
   # Y=Y+rep(rowSums(cbind(0.6*X[,1]*Z[,1],0.6*X[,3]*Z[,2],0.6*X[,10]*Z[,3],0.6*X[,12]*Z[,4])),m)
-  return(list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p))
+  out=list(Y=Y, X=X,Z=Z, Beta=Beta,Theta=theta, e=e, p=p)
+  class(out)="sim2"
+  return(out)
 }
 
 
@@ -1358,6 +1360,7 @@ compute_pliable<-function(X, Z, theta){
                      function(j) (matrix(X[, j], nrow = N, ncol = K) * Z) %*% t(theta)[, j])
   xz_term<- (Reduce(f = '+', x = xz_theta))
 
+  
   return(xz_term)
 
 
@@ -1783,7 +1786,9 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
     yh[,,ii]<- (n_i)
     
   }
-  return(list(y_hat=yh,beta0=pBETA0,beta=pBETA,beta_hat=pBETA_hat,theta0=pTHETA0,theta=pTHETA,deviance=DEV))
+  out=list(y_hat=yh,beta0=pBETA0,beta=pBETA,beta_hat=pBETA_hat,theta0=pTHETA0,theta=pTHETA,deviance=DEV)
+  #class(out)="predict"
+  return(out)
 }
 
 
