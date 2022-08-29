@@ -10,6 +10,7 @@ Depends:
     tidyr,
     Matrix,
     bigalgebra,
+    SparseM,
     Rcpp,
     RcppArmadillo,
     MASS,
