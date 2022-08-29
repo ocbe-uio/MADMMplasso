@@ -817,7 +817,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       #my_beta_jj<-XtY[,jj]/N  +as.vector(new_group) +as.vector(rho*(Q[,,jj]-P[,,jj] ))
       # my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(res_val1[,jj])+as.vector(rho*(Q[,,jj]-P[,,jj] ))
-      my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(rho*(Q[,,jj]-P[,,jj] ))+as.vector(rho*(EE[,,jj]-HH[,,jj] ))
+      my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(rho*(Q[,,jj]-P[,,jj] ))#+as.vector(rho*(EE[,,jj]-HH[,,jj] ))
       
       my_beta_jj<-matrix(my_beta_jj,ncol = 1)
       
@@ -1219,9 +1219,9 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
                         return(lam_i)
                       }      )
     
-    gg1= seq((gg[1,1]),(gg[2,1]),length=maxgrid)
-    gg2= seq((gg[1,2]),(gg[2,2]),length=maxgrid)
-    gg=cbind(gg1,gg2)
+    gg1= seq((gg[1]),(gg[2]),length=maxgrid)
+    #gg2= seq((gg[1,2]),(gg[2,2]),length=maxgrid)
+    gg=gg1
     #print(dim(gg))
     #	Lambda_min<- rat*big_lambda
     
@@ -1234,9 +1234,9 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     
   }else{
     lambda_i<-my_lambda
-    gg1= exp(seq((gg[1,1]),(gg[2,1]),length=nlambda))
-    gg2= exp(seq((gg[1,2]),(gg[2,2]),length=nlambda))
-    gg=cbind(gg1,gg2)
+    gg1= exp(seq((gg[1]),(gg[2]),length=nlambda))
+    #gg2= exp(seq((gg[1,2]),(gg[2,2]),length=nlambda))
+    gg=gg1
   }
   
   lam_list = list()
@@ -1384,7 +1384,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   invmat<-list() #denominator of the beta estimates
   for (rr in 1:D) {
     
-    DD1<-rho1*(new_I[rr]+1)
+    DD1<-rho1*(new_I[rr])
     
     #DD1<-rho1*(obv_beta_matrix)
     
@@ -1458,12 +1458,12 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     registerDoParallel(numCores)
     
     my_values<- foreach (i=1:nlambda, .combine=rbind) %dopar% {
-      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i,])
+      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i])
     }
     
   }else if(parallel==F & pal==0){
     my_values=   lapply(seq_len(nlambda),
-                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[g,])      ))
+                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[g])      ))
     
   }
   
