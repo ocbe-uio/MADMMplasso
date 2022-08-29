@@ -1044,20 +1044,20 @@ tree.parms <- function(y=y, h=.7){
     Tree <- matrix(Tree, nrow=1)
   Tw <- Tw[!idx]
   
-  no_group<-	which(colSums(Tree)==0)
-  if(length(no_group)!=0){
-    tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
-    tree_matrix[c(1:nrow(Tree)),]<-Tree
-    count=nrow(Tree)+1
-    for (i in no_group) {
+  #no_group<-	which(colSums(Tree)==0)
+  #if(length(no_group)!=0){
+  #  tree_matrix<-Matrix(0,(nrow(Tree)+length(no_group)),dim(y)[2],sparse = T )
+   # tree_matrix[c(1:nrow(Tree)),]<-Tree
+   # count=nrow(Tree)+1
+   # for (i in no_group) {
       
-      tree_matrix[count,i]<-1
-      count=count+1
-    }
+    #  tree_matrix[count,i]<-1
+    #  count=count+1
+   # }
     
-  }else{tree_matrix=Tree}
-  tree_weight<-rep(0,length(Tw)+length(no_group))
-  tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
+  #}else{tree_matrix=Tree}
+  #tree_weight<-rep(0,length(Tw)+length(no_group))
+  #tree_weight[1:length(Tw)]<-Tw;tree_weight[-c(1:length(Tw))]<-1
   
   
   return(list(Tree=Tree, Tw=Tw,h_clust=myCluster_0,y.colnames=colnames(y)))
