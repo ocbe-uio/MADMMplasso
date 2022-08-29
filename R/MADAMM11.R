@@ -1875,7 +1875,7 @@ plotCoeff=
 
 #' @export
 plot.cv.MADMMplasso=
-  function(x){
+  function(x, ...){
     
     cvobj=x
     xlab = "log(Lambda)"
