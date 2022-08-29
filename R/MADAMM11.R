@@ -661,6 +661,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   multiple_of_D = (input %% dim(y)[2]) == 0
   
   I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
+ 
   II<-input[multiple_of_D]
   diag(I[c(1:dim(y)[2] ),])<-C[1,]*(CW[1])
   
@@ -675,6 +676,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # #DD=diag((new_G+1),p+p*(K)) #### denominator part for GG=1
   #new_II<-matrix(0,(p+p*K), D) ### number of groups for each response
   new_I=diag(t(I)%*%I)
+  print(I)
   # for (ss in 1:D) {
   #   new_II[,ss]<-new_I[ss]
   #
