@@ -1791,7 +1791,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
   return(out)
 }
 
-
+#' @export
 plot.MADMMplasso=
   function(x){
     fit=x
@@ -1873,7 +1873,7 @@ plotCoeff=
 
 
 
-
+#' @export
 plot.cv.MADMMplasso=
   function(x){
     
