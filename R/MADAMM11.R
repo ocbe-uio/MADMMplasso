@@ -660,7 +660,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   input<-1:(dim(y)[2]*nrow(C))
   multiple_of_D = (input %% dim(y)[2]) == 0
   
-  I<-Matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2],sparse=T)
+  I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
   II<-input[multiple_of_D]
   diag(I[c(1:dim(y)[2] ),])<-C[1,]*(CW[1])
   
