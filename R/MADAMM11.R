@@ -464,7 +464,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' Train the model
 #' generate some data
 #' set.seed(1235)
-#' N = 100 ; p =500;nz=4; K=nz
+#' N = 100 ; p =50;nz=4; K=nz
 #' X <- matrix(rnorm(n = N * p), nrow = N, ncol = p)
 #' mx=colMeans(X)
 #' sx=sqrt(apply(X,2,var))
@@ -1279,7 +1279,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' Train the model
 #' generate some data
 #' set.seed(1235)
-#' N = 100 ; p =500;nz=4; K=nz
+#' N = 100 ; p =50;nz=4; K=nz
 #' X <- matrix(rnorm(n = N * p), nrow = N, ncol = p)
 #' mx=colMeans(X)
 #' sx=sqrt(apply(X,2,var))

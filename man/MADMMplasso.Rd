@@ -62,7 +62,7 @@ Fit a multi-response pliable lasso model over a path of regularization values
 Train the model
 generate some data
 set.seed(1235)
-N = 100 ; p =500;nz=4; K=nz
+N = 100 ; p =50;nz=4; K=nz
 X <- matrix(rnorm(n = N * p), nrow = N, ncol = p)
 mx=colMeans(X)
 sx=sqrt(apply(X,2,var))
