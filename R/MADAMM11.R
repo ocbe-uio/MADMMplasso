@@ -194,8 +194,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       row.norm2<- sqrt(apply(new.mat2^2,1,sum,na.rm = T))
       
       
-      coef.term1<- pmax(1-( (1-alpha)*lambda[jj]+gg[1] )/(rho)/(row.norm1),0)
-      coef.term2<- pmax(1-( (1-alpha)*lambda[jj]+gg[1] )/(rho)/(row.norm2),0)
+      coef.term1<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm1),0)
+      coef.term2<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm2),0)
       #new.mat3<-matrix(0,p,(K+1));new.mat4<-matrix(0,p,(K+1))
       N_V1<-scale(t(new.mat1),center = FALSE,scale = 1/coef.term1)
       N_V2<-scale(t(new.mat2),center = FALSE,scale = 1/coef.term2)
