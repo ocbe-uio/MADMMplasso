@@ -130,8 +130,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       group1<-group[1,]; group2<-t(group[-1,])
       new_group=matrix(0,p,(K+1))
       new_group[,1]<-group1; new_group[,-1]<-group2
-      #new_g_theta<-as.vector(new_group) +as.vector(rho*(Q[,,jj]-P[,,jj] ))
-      
+    
       
       #my_beta_jj<-XtY[,jj]/N  +as.vector(new_group) +as.vector(rho*(Q[,,jj]-P[,,jj] ))
       # my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(res_val1[,jj])+as.vector(rho*(Q[,,jj]-P[,,jj] ))
