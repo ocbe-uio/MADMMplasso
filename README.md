@@ -7,4 +7,4 @@ Author: Theophilus Asenso, Manuela Zucknick
 
 
 
-devtools::install_github("Theo-qua/MADMMplasso")
+devtools::install_github("ocbe-uio/MADMMplasso")
