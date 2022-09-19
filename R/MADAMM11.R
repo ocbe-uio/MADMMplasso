@@ -155,15 +155,15 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       #beta_hat_JJ<-as.matrix(tcrossprod(invmat[[jj]],t((my_beta_jj))))
       
       # beta_hat[,jj]<-beta_hat_JJ
-      main_beta[,,jj]<-matrix(beta_hat_JJ,p,(1+K))
+     # main_beta[,,jj]<-matrix(beta_hat_JJ,p,(1+K))
       beta_hat[,jj]<-beta_hat_JJ
       #main_beta[,-1,jj]<-matrix(beta_hat[,jj][-(1:p)],ncol = (K),nrow = p, byrow = T)
-      beta[,jj]<- main_beta[,1,jj]#beta_hat[c(1:p)]
+     # beta[,jj]<- main_beta[,1,jj]#beta_hat[c(1:p)]
       #beta_theta<-main_beta[,-1]
-      theta[,,jj]<-main_beta[,-1,jj]
+      #theta[,,jj]<-main_beta[,-1,jj]
       
       
-      beta_hat1<-main_beta[,,jj]#matrix(0,p,(K+1))
+      beta_hat1<-matrix(beta_hat_JJ,p,(1+K))#main_beta[,,jj]#matrix(0,p,(K+1))
       
       #beta_hat1[,1]<-beta; beta_hat1[,c(2:(K+1))]<-beta_theta
       #for (j in 1:p) {
