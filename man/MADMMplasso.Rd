@@ -11,6 +11,7 @@ MADMMplasso(
   alpha,
   my_lambda = NULL,
   lambda_min = 0.001,
+  lambda_min1 = 0.001,
   max_it = 50000,
   e.abs = 0.001,
   e.rel = 0.001,
@@ -23,7 +24,7 @@ MADMMplasso(
   cv = F,
   parallel = T,
   pal = 0,
-  gg = 0.05,
+  gg = NULL,
   tol = 1e-04,
   cl = 4
 )
@@ -82,11 +83,11 @@ colnames(Beta)<-c(1:6)
 
 
 theta<-array(0,c(p,K,6))
-theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2
-theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2
-theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2
-theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2
-theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2
+theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2;
+theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2;
+theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2;
+theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2;
+theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2;
 theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 
 library(MASS)
@@ -103,9 +104,12 @@ y=y_train
 colnames(y)<- c( paste("y",1:(ncol(y)),sep = "") )
 TT=tree.parms(y)
 plot(TT$h_clust)
-gg1<-c(.5,0.0001)
+gg1=matrix(0,2,2)
+gg1[1,]<-c(0.02,0.02)
+gg1[2,]<-c(0.2,0.2)
+
 cl=detectCores()
-nlambda = 50;e.abs=1E-3;e.rel=1E-3;alpha=.5
- fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=1E-3,cl=cl-2 )
+nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
+  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,lambda_min1 = 0.0001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
  plot(fit) 
 }
