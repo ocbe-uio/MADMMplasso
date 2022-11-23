@@ -45,7 +45,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   }
   
   
-  
+  new_I=diag(t(I)%*%I)
   
   
   #########################################################################
@@ -83,7 +83,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   R_svd<-(svd.w$u%*%SVD_D)/N
   
   
-  
+  rho=rho1
   #
   #XtY <- crossprod(my_W_hat, y)
   Big_beta11<-V
@@ -92,7 +92,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     
     
-    rho=rho1
+    
     
     r_current = (y-model_intercept(beta0,theta0,beta=beta_hat, theta, X=W_hat, Z))
     b = reg(r_current,Z)  # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
@@ -121,6 +121,38 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     
     v.diff1<-matrix(0,D); q.diff1<-matrix(0,D); ee.diff1<-matrix(0,D)
+    
+    new_G<-matrix(0,(p+p*K))
+    new_G[c(1:p)]<-1;new_G[-c(1:p)]<-2
+    new_G[c(1:p)]<-rho*(1+new_G[c(1:p)]);new_G[-c(1:p)]<-rho*(1+new_G[-c(1:p)])
+    
+    invmat<-list() #denominator of the beta estimates
+    for (rr in 1:D) {
+      
+      DD1<-rho*(new_I[rr]+1)
+      
+      #DD1<-rho1*(obv_beta_matrix)
+      
+      DD2<-new_G+DD1
+      
+      #DD2[c(1:p)]<-DD2[c(1:p)]+DD1
+      
+      
+      
+      
+      
+      
+      #print(rbind(part4[3,]-as.matrix(part4[3,]) ))
+      invmat[[rr]] <-DD2# Matrix::chol2inv( Matrix::chol(new_sparse) )
+      #print(dim(invmat))
+      # # #Matrix::chol2inv()
+      
+      
+    }
+    
+    
+    
+    
     for (jj in 1:D) {
       
       
@@ -134,7 +166,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       #my_beta_jj<-XtY[,jj]/N  +as.vector(new_group) +as.vector(rho*(Q[,,jj]-P[,,jj] ))
       # my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(res_val1[,jj])+as.vector(rho*(Q[,,jj]-P[,,jj] ))
-      my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(rho*(Q[,,jj]-P[,,jj] ))#+as.vector(rho*(EE[,,jj]-HH[,,jj] ))
+      my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(rho*(Q[,,jj]-P[,,jj] ))+as.vector(rho*(EE[,,jj]-HH[,,jj] ))
       
       my_beta_jj<-matrix(my_beta_jj,ncol = 1)
       
@@ -174,7 +206,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       # coef.term <- pmax(1-(lambda[1]/rho)/(row.norm) , 0)
       b_hat<-alph*beta_hat1+(1-alph)*EE[,,jj]
       new.mat<- b_hat +HH[,,jj]
-      EE[,,jj]<- sign(new.mat)*pmax(abs(new.mat)-(( gg[1] )/(rho)),0)
+      row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
+      coef.term1<- pmax(1-  (gg[2]) /rho/(row.norm1),0)
+    ee1<-scale(t(new.mat),center = FALSE,scale = 1/coef.term1)
+    #print(dim(ee1))
+   # print(dim(EE[,,jj]))
+    EE[,,jj]<-  t(ee1)
+      #EE[,,jj]<- sign(new.mat)*pmax(abs(new.mat)-(( gg[1] )/(rho)),0)
       #row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
       # coef.term1<- pmax(1-( gg[1] )/(rho)/(row.norm1),0)
       # N_V1<-scale(t(new.mat),center = FALSE,scale = 1/coef.term1)
@@ -262,11 +300,59 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #
     new.mat_group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
     beta.group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
+    N_E<-list()
     #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
     II<-input[multiple_of_D]
     new.mat_group[,,1]<-t(new.mat[c(1:dim(y)[2]),])
     beta.group[,,1]<-t(Big_beta_respone[c(1:dim(y)[2]),])
-    c_count<-2
+    
+    
+    beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
+    beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,1],ncol = (K+1), nrow = p)
+    input2<-1:(dim(y)[2]*(1+K))
+    multiple_of_K = (input2 %% (K+1)) == 0
+    II2<-input2[multiple_of_K]
+    e2=II2[-length(II2)][1]
+    
+    for (c_count2 in 2:dim(y)[2]) {
+      
+      beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,1],ncol = (K+1), nrow = p)
+      
+      
+      
+      e2=II2[c_count2]
+      
+    }
+    
+    
+    norm_res<-((apply(beta_transform,c(1),twonorm)))
+    coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
+    
+    N_E1<-scale(t(beta_transform),center = FALSE,scale = 1/coef.term1)
+    
+    N_E1<-t(N_E1)
+    beta_transform1<-matrix(0,p+p*K,dim(y)[2])
+    beta_transform1[,1]<-as.vector(N_E1[,c(1:(K+1))])
+    
+    input3<-1:(dim(y)[2]*(1+K))
+    multiple_of_K = (input3 %% (K+1)) == 0
+    II3<-input3[multiple_of_K]
+    e3=II3[-length(II3)][1]
+    
+    for (c_count3 in 2:dim(y)[2]) {
+      
+      beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
+      
+      
+      
+      e3=II3[c_count3]
+      
+    }
+    
+    #print(beta_transform1)
+    N_E[[1]]<-(t(beta_transform1))
+    
+    
     e=II[-length(II)][1]
     for (c_count in 2:dim(C)[1]) {
       
@@ -276,31 +362,111 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       # c_count= 1+c_count
       # }
       #e=II[-length(II)][1+1]
+      #e=II[c_count]
+      
+      
+      
+      
+      beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
+      beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,c_count],ncol = (K+1), nrow = p)
+      input2<-1:(dim(y)[2]*(1+K))
+      multiple_of_K = (input2 %% (K+1)) == 0
+      II2<-input2[multiple_of_K]
+      e2=II2[-length(II2)][1]
+      
+      for (c_count2 in 2:dim(y)[2]) {
+        
+        beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,c_count],ncol = (K+1), nrow = p)
+        
+        
+        
+        e2=II2[c_count2]
+        
+      }
+      
+      
+      norm_res<-((apply(beta_transform,c(1),twonorm)))
+      coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
+      
+      N_E1<-scale(t(beta_transform),center = FALSE,scale = 1/coef.term1)
+      
+      N_E1<-t(N_E1)
+      beta_transform1<-matrix(0,p+p*K,dim(y)[2])
+      beta_transform1[,1]<-as.vector(N_E1[,c(1:(K+1))])
+      
+      input3<-1:(dim(y)[2]*(1+K))
+      multiple_of_K = (input3 %% (K+1)) == 0
+      II3<-input3[multiple_of_K]
+      e3=II3[-length(II3)][1]
+      
+      for (c_count3 in 2:dim(y)[2]) {
+        
+        beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
+        
+        
+        
+        e3=II3[c_count3]
+        
+      }
+      
+      #print(beta_transform1)
+      N_E[[c_count]]<-(t(beta_transform1))
+      
+      
+      
       e=II[c_count]
       
     }
     
+    # new.mat_group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
+    # beta.group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
+    # #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
+    # II<-input[multiple_of_D]
+    # new.mat_group[,,1]<-t(new.mat[c(1:dim(y)[2]),])
+    # beta.group[,,1]<-t(Big_beta_respone[c(1:dim(y)[2]),])
+    # c_count<-2
+    # e=II[-length(II)][1]
+    # for (c_count in 2:dim(C)[1]) {
+    #   
+    #   #for (e in II[-length(II)]) {
+    #   new.mat_group[,,c_count]<-t(new.mat[c((e+1):( c_count*dim(y)[2]) ),])
+    #   beta.group[,,c_count]<-t(Big_beta_respone[c((e+1):( c_count*dim(y)[2]) ),])
+    #   # c_count= 1+c_count
+    #   # }
+    #   #e=II[-length(II)][1+1]
+    #   e=II[c_count]
+    #   
+    # }
     #for (cc in 1:dim(C)[1]) {
-    # N_E<-   lapply(seq_len(dim(C)[1]),
-    #                function(g){
-    #                  row.norm1<- (sqrt(apply(new.mat_group[,,g]^2,1,sum,na.rm = T)))
-    #
-    #                  coef.term1<- pmax(1-  (gg[1]) /rho/(row.norm1),0)
-    #                  N_E1<-scale(t(new.mat_group[,,g]),center = FALSE,scale = 1/coef.term1)
-    #                  return(N_E1)        })
-    norm_res<-((apply(new.mat_group,3,twonorm)))
-    coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
-    coef.term1<-matrix(1,p+p*K)%*%coef.term1
-    
-    
-    N_E<-   lapply(seq_len(dim(C)[1]),
-                   function(g){
-                     
-                     N_E1<-scale(t(new.mat_group[,,g]),center = FALSE,scale = 1/coef.term1[,g])
-                     # N_E1<- shrink_u(new.mat_group[,,g])
-                     # N_E1<- S_func(N_E1,(gg[1]) /rho)
-                     
-                     return(N_E1)        })
+     # N_E<-   lapply(seq_len(dim(C)[1]),
+     #                function(g){
+     #                  row.norm1<- (sqrt(apply(new.mat_group[,,g]^2,1,sum,na.rm = T)))
+     # 
+     #                  coef.term1<- pmax(1-  (gg[1]) /rho/(row.norm1),0)
+     #                  N_E1<-scale(t(new.mat_group[,,g]),center = FALSE,scale = 1/coef.term1)
+     #                 return(N_E1)        })
+    #norm_res<-((apply(new.mat_group,c(1),twonorm)))
+    #coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
+    #print(dim(coef.term1))
+    #coef.term1<-matrix(1,p)%*%coef.term1
+
+
+   # N_E<-   lapply(seq_len(dim(C)[1]),
+    #               function(g){
+
+
+
+
+    #                 norm_res<-((apply(new.mat_group[,,g],c(1),twonorm)))
+    #                 coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
+
+    #                 N_E1<-scale(t(new.mat_group[,,g]),center = FALSE,scale = 1/coef.term1)
+
+                     #print(beta_transform1)
+
+                     #print(N_E1)
+ #                    return(N_E1)        })
+
     
     
     N_beta.group<-apply(beta.group, 3, twonorm)
@@ -377,6 +543,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     Q_old <- Q
     E_old<-E
     EE_old<-EE
+    
+    if( res_pri > 10*res_dual ){
+      rho<- 2*rho
+    }else if(res_pri*10 < res_dual ){
+      rho<- rho/2
+    }
+    
     if(my_print==T){
       print(c(res_dual,e.dual,res_pri,e.primal))}
     #print(c(res_dual,res_pri,sqrt(N*2*(1+K))*e.rel))
@@ -483,11 +656,11 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' 
 #' 
 #' theta<-array(0,c(p,K,6))
-#' theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2
-#' theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2
-#' theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2
-#' theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2
-#' theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2
+#' theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2;
+#' theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2;
+#' theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2;
+#' theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2;
+#' theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2;
 #' theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 #' 
 #' library(MASS)
@@ -504,10 +677,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' colnames(y)<- c( paste("y",1:(ncol(y)),sep = "") )
 #' TT=tree.parms(y)
 #' plot(TT$h_clust)
-#' gg1<-c(.5,0.0001)
+#' gg1=matrix(0,2,2)
+#' gg1[1,]<-c(0.02,0.02)
+#' gg1[2,]<-c(0.2,0.2)
+#' 
 #' cl=detectCores()
-#' nlambda = 50;e.abs=1E-3;e.rel=1E-3;alpha=.5
-#'  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=1E-3,cl=cl-2 )
+#' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,lambda_min1 = 0.0001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
 #'  plot(fit) 
 
 
@@ -520,7 +696,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 
 #' @export
 
-MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=F,alph=1.8,tree,cv=F,parallel=T,pal=0,gg=0.05,tol=1E-4,cl=4){
+MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,lambda_min1=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=F,alph=1.8,tree,cv=F,parallel=T,pal=0,gg=NULL,tol=1E-4,cl=4){
   
   N=nrow(X)
   #print(c(N,length(y)))
@@ -564,6 +740,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # }
   #
   rat=lambda_min
+  rat1=lambda_min1
   
   if(is.null(my_lambda)){
     lamda_new<-matrix(0,dim(y)[2])
@@ -586,7 +763,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     #              })
     #
     big_lambda<-lammax
-    print(big_lambda)
+    #print(big_lambda)
     
     lambda_i<-	lapply(seq_len(dim(y)[2]),
                       function(g){
@@ -594,10 +771,18 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
                         
                         return(lam_i)
                       }      )
-    
-    gg1= seq((gg[1]),(gg[2]),length=maxgrid)
+   # gg1<-	lapply(seq_len(dim(y)[2]),
+  #                  function(g){l_max<- max(abs(t(X)%*%(r- colMeans(r) ) )/length(r[,1]))
+                    # l_max<-l_max/((1-alpha)*l_max/gg)
+   #                return( l_max)
+   #                 })
+   # gg1= exp(seq(log(gg1[[1]]),log(gg1[[1]]*rat1),length=maxgrid))
+    gg1= seq((gg[1,1]),(gg[1,2]),length=maxgrid)
+    gg2= seq((gg[2,1]),(gg[2,2]),length=maxgrid)
+    gg3=matrix(0,maxgrid,2)
+    gg3[,1]=gg1;gg3[,2]=gg2
     #gg2= seq((gg[1,2]),(gg[2,2]),length=maxgrid)
-    gg=gg1
+    gg=gg3
     #print(dim(gg))
     #	Lambda_min<- rat*big_lambda
     
@@ -606,11 +791,11 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     #lambda_i[1]<-big_lambda;lambda_i[maxgrid]<-Lambda_min
     
     
-    print(lambda_i)
+    #print(lambda_i)
     
   }else{
     lambda_i<-my_lambda
-    gg1= exp(seq((gg[1]),(gg[2]),length=nlambda))
+    gg1= gg#exp(seq((gg[1]),(gg[2]),length=nlambda))
     #gg2= exp(seq((gg[1,2]),(gg[2,2]),length=nlambda))
     gg=gg1
   }
@@ -762,11 +947,13 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   invmat<-list() #denominator of the beta estimates
   for (rr in 1:D) {
     
-    DD1<-rho1*(new_I[rr])
+    DD1<-rho1*(new_I[rr]+1)
     
     #DD1<-rho1*(obv_beta_matrix)
     
     DD2<-new_G+DD1
+    
+    #DD2[c(1:p)]<-DD2[c(1:p)]+DD1
     
     
     
@@ -836,12 +1023,12 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     registerDoParallel(numCores)
     
     my_values<- foreach (i=1:nlambda, .combine=rbind) %dopar% {
-      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i])
+      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i,])
     }
     
   }else if(parallel==F & pal==0){
     my_values=   lapply(seq_len(nlambda),
-                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[g])      ))
+                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[g,])      ))
     
   }
   
@@ -883,7 +1070,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     
     start_time <- Sys.time()
     if(pal==1){
-      my_values<-	admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[hh])
+      my_values<-	admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[hh,])
       
       beta=my_values$beta;theta=my_values$theta;converge=my_values$converge;my_obj[[hh]]<-list(my_values$obj);beta0=my_values$beta0;theta0=my_values$theta0### iteration
       V=my_values$V;Q=my_values$Q;O=my_values$O;P=my_values$P;E=my_values$E;H=my_values$H;beta_hat=my_values$beta_hat; y_hat<-my_values$y_hat
@@ -907,8 +1094,8 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     
     #function(rho1,max_it,W,W_hat,my_W_hat,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,my_print=T,svd.w=svd.w)
     
-    #beta1=beta*(abs(beta)>tol);theta1=theta*(abs(theta)>tol);beta_hat1=beta_hat*(abs(beta_hat)>tol)
-    beta1=beta;theta1=theta;beta_hat1=beta_hat
+    beta1=beta*(abs(beta)>tol);theta1=theta*(abs(theta)>tol);beta_hat1=beta_hat*(abs(beta_hat)>tol)
+    #beta1=beta;theta1=theta;beta_hat1=beta_hat
     
     
     
@@ -989,7 +1176,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # print(c(length(lam_list),length(n_main_terms),length(non_zero_theta),length(obj)  ) )
   
   pred<-data.frame(Lambda=lam,nzero=n_main_terms,nzero_inter=non_zero_theta,OBJ_main=obj)
-  out=list(beta0=BETA0,beta=BETA,BETA_hat=BETA_hat,theta0=THETA0,theta=THETA,path=pred,Lambdas=lam,non_zero=n_main_terms,LOSS=obj,it.obj=my_obj,Y_HAT=Y_HAT)
+  out=list(beta0=BETA0,beta=BETA,BETA_hat=BETA_hat,theta0=THETA0,theta=THETA,path=pred,Lambdas=lam,non_zero=n_main_terms,LOSS=obj,it.obj=my_obj,Y_HAT=Y_HAT,gg=gg)
   class(out)="MADMMplasso"
   # Return results
   return (out)
@@ -1172,21 +1359,40 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
     Beta1<-matrix(0,nrow=m,ncol=p)
     theta<-array(0,c(p,nz,m))
     Beta1[,1]<-B.elem
-    theta[24,4,c(1:3)]<-0.6
+    
     for(i in 1:2){
       Beta1[((i-1)*m/2+1):(i*m/2),(1+(i-1)*2+1):(1+i*2)]<-B.elem
-      theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
+      #theta[(1+(i-1)*2+1),1,((i-1)*m/2+1):(i*m/2)]<- 0.6
     }
     for(i in 1:4){
       Beta1[((i-1)*m/4+1):(i*m/4),(1+4*2+(i-1)*4+1):(1+4*2+i*4)]<-B.elem
-      theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
+      #theta[(1+4*2+(i-1)*4+1),c(2),((i-1)*m/4+1):(i*m/4)]<- 0.6
     }
     for(i in 1:8){
       Beta1[((i-1)*m/8+1):(i*m/8),(1+2*2+4*4+(i-1)*8+1):(1+2*2+4*4+i*8)]<-B.elem
-      theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
+      #theta[(1+2*2+4*4+(i-1)*8+1),3,((i-1)*m/8+1):(i*m/8)]<- 0.6
     }
 
-
+    theta[30,1,1]<-0.6;theta[31,2,1]<-0.6;theta[32,3,1]<- -0.6;theta[33,4,1]<- -0.6;
+    theta[30,1,2]<-0.6;theta[31,2,2]<-0.6;theta[32,3,2]<- -0.6;theta[33,4,2]<- -0.6;
+    
+    theta[35,1,5]<-0.6;theta[36,2,5]<-0.6;theta[37,3,5]<- -0.6;theta[38,4,5]<- -0.6;
+    theta[35,1,6]<-0.6;theta[36,2,6]<-0.6;theta[37,3,6]<- -0.6;theta[38,4,6]<- -0.6;
+    
+    theta[40,1,8]<-0.6;theta[41,2,8]<-0.6;theta[42,3,8]<- -0.6;theta[43,4,8]<- -0.6;
+    theta[40,1,9]<-0.6;theta[41,2,9]<-0.6;theta[42,3,9]<- -0.6;theta[43,4,9]<- -0.6;
+    
+    theta[48,1,10]<-0.6;theta[49,2,10]<-0.6;theta[50,3,10]<- -0.6;theta[51,4,10]<- -0.6;
+    theta[48,1,11]<-0.6;theta[49,2,11]<-0.6;theta[50,3,11]<- -0.6;theta[51,4,11]<- -0.6;
+    
+    theta[57,1,13]<-0.6;theta[58,2,15]<-0.6;theta[59,3,15]<- -0.6;theta[60,4,15]<- -0.6;
+    theta[57,1,15]<-0.6;theta[58,2,17]<-0.6;theta[59,3,17]<- -0.6;theta[60,4,17]<- -0.6;
+    
+    theta[63,1,16]<-0.6;theta[64,2,16]<-0.6;theta[65,3,16]<- -0.6;theta[66,4,16]<- -0.6;
+    theta[63,1,17]<-0.6;theta[64,2,17]<-0.6;theta[65,3,17]<- -0.6;theta[66,4,17]<- -0.6;
+    
+    theta[80,1,21]<-0.6;theta[81,2,21]<-0.6;theta[82,3,21]<- -0.6;theta[83,4,21]<- -0.6;
+    theta[80,1,22]<-0.6;theta[81,2,22]<-0.6;theta[82,3,22]<- -0.6;theta[83,4,22]<- -0.6
 
     ## generate beta2 matrix
     #   Beta2<-matrix(0,nrow=m,ncol=p[2])
@@ -1298,11 +1504,11 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' 
 #' 
 #' theta<-array(0,c(p,K,6))
-#' theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2
-#' theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2
-#' theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2
-#' theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2
-#' theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2
+#' theta[1,1,1]<-2;theta[3,2,1]<-2;theta[4,3,1]<- -2;theta[5,4,1]<- -2;
+#' theta[1,1,2]<-2;theta[3,2,2]<-2;theta[4,3,2]<- -2;theta[5,4,2]<- -2;
+#' theta[6,1,3]<-2;theta[8,2,3]<-2;theta[9,3,3]<- -2;theta[10,4,3]<- -2;
+#' theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2;
+#' theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2;
 #' theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 #' 
 #' library(MASS)
@@ -1318,14 +1524,17 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' #colnames(y)<-c(1:6)
 #' colnames(y)<- c( paste("y",1:(ncol(y)),sep = "") )
 #' TT=tree.parms(y)
-
-#' gg1<-c(.5,0.0001)
+#' plot(TT$h_clust)
+#' gg1=matrix(0,2,2)
+#' gg1[1,]<-c(0.02,0.02)
+#' gg1[2,]<-c(0.2,0.2)
+#' 
 #' cl=detectCores()
-#' nlambda = 50;e.abs=1E-3;e.rel=1E-3;alpha=.5
-#'  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=1E-3,cl=cl-2 )
+#' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,lambda_min1 = 0.0001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
+#'   gg1=fit$gg
 #'  
-#'  
-#'  cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel = F,pal=1,gg=gg1,TT=TT,tol=1E-3)
+#'  cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel = F,pal=1,gg=gg1,TT=TT,tol=tol)
 #'  
 #'  plot(cv_admp)
 
