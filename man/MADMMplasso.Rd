@@ -109,6 +109,6 @@ gg1[2,]<-c(0.2,0.2)
 
 cl=detectCores()
 nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
+  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
  plot(fit) 
 }
