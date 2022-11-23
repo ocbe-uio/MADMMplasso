@@ -683,7 +683,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' 
 #' cl=detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,lambda_min1 = 0.0001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
 #'  plot(fit) 
 
 
@@ -696,7 +696,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 
 #' @export
 
-MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,lambda_min1=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=F,alph=1.8,tree,cv=F,parallel=T,pal=0,gg=NULL,tol=1E-4,cl=4){
+MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=F,alph=1.8,tree,cv=F,parallel=T,pal=0,gg=NULL,tol=1E-4,cl=4){
   
   N=nrow(X)
   #print(c(N,length(y)))
@@ -740,7 +740,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,lambda_min1=.00
   # }
   #
   rat=lambda_min
-  rat1=lambda_min1
+ 
   
   if(is.null(my_lambda)){
     lamda_new<-matrix(0,dim(y)[2])
@@ -1531,7 +1531,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' 
 #' cl=detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,lambda_min1 = 0.0001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.01,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
 #'   gg1=fit$gg
 #'  
 #'  cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel = F,pal=1,gg=gg1,TT=TT,tol=tol)
