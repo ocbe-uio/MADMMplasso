@@ -622,13 +622,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #'     lambda.max, the (data derived) entry value (i.e. the smallest value for which all coefficients are zero).
 #'      Default is 0.001 if n>p, and 0.01 if n< p.
 #' @param alpha mixing parameter- default 0.5
-#' #' @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
+#'  @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
 #' @param maxgrid similar to nlambda
 #' @param rho the Lagrange variable for the ADMM
 #' @param e.abs absolute error for the admm
 #' @param e.rel relative error for the admm
 #' @param gg penalty term for the tree structure
-#' 
+#' @return  predicted values for the MADMMplasso fit
 #' 
 #' 
 #' 
@@ -679,7 +679,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' plot(TT$h_clust)
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
-#' gg1[2,]<-c(0.2,0.2)
+#' gg1[2,]<-c(0.02,0.02)
 #' 
 #' cl=detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
@@ -1476,8 +1476,8 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
-#' #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
-#' @return  predicted values
+#'  @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
+#' @return  results containing the CV values
 #' 
 #' 
 #' 
@@ -1530,7 +1530,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' plot(TT$h_clust)
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
-#' gg1[2,]<-c(0.2,0.2)
+#' gg1[2,]<-c(0.02,0.02)
 #' 
 #' cl=detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3

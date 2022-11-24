@@ -32,7 +32,7 @@ cv.MADMMplasso(
 \item{fit}{object returned by the pliable function}
 
 \item{nfolds}{number of cross-validation folds
-#' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
+@param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
 
 \item{X}{N by p matrix of predictors}
 
@@ -42,7 +42,7 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 \item{y}{N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call}
 }
 \value{
-predicted values
+results containing the CV values
 }
 \description{
 Carries out cross-validation for  a  pliable lasso model over a path of regularization values
@@ -94,7 +94,7 @@ TT=tree.parms(y)
 plot(TT$h_clust)
 gg1=matrix(0,2,2)
 gg1[1,]<-c(0.02,0.02)
-gg1[2,]<-c(0.2,0.2)
+gg1[2,]<-c(0.02,0.02)
 
 cl=detectCores()
 nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3

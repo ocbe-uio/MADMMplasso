@@ -37,7 +37,7 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 \item{y}{N by D matrix  of responses. The X and Z variables are centered in the function. We recommmend that X and Z also be standardized before the call}
 
 \item{alpha}{mixing parameter- default 0.5
-#' @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000}
+@param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000}
 
 \item{e.abs}{absolute error for the admm}
 
@@ -54,6 +54,9 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 \item{lambda.min.ratio}{the smallest value for lambda , as a fraction of
 lambda.max, the (data derived) entry value (i.e. the smallest value for which all coefficients are zero).
 Default is 0.001 if n>p, and 0.01 if n< p.}
+}
+\value{
+predicted values for the MADMMplasso fit
 }
 \description{
 Fit a multi-response pliable lasso model over a path of regularization values
@@ -105,7 +108,7 @@ TT=tree.parms(y)
 plot(TT$h_clust)
 gg1=matrix(0,2,2)
 gg1[1,]<-c(0.02,0.02)
-gg1[2,]<-c(0.2,0.2)
+gg1[2,]<-c(0.02,0.02)
 
 cl=detectCores()
 nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
