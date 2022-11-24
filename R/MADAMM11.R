@@ -1017,14 +1017,17 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   XtY <- crossprod((my_W_hat), (new_y))
   
   
-  
-  numCores <- detectCores()
+  cl1<-cl
   if(parallel==T & pal==0){
-    registerDoParallel(numCores)
+    cl = parallel::makeCluster(cl1,outfile="debug_runExperiments.txt",type="FORK")
+    doParallel::registerDoParallel(cl=cl)
+    foreach::getDoParRegistered()
+    #registerDoParaqqqllel(numCores)
     
     my_values<- foreach (i=1:nlambda, .combine=rbind) %dopar% {
       admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i,])
     }
+    parallel::stopCluster(cl)
     
   }else if(parallel==F & pal==0){
     my_values=   lapply(seq_len(nlambda),
