@@ -1018,16 +1018,17 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   
   
   cl1<-cl
-  if(parallel==T & pal==0){
-    cl = parallel::makeCluster(cl1,outfile="debug_runExperiments.txt",type="FORK")
-    doParallel::registerDoParallel(cl=cl)
-    foreach::getDoParRegistered()
+  if(parallel){
+   # cl = makeCluster(cl1,outfile="debug_runExperiments.txt",type="FORK")
+    #registerDoParallel(cl=cl)
+    
+    #getDoParRegistered()
     #registerDoParaqqqllel(numCores)
     
     my_values<- foreach (i=1:nlambda, .combine=rbind) %dopar% {
       admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i,])
     }
-    parallel::stopCluster(cl)
+    #stopCluster(cl)
     
   }else if(parallel==F & pal==0){
     my_values=   lapply(seq_len(nlambda),
@@ -1531,7 +1532,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
-#' 
+#' qq
 #' cl=detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
 #'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 

@@ -95,7 +95,7 @@ plot(TT$h_clust)
 gg1=matrix(0,2,2)
 gg1[1,]<-c(0.02,0.02)
 gg1[2,]<-c(0.02,0.02)
-
+qq
 cl=detectCores()
 nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
