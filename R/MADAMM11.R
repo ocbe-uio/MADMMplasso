@@ -1018,7 +1018,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   
   
   cl1<-cl
-  registerDoMC(cl1)
+  #registerDoMC(cl1)
   if(parallel){
    # cl = makeCluster(cl1,outfile="debug_runExperiments.txt",type="FORK")
     #registerDoParallel(cl=cl)
