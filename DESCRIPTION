@@ -1,8 +1,8 @@
 Package: MADMMplasso
 Title: Multi variate multi response 'ADMM' with interaction effects
 Version: 0.0.0.9000
-Author: Theophilus Asenso, Manuela Zucknick
-Maintainer: Theophilus Asenso <t.q.asenso@medisin.uio.no>
+Authors@R: 
+    person("Theophilus", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre"))
 Description: This system allows one to model a multi response problem that has correlation among the
 	responses and also has main and interaction effects among the covariates.
 Depends:
@@ -20,8 +20,10 @@ Depends:
     class,
     graphics,
     parallel,
-    stats
-License: MIT + file LICENSE
+    stats,
+    doMC
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
