@@ -1020,12 +1020,12 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   cl1<-cl
   #registerDoMC(cl1)
   if(parallel){
-    registerDoSEQ()
+    #registerDoSEQ()
     cl = makeCluster(cl1,outfile="debug_runExperiments.txt",type="SOCK")
     registerDoParallel(cl)
     
-    on.exit(stopCluster(cl))
-    #getDoParRegistered()
+    #on.exit(stopCluster(cl))
+    getDoParRegistered()
     #registerDoParaqqqllel(numCores)
     
     my_values<- foreach (i=1:nlambda,.packages='MADMMplasso', .combine=rbind) %dopar% {
