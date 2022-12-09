@@ -1021,7 +1021,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   #registerDoMC(cl1)
   if(parallel){
     #registerDoSEQ()
-    cl = makeCluster(cl1,type="FORK")
+    cl = makeCluster(cl1,type="SOCK")
     registerDoParallel(cl)
     
     #on.exit(stopCluster(cl))
