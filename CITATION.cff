@@ -11,7 +11,7 @@ authors:
   - given-names: Theophilus Quachie
     family-names: Asenso
     email: t.q.asenso@medisin.uio.no
-    name-particle: Theophilus Quachie
+    name-particle:
     affiliation: >-
       Oslo Center for Epidemiology and Biostatistics,
       University of Oslo
