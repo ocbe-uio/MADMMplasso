@@ -1,0 +1,35 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: MADMMplasso
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Theophilus Quachie
+    family-names: Asenso
+    email: t.q.asenso@medisin.uio.no
+    name-particle: Theophilus Quachie
+    affiliation: >-
+      Oslo Center for Epidemiology and Biostatistics,
+      University of Oslo
+  - given-names: Manuela
+    family-names: Zucknick
+    email: manuela.zucknick@medisin.uio.no
+    affiliation: >-
+      Oslo Center for Epidemiology and Biostatistics,
+      University of Oslo
+repository-code: 'https://github.com/ocbe-uio/MADMMplasso'
+abstract: "This system allows one to model a multi response problem that has correlation among the\n\tresponses and also has main and interaction effects among the covariates. It can be applied in different areas such as drug discovery, diagnostics, etc. "
+keywords:
+  - Pliable lasso
+  - ' Lagrange multipliers'
+  - ' drug sensitivity'
+  - interactions
+  - tree-lasso
+license: MIT
+commit: ba187e8c777ad1f36f014126a85c8cea7baf1d6a
+version: 0.0.0.9000
+date-released: '2022-12-10'
