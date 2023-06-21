@@ -157,7 +157,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       
       
-      group<-(rho)*(t(G)%*%t(V[,,jj])-t(G)%*%t(O[,,jj])   )
+      group<-(rho)*(t(G)%*%t(as.matrix(V[,,jj]))-t(G)%*%t(O[,,jj])   )
       #group1<-group[1,]+as.vector(res_val[jj,]); group2<-t(group[-1,])
       group1<-group[1,]; group2<-t(group[-1,])
       new_group=as(matrix(0,p,(K+1)),"sparseMatrix")
