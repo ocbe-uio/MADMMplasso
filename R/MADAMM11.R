@@ -188,7 +188,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       # beta_hat[,jj]<-beta_hat_JJ
      # main_beta[,,jj]<-matrix(beta_hat_JJ,p,(1+K))
-      beta_hat[,jj]<-beta_hat_JJ
+      beta_hat[,jj]<-as(beta_hat_JJ,"sparseMatrix")
       #main_beta[,-1,jj]<-matrix(beta_hat[,jj][-(1:p)],ncol = (K),nrow = p, byrow = T)
      # beta[,jj]<- main_beta[,1,jj]#beta_hat[c(1:p)]
       #beta_theta<-main_beta[,-1]
@@ -200,9 +200,9 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       #beta_hat1[,1]<-beta; beta_hat1[,c(2:(K+1))]<-beta_theta
       #for (j in 1:p) {
       b_hat<-alph*beta_hat1+(1-alph)*Q[,,jj]
-      Q[,1,jj]<-b_hat[,1]+(P[,1,jj])
+      Q[,1,jj]<-as(b_hat[,1]+(P[,1,jj]),"sparseMatrix")
       new.mat<- b_hat[,-1] +P[,-1,jj]
-      Q[,-1,jj]<- sign(new.mat)*pmax(abs(new.mat)-((alpha*lambda[jj])/(rho)),0)
+      Q[,-1,jj]<- as(sign(new.mat)*pmax(abs(new.mat)-((alpha*lambda[jj])/(rho)),0),"sparseMatrix")
       # coef.term <- pmax(1-(lambda[1]/rho)/(row.norm) , 0)
       b_hat<-alph*beta_hat1+(1-alph)*EE[,,jj]
       new.mat<- b_hat +HH[,,jj]
@@ -211,7 +211,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     ee1<-scale(t(new.mat),center = FALSE,scale = 1/coef.term1)
     #print(dim(ee1))
    # print(dim(EE[,,jj]))
-    EE[,,jj]<-  t(ee1)
+    EE[,,jj]<- as( t(ee1),"sparseMatrix")
       #EE[,,jj]<- sign(new.mat)*pmax(abs(new.mat)-(( gg[1] )/(rho)),0)
       #row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
       # coef.term1<- pmax(1-( gg[1] )/(rho)/(row.norm1),0)
@@ -220,7 +220,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       
       Big_beta<-t(tcrossprod(G,(beta_hat1)) )
-      Big_beta11[,,jj]<-Big_beta
+      Big_beta11[,,jj]<-as(Big_beta,"sparseMatrix")
       Big_beta1<-alph*Big_beta+(1-alph)*V[,,jj]
       
       
@@ -241,13 +241,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       
       
-      V[,,jj]=cbind(t(N_V1),t(N_V2))
+      V[,,jj]= as(cbind(t(N_V1),t(N_V2)),"sparseMatrix")
       
       
       #print(V)
-      P[,,jj]<-P[,,jj]+beta_hat1-Q[,,jj]
-      HH[,,jj]<-HH[,,jj]+beta_hat1-EE[,,jj]
-      O[,,jj]<-O[,,jj]+Big_beta-V[,,jj]
+      P[,,jj]<- as(P[,,jj]+beta_hat1-Q[,,jj],"sparseMatrix")
+      HH[,,jj]<-as(HH[,,jj]+beta_hat1-EE[,,jj],"sparseMatrix")
+      O[,,jj]<-as(O[,,jj]+Big_beta-V[,,jj],"sparseMatrix")
       
       
       v.diff1[jj]<-sum(((Big_beta-V[,,jj]))^2,na.rm = TRUE)
@@ -471,7 +471,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     N_beta.group<-apply(beta.group, 3, twonorm)
     
-    E[c(1:dim(C)[2]),]<-N_E[[1]]
+    E[c(1:dim(C)[2]),]<-as(N_E[[1]],"sparseMatrix")
     
     
     c_count<-2
@@ -480,7 +480,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     for (c_count in 2:dim(C)[1]) {
       
       #for (e in II[-length(II)]) {
-      E[c((e+1):( c_count*dim(y)[2]) ),]<-N_E[[c_count]]
+      E[c((e+1):( c_count*dim(y)[2]) ),]<-as(N_E[[c_count]],"sparseMatrix")
       #c_count= 1+c_count
       # }
       #ee=ee+1
@@ -500,7 +500,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     #E<- sign(new.mat)*pmax(abs(new.mat)-((lambda)/(rho)),0)
     
-    H<-H+Big_beta_respone-E
+    H<-as(H+Big_beta_respone-E,"sparseMatrix")
     ################################################
     
     
@@ -592,13 +592,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)*(as.vector((res_val[jj,-c(1:p)] ))!=0)
     finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
     
-    beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
+    beta_hat1<- as(matrix(c(finB1,finB2), ncol = (K+1), nrow = p ),"sparseMatrix")
     #  # pinv(t(my_w)%*%my_w)
     #main_beta<-matrix(beta_hat,p,(1+K))
-    beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
+    beta[,jj]<- as(beta_hat1[,1],"sparseMatrix")#main_beta[,1]#
     # print(c(beta_hat11[c(1:p),jj]))
-    theta[,,jj]<-(beta_hat1[,-1])
-    beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
+    theta[,,jj]<-as((beta_hat1[,-1]),"sparseMatrix")
+    beta_hat[,jj]<-as(c(c(beta_hat1[,1],as.vector(theta[,,jj]))),"sparseMatrix")
   }
   # print(dim(W_hat)); print(dim(beta_hat11))
   y_hat<-model(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
