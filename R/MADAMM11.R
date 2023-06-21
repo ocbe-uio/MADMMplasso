@@ -160,7 +160,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       group<-(rho)*(t(G)%*%t(V[,,jj])-t(G)%*%t(O[,,jj])   )
       #group1<-group[1,]+as.vector(res_val[jj,]); group2<-t(group[-1,])
       group1<-group[1,]; group2<-t(group[-1,])
-      new_group=matrix(0,p,(K+1))
+      new_group=as(matrix(0,p,(K+1)),"sparseMatrix")
+     
       new_group[,1]<-group1; new_group[,-1]<-group2
     
       
@@ -298,8 +299,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #print(dim(H))
     #                  r
     #
-    new.mat_group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
-    beta.group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
+    new.mat_group<-as.sparse3Darray(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
+    beta.group<-as.sparse3Darray(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
     N_E<-list()
     #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
     II<-input[multiple_of_D]
@@ -511,11 +512,14 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #            y,alpha,lambda=lambda,p,N,IB=sum(unlist(N_beta.group)),W_hat,beta1=beta_hat11)
     #print(obj1)
     obj<-c(obj, obj)
+   
     # Calculate residuals for iteration t
     # print(Big_beta)
     # print(V)
     # r <- cbind(Big_beta,beta_hat1)-cbind(V,Q)
+   
     v.diff<-sum((-rho*(V-V_old))^2,na.rm = TRUE)
+   
     q.diff<-sum((-rho*(Q-Q_old))^2,na.rm = TRUE)
     e.diff<-sum((-rho*(E-E_old))^2,na.rm = TRUE)
     ee.diff<-sum((-rho*(EE-EE_old))^2,na.rm = TRUE)
@@ -527,6 +531,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     e.diff1<-sum(((Big_beta_respone-E))^2,na.rm = TRUE)
     ee.diff1<-sum(ee.diff1)#sum(((beta_hat-EE))^2,na.rm = TRUE)
     r <- sqrt(v.diff1+q.diff1+e.diff1+ee.diff1)
+   
     #print(i)
     #print(V)
     #print(V_old)
@@ -536,9 +541,10 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     res_pri<-r
     #print(c(res_dual,res_pri))
     
-    e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c(Big_beta11,beta_hat,beta_hat,Big_beta_respone)), twonorm(-c(V,Q,E,EE)))
+    e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c(as.array(Big_beta11),as.array(beta_hat),as.matrix(beta_hat),as.array(Big_beta_respone) )), twonorm(-c(as.array(V),as.array(Q),as.matrix(E),as.array(EE) )))
+    
     #print(c(twonorm(cbind(Big_beta)), twonorm(-cbind(V))))
-    e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c(O,P,H,HH)))
+    e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c(as.array(O),as.array(P),as.matrix(H),as.array(HH) )))
     V_old <- V
     Q_old <- Q
     E_old<-E
@@ -575,7 +581,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     # group1<-group[1,]+as.vector(res_val[jj,])+as.vector(res_val1[,jj]); group2<-t(group[-1,])
     group1<-group[1,]; group2<-t(group[-1,])
     #group1<-group[1,]; group2<-t(group[-1,])
-    new_group=matrix(0,p,(K+1))
+    new_group=as(matrix(0,p,(K+1)),"sparseMatrix")
     new_group[,1]<-group1; new_group[,-1]<-group2
     new_g_theta<-as.vector(new_group)
     #group<-as.vector(new_group) +as.vector(Q)
