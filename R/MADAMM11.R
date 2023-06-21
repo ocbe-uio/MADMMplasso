@@ -157,10 +157,10 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       
       
-      group<-(rho)*(t(G)%*%t(as.matrix(V[,,jj]))-t(G)%*%t(as.matrix(O[,,jj]))   )
+      group<-(rho)*(t(G)%*%t(V[,,jj])-t(G)%*%t(O[,,jj])   )
       #group1<-group[1,]+as.vector(res_val[jj,]); group2<-t(group[-1,])
       group1<-group[1,]; group2<-t(group[-1,])
-      new_group=as(matrix(0,p,(K+1)),"sparseMatrix")
+      new_group=matrix(0,p,(K+1))
      
       new_group[,1]<-group1; new_group[,-1]<-group2
     
@@ -189,7 +189,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       # beta_hat[,jj]<-beta_hat_JJ
      # main_beta[,,jj]<-matrix(beta_hat_JJ,p,(1+K))
-      beta_hat[,jj]<-as(beta_hat_JJ,"sparseMatrix")
+      beta_hat[,jj]<-beta_hat_JJ
       #main_beta[,-1,jj]<-matrix(beta_hat[,jj][-(1:p)],ncol = (K),nrow = p, byrow = T)
      # beta[,jj]<- main_beta[,1,jj]#beta_hat[c(1:p)]
       #beta_theta<-main_beta[,-1]
@@ -201,9 +201,9 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       #beta_hat1[,1]<-beta; beta_hat1[,c(2:(K+1))]<-beta_theta
       #for (j in 1:p) {
       b_hat<-alph*beta_hat1+(1-alph)*Q[,,jj]
-      Q[,1,jj]<-as(b_hat[,1]+(P[,1,jj]),"sparseMatrix")
+      Q[,1,jj]<-b_hat[,1]+(P[,1,jj])
       new.mat<- b_hat[,-1] +P[,-1,jj]
-      Q[,-1,jj]<- as(sign(new.mat)*pmax(abs(new.mat)-((alpha*lambda[jj])/(rho)),0),"sparseMatrix")
+      Q[,-1,jj]<- sign(new.mat)*pmax(abs(new.mat)-((alpha*lambda[jj])/(rho)),0)
       # coef.term <- pmax(1-(lambda[1]/rho)/(row.norm) , 0)
       b_hat<-alph*beta_hat1+(1-alph)*EE[,,jj]
       new.mat<- b_hat +HH[,,jj]
@@ -212,7 +212,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     ee1<-scale(t(as.matrix(new.mat)),center = FALSE,scale = 1/coef.term1)
     #print(dim(ee1))
    # print(dim(EE[,,jj]))
-    EE[,,jj]<- as( t(ee1),"sparseMatrix")
+    EE[,,jj]<-  t(ee1)
       #EE[,,jj]<- sign(new.mat)*pmax(abs(new.mat)-(( gg[1] )/(rho)),0)
       #row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
       # coef.term1<- pmax(1-( gg[1] )/(rho)/(row.norm1),0)
@@ -221,7 +221,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       
       
       Big_beta<-t(tcrossprod(G,(beta_hat1)) )
-      Big_beta11[,,jj]<-as(Big_beta,"sparseMatrix")
+      Big_beta11[,,jj]<-Big_beta
       Big_beta1<-alph*Big_beta+(1-alph)*V[,,jj]
       
       
@@ -235,20 +235,20 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       coef.term1<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm1),0)
       coef.term2<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm2),0)
       #new.mat3<-matrix(0,p,(K+1));new.mat4<-matrix(0,p,(K+1))
-      N_V1<-scale(t( as.matrix(new.mat1) ),center = FALSE,scale = 1/coef.term1)
-      N_V2<-scale(t( as.matrix(new.mat2)),center = FALSE,scale = 1/coef.term2)
+      N_V1<-scale(t( new.mat1 ),center = FALSE,scale = 1/coef.term1)
+      N_V2<-scale(t( new.mat2),center = FALSE,scale = 1/coef.term2)
       # N_V<-   lapply(seq_len(p),
       #           function(j) (  c(matrix(scale(new.mat1[j,], center = FALSE, scale = 1/coef.term1[j])  ),matrix(scale(new.mat2[j,], center = FALSE, scale = 1/coef.term2[j]) ) )  ) )
       
       
       
-      V[,,jj]= as(cbind(t(N_V1),t(N_V2)),"sparseMatrix")
+      V[,,jj]= cbind(t(N_V1),t(N_V2))
       
       
       #print(V)
-      P[,,jj]<- as(P[,,jj]+beta_hat1-Q[,,jj],"sparseMatrix")
-      HH[,,jj]<-as(HH[,,jj]+beta_hat1-EE[,,jj],"sparseMatrix")
-      O[,,jj]<-as(O[,,jj]+Big_beta-V[,,jj],"sparseMatrix")
+      P[,,jj]<- P[,,jj]+beta_hat1-Q[,,jj]
+      HH[,,jj]<-HH[,,jj]+beta_hat1-EE[,,jj]
+      O[,,jj]<-O[,,jj]+Big_beta-V[,,jj]
       
       
       v.diff1[jj]<-sum(((Big_beta-V[,,jj]))^2,na.rm = TRUE)
@@ -287,7 +287,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     
     
-    Big_beta_respone<-((I)%*%t( as.matrix(beta_hat) ))
+    Big_beta_respone<-((I)%*%t( beta_hat ))
     b_hat_response<-alph*Big_beta_respone+(1-alph)*E
     #Q[,1]<-b_hat[,1]-(P[,1])/rho
     new.mat<- b_hat_response +H
@@ -299,13 +299,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #print(dim(H))
     #                  r
     #
-    new.mat_group<-as.sparse3Darray(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
-    beta.group<-as.sparse3Darray(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
+    new.mat_group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
+    beta.group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
     N_E<-list()
     #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
     II<-input[multiple_of_D]
-    new.mat_group[,,1]<-t( as.matrix(new.mat[c(1:dim(y)[2]),] ))
-    beta.group[,,1]<-t( as.matrix(Big_beta_respone[c(1:dim(y)[2]),]))
+    new.mat_group[,,1]<-t( (new.mat[c(1:dim(y)[2]),] ))
+    beta.group[,,1]<-t( (Big_beta_respone[c(1:dim(y)[2]),]))
     
     
     beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
@@ -358,7 +358,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     for (c_count in 2:dim(C)[1]) {
       
       #for (e in II[-length(II)]) {
-      new.mat_group[,,c_count]<-t( as.matrix(new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
+      new.mat_group[,,c_count]<-t( (new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
       beta.group[,,c_count]<-t(Big_beta_respone[c((e+1):( c_count*dim(y)[2]) ),])
       # c_count= 1+c_count
       # }
@@ -411,7 +411,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       }
       
       #print(beta_transform1)
-      N_E[[c_count]]<-(t( as.matrix(beta_transform1)) )
+      N_E[[c_count]]<-(t( (beta_transform1)) )
       
       
       
@@ -472,7 +472,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     N_beta.group<-apply(beta.group, 3, twonorm)
     
-    E[c(1:dim(C)[2]),]<-as(N_E[[1]],"sparseMatrix")
+    E[c(1:dim(C)[2]),]<-N_E[[1]]
     
     
     c_count<-2
@@ -481,7 +481,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     for (c_count in 2:dim(C)[1]) {
       
       #for (e in II[-length(II)]) {
-      E[c((e+1):( c_count*dim(y)[2]) ),]<-as(N_E[[c_count]],"sparseMatrix")
+      E[c((e+1):( c_count*dim(y)[2]) ),]<-N_E[[c_count]]
       #c_count= 1+c_count
       # }
       #ee=ee+1
@@ -501,7 +501,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     #E<- sign(new.mat)*pmax(abs(new.mat)-((lambda)/(rho)),0)
     
-    H<-as(H+Big_beta_respone-E,"sparseMatrix")
+    H<-H+Big_beta_respone-E
     ################################################
     
     
@@ -541,10 +541,10 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     res_pri<-r
     #print(c(res_dual,res_pri))
     
-    e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c(as.array(Big_beta11),as.array(beta_hat),as.matrix(beta_hat),as.array(Big_beta_respone) )), twonorm(-c(as.array(V),as.array(Q),as.matrix(E),as.array(EE) )))
+    e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c((Big_beta11),(beta_hat),(beta_hat),(Big_beta_respone) )), twonorm(-c((V),(Q),(E),(EE) )))
     
     #print(c(twonorm(cbind(Big_beta)), twonorm(-cbind(V))))
-    e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c(as.array(O),as.array(P),as.matrix(H),as.array(HH) )))
+    e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c((O),(P),(H),(HH) )))
     V_old <- V
     Q_old <- Q
     E_old<-E
@@ -577,13 +577,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   res_val<-t(I)%*%(E)
   #res_val1<-EE
   for (jj in 1:dim(y)[2]) {
-    group<-(t(G)%*%t(as.matrix(V[,,jj]) )   )
+    group<-(t(G)%*%t((V[,,jj]) )   )
     
     
     # group1<-group[1,]+as.vector(res_val[jj,])+as.vector(res_val1[,jj]); group2<-t(group[-1,])
     group1<-group[1,]; group2<-t(group[-1,])
     #group1<-group[1,]; group2<-t(group[-1,])
-    new_group=as(matrix(0,p,(K+1)),"sparseMatrix")
+    new_group=matrix(0,p,(K+1))
     new_group[,1]<-group1; new_group[,-1]<-group2
     new_g_theta<-as.vector(new_group)
     #group<-as.vector(new_group) +as.vector(Q)
