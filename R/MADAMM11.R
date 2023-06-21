@@ -711,9 +711,9 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
                 function(j)(matrix(0,nrow = (D))))
   
   BETA<-lapply(seq_len(nlambda),
-               function(j)(matrix(0,nrow=p,ncol=(D) )) )
+               function(j)(as(matrix(0,nrow=p,ncol=(D) ),"sparseMatrix") ) )
   BETA_hat<-lapply(seq_len(nlambda),
-                   function(j)(matrix(0,nrow=p+p*K,ncol=(D) )) )
+                   function(j)( as(matrix(0,nrow=p+p*K,ncol=(D) ),"sparseMatrix") ) )
   
   
   THETA0<-lapply(seq_len(nlambda),
@@ -1140,13 +1140,13 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     
     BETA0[[hh]]<-beta0
     THETA0[[hh]]<-theta0
-    BETA[[hh]]<-beta1
-    BETA_hat[[hh]]<-beta_hat1
+    BETA[[hh]]<-as(beta1,"sparseMatrix")
+    BETA_hat[[hh]]<-as(beta_hat1,"sparseMatrix")
     
     Y_HAT[[hh]]<-y_hat
     # print(beta1)
     # print(BETA[[b]][,i])
-    THETA[[hh]]<-theta1
+    THETA[[hh]]<-as.sparse3Darray(theta1)
     
     
     if(cv==F){
