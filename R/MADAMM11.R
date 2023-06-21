@@ -287,7 +287,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     
     
     
-    Big_beta_respone<-((I)%*%t(beta_hat))
+    Big_beta_respone<-((I)%*%t( as.matrix(beta_hat) ))
     b_hat_response<-alph*Big_beta_respone+(1-alph)*E
     #Q[,1]<-b_hat[,1]-(P[,1])/rho
     new.mat<- b_hat_response +H
