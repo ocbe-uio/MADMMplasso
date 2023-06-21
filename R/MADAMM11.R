@@ -986,22 +986,22 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   
   beta0 = matrix(0,1,D)#estimates$Beta0
   theta0 = matrix(0,K,D)
-  beta =  as(matrix(0,p,D),"sparseMatrix")
-  beta_hat<-as(matrix(0,p+p*(K),D),"sparseMatrix")
+  beta =  (matrix(0,p,D))
+  beta_hat<-(matrix(0,p+p*(K),D))
   V=(array(0,c(p,2*(1+K),D) ))
   O=(array(0,c(p,2*(1+K),D) ))
-  E<-as(matrix(0,dim(y)[2]*nrow(C),(p+p*K)),"sparseMatrix") #response auxiliary
-  EE<-as.sparse3Darray(array(0,c(p,(1+K),D) ))
+  E<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K))) #response auxiliary
+  EE<-(array(0,c(p,(1+K),D) ))
   
   
   
   # auxiliary variables for the L1 norm####
   
-  theta =as.sparse3Darray( array(0,c(p,K,D)))
-  Q=as.sparse3Darray(array(0,c(p,(1+K),D) ))
-  P=as.sparse3Darray(array(0,c(p,(1+K),D) ))
-  H<-as(matrix(0,dim(y)[2]*nrow(C),(p+p*K)),"sparseMatrix")  # response multiplier
-  HH<-as.sparse3Darray(array(0,c(p,(1+K),D) ))
+  theta =( array(0,c(p,K,D)))
+  Q=(array(0,c(p,(1+K),D) ))
+  P=(array(0,c(p,(1+K),D) ))
+  H<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K)))  # response multiplier
+  HH<-(array(0,c(p,(1+K),D) ))
   if(is.null(my_lambda)){
     lam<-matrix(0,nlambda,dim(y)[2])
     for (i in 1:dim(y)[2] ) {
