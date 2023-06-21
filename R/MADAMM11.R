@@ -209,7 +209,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       new.mat<- b_hat +HH[,,jj]
       row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
       coef.term1<- pmax(1-  (gg[2]) /rho/(row.norm1),0)
-    ee1<-scale(t(new.mat),center = FALSE,scale = 1/coef.term1)
+    ee1<-scale(t(as.matrix(new.mat)),center = FALSE,scale = 1/coef.term1)
     #print(dim(ee1))
    # print(dim(EE[,,jj]))
     EE[,,jj]<- as( t(ee1),"sparseMatrix")
@@ -235,8 +235,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       coef.term1<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm1),0)
       coef.term2<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm2),0)
       #new.mat3<-matrix(0,p,(K+1));new.mat4<-matrix(0,p,(K+1))
-      N_V1<-scale(t(new.mat1),center = FALSE,scale = 1/coef.term1)
-      N_V2<-scale(t(new.mat2),center = FALSE,scale = 1/coef.term2)
+      N_V1<-scale(t( as.matrix(new.mat1) ),center = FALSE,scale = 1/coef.term1)
+      N_V2<-scale(t( as.matrix(new.mat2)),center = FALSE,scale = 1/coef.term2)
       # N_V<-   lapply(seq_len(p),
       #           function(j) (  c(matrix(scale(new.mat1[j,], center = FALSE, scale = 1/coef.term1[j])  ),matrix(scale(new.mat2[j,], center = FALSE, scale = 1/coef.term2[j]) ) )  ) )
       
@@ -304,8 +304,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     N_E<-list()
     #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
     II<-input[multiple_of_D]
-    new.mat_group[,,1]<-t(new.mat[c(1:dim(y)[2]),])
-    beta.group[,,1]<-t(Big_beta_respone[c(1:dim(y)[2]),])
+    new.mat_group[,,1]<-t( as.matrix(new.mat[c(1:dim(y)[2]),] ))
+    beta.group[,,1]<-t( as.matrix(Big_beta_respone[c(1:dim(y)[2]),]))
     
     
     beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
@@ -358,7 +358,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     for (c_count in 2:dim(C)[1]) {
       
       #for (e in II[-length(II)]) {
-      new.mat_group[,,c_count]<-t(new.mat[c((e+1):( c_count*dim(y)[2]) ),])
+      new.mat_group[,,c_count]<-t( as.matrix(new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
       beta.group[,,c_count]<-t(Big_beta_respone[c((e+1):( c_count*dim(y)[2]) ),])
       # c_count= 1+c_count
       # }
@@ -411,7 +411,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       }
       
       #print(beta_transform1)
-      N_E[[c_count]]<-(t(beta_transform1))
+      N_E[[c_count]]<-(t( as.matrix(beta_transform1)) )
       
       
       
