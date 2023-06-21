@@ -600,13 +600,13 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     #finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)*(as.vector((res_val[jj,-c(1:p)] ))!=0)
     finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
     
-    beta_hat1<- as(matrix(c(finB1,finB2), ncol = (K+1), nrow = p ),"sparseMatrix")
+    beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
     #  # pinv(t(my_w)%*%my_w)
     #main_beta<-matrix(beta_hat,p,(1+K))
-    beta[,jj]<- as(beta_hat1[,1],"sparseMatrix")#main_beta[,1]#
+    beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
     # print(c(beta_hat11[c(1:p),jj]))
-    theta[,,jj]<-as((beta_hat1[,-1]),"sparseMatrix")
-    beta_hat[,jj]<-as(c(c(beta_hat1[,1],as.vector(theta[,,jj]))),"sparseMatrix")
+    theta[,,jj]<-(beta_hat1[,-1])
+    beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
   }
   # print(dim(W_hat)); print(dim(beta_hat11))
   y_hat<-model(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
