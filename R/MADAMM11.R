@@ -577,7 +577,9 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   res_val<-t(I)%*%(E)
   #res_val1<-EE
   for (jj in 1:dim(y)[2]) {
-    group<-(t(G)%*%t(V[,,jj])   )
+    group<-(t(G)%*%t(as.matrix(V[,,jj]) )   )
+    
+    
     # group1<-group[1,]+as.vector(res_val[jj,])+as.vector(res_val1[,jj]); group2<-t(group[-1,])
     group1<-group[1,]; group2<-t(group[-1,])
     #group1<-group[1,]; group2<-t(group[-1,])
