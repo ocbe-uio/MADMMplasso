@@ -988,8 +988,8 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   theta0 = matrix(0,K,D)
   beta =  as(matrix(0,p,D),"sparseMatrix")
   beta_hat<-as(matrix(0,p+p*(K),D),"sparseMatrix")
-  V=as.sparse3Darray(array(0,c(p,2*(1+K),D) ))
-  O=as.sparse3Darray(array(0,c(p,2*(1+K),D) ))
+  V=(array(0,c(p,2*(1+K),D) ))
+  O=(array(0,c(p,2*(1+K),D) ))
   E<-as(matrix(0,dim(y)[2]*nrow(C),(p+p*K)),"sparseMatrix") #response auxiliary
   EE<-as.sparse3Darray(array(0,c(p,(1+K),D) ))
   
