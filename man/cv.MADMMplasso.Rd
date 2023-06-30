@@ -31,8 +31,7 @@ cv.MADMMplasso(
 \arguments{
 \item{fit}{object returned by the pliable function}
 
-\item{nfolds}{number of cross-validation folds
-@param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
+\item{nfolds}{number of cross-validation folds}
 
 \item{X}{N by p matrix of predictors}
 
@@ -40,6 +39,38 @@ cv.MADMMplasso(
 Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
 
 \item{y}{N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call}
+
+\item{alpha}{TODO: add parameter description}
+
+\item{lambda}{TODO: add parameter description}
+
+\item{max_it}{TODO: add parameter description}
+
+\item{e.abs}{TODO: add parameter description}
+
+\item{e.rel}{TODO: add parameter description}
+
+\item{nlambda}{TODO: add parameter description}
+
+\item{rho}{TODO: add parameter description}
+
+\item{my_print}{TODO: add parameter description}
+
+\item{alph}{TODO: add parameter description}
+
+\item{foldid}{TODO: add parameter description}
+
+\item{parallel}{TODO: add parameter description}
+
+\item{pal}{TODO: add parameter description}
+
+\item{gg}{TODO: add parameter description}
+
+\item{TT}{TODO: add parameter description}
+
+\item{tol}{TODO: add parameter description}
+
+\item{cl}{TODO: add parameter description}
 }
 \value{
 results containing the CV values

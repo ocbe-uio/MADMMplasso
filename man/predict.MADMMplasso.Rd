@@ -15,7 +15,11 @@ Make predictions from a fitted pliable lasso model}
 \item{Z}{n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning
 algorithm that predicts z from test features x  and possibly other features.}
 
-\item{y}{N by D matrix  of responses.
+\item{y}{N by D matrix  of responses.}
+
+\item{lambda}{TODO: fill in description}
+
+\item{...}{additional arguments to the generic \code{predict()} method
 @return  predicted values}
 }
 \description{

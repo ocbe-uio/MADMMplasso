@@ -6,6 +6,13 @@
 \usage{
 generate.my.w(X = matrix(), Z = matrix(), quad = TRUE)
 }
+\arguments{
+\item{X}{TODO: fill in description}
+
+\item{Z}{TODO: fill in description}
+
+\item{quad}{TODO: fill in description}
+}
 \description{
 Generate the matrix W as used in Appendix I for use in the function.
 }

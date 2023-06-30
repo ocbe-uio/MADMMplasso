@@ -2,7 +2,40 @@
 #' @param X  n by p matrix of predictors
 #' @param Z n by nz matrix of modifying variables. The elements of z  may represent quantitative or categorical variables, or a mixture of the two.
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
+#' @param beta0 TODO: fill paramater description
+#' @param theta0 TODO: fill paramater description
+#' @param beta TODO: fill paramater description
+#' @param beta_hat TODO: fill paramater description
+#' @param theta TODO: fill paramater description
+#' @param rho1 TODO: fill paramater description
+#' @param max_it TODO: fill paramater description
+#' @param W_hat TODO: fill paramater description
+#' @param XtY TODO: fill paramater description
+#' @param y TODO: fill paramater description
+#' @param N TODO: fill paramater description
+#' @param p TODO: fill paramater description
+#' @param K TODO: fill paramater description
+#' @param e.abs TODO: fill paramater description
+#' @param e.rel TODO: fill paramater description
+#' @param alpha TODO: fill paramater description
+#' @param lambda TODO: fill paramater description
+#' @param alph TODO: fill paramater description
+#' @param svd.w TODO: fill paramater description
+#' @param tree TODO: fill paramater description
+#' @param my_print TODO: fill paramater description
+#' @param invmat TODO: fill paramater description
+#' @param V TODO: fill paramater description
+#' @param Q TODO: fill paramater description
+#' @param E TODO: fill paramater description
+#' @param EE TODO: fill paramater description
+#' @param O TODO: fill paramater description
+#' @param P TODO: fill paramater description
+#' @param H TODO: fill paramater description
+#' @param HH TODO: fill paramater description
+#' @param cv TODO: fill paramater description
+#' @param gg TODO: fill paramater description
 #' @return  predicted values for the ADMM part
+#' @description TODO: add description
 
 
 
@@ -620,26 +653,32 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 }
 
 
-#' Fit a multi-response pliable lasso model over a path of regularization values
+#' @title Fit a multi-response pliable lasso model over a path of regularization values
+#' @description TODO: add description (This function fits a multi-response pliable lasso model over a path of regularization values?)
 #' @param X  N by p matrix of predictors
 #' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D matrix  of responses. The X and Z variables are centered in the function. We recommmend that X and Z also be standardized before the call
 #' @param nlambda number of lambda values desired (default 50).
-#' @param lambda.min.ratio the smallest value for lambda , as a fraction of
-#'     lambda.max, the (data derived) entry value (i.e. the smallest value for which all coefficients are zero).
-#'      Default is 0.001 if n>p, and 0.01 if n< p.
 #' @param alpha mixing parameter- default 0.5
-#'  @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
+#' @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
 #' @param maxgrid similar to nlambda
 #' @param rho the Lagrange variable for the ADMM
 #' @param e.abs absolute error for the admm
 #' @param e.rel relative error for the admm
 #' @param gg penalty term for the tree structure
+#' @param my_lambda TODO: fill in
+#' @param lambda_min TODO: fill in
+#' @param max_it TODO: fill in
+#' @param my_print TODO: fill in
+#' @param alph TODO: fill in
+#' @param tree TODO: fill in
+#' @param cv TODO: fill in
+#' @param parallel TODO: fill in
+#' @param pal TODO: fill in
+#' @param tol TODO: fill in
+#' @param cl TODO: fill in
 #' @return  predicted values for the MADMMplasso fit
-#'
-#'
-#'
 #' @examples
 #' # Train the model
 #' # generate some data
@@ -707,17 +746,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #'  my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=cl-2
 #' )
 #' plot(fit)
-
-
-
-
-
-
-
-
-
 #' @export
-
 MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=FALSE,alph=1.8,tree,cv=FALSE,parallel=TRUE,pal=0,gg=NULL,tol=1E-4,cl=4){
 
   N=nrow(X)
@@ -1293,11 +1322,10 @@ fastCorr <- function(A){
 
 #' Fit the hierarchical tree structure
 #' @param y  N by D matrix of response variables
-#' #' @param h is the tree cut off
+#' @param h is the tree cut off
 #' @return  A trained the tree with the following components:
 #' Tree: the tree matrix stored in 1's and 0's
 #' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
-
 #' @export
 tree.parms <- function(y=y, h=.7){
   m <- dim(y)[2]
@@ -1341,18 +1369,18 @@ tree.parms <- function(y=y, h=.7){
 
 
 #' Simulate data for the model
-#' @param p: column for X which is the main effect
-#' @param n: number of observations
-#' #' @param m: number of responses
-
+#' @param p column for X which is the main effect
+#' @param n number of observations
+#' @param m number of responses
+#' @param nz TODO: add description (number of modifiers?)
+#' @param rho TODO: add description (correlation between covariates?)
+#' @param B.elem TODO: add description (the proportion of non-zero elements in beta?)
 #' @return  The simulated data with the following components:
 #'  Beta: matrix of actual beta coefficients  p by D
 #'  Theta: a D by p by K array of actual theta coefficients
 #'  Y: a N by D matrix of response variables
 #'  X: a N by p matrix of covariates
 #'  Z: a N by K matrix of modifiers
-
-
 #' @export
 sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
   b<-10
@@ -1502,13 +1530,24 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
-#'  @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
+#' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
+#' @param alpha TODO: add parameter description
+#' @param lambda TODO: add parameter description
+#' @param max_it TODO: add parameter description
+#' @param e.abs TODO: add parameter description
+#' @param e.rel TODO: add parameter description
+#' @param nlambda TODO: add parameter description
+#' @param rho TODO: add parameter description
+#' @param my_print TODO: add parameter description
+#' @param alph TODO: add parameter description
+#' @param foldid TODO: add parameter description
+#' @param parallel TODO: add parameter description
+#' @param pal TODO: add parameter description
+#' @param gg TODO: add parameter description
+#' @param TT TODO: add parameter description
+#' @param tol TODO: add parameter description
+#' @param cl TODO: add parameter description
 #' @return  results containing the CV values
-#'
-#'
-#'
-#'
-#'
 #' @examples
 #' # Train the model
 #' # generate some data
@@ -1584,11 +1623,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #'  )
 #'
 #'  plot(cv_admp)
-
-
-
 #' @export
-
 cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel=TRUE,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
   BIG=10e9
   no<-nrow(X)
@@ -1724,6 +1759,12 @@ S_func <- function(x, a) {  # Soft Thresholding Operator
   return(pmax(abs(x) - a,0) * sign(x))
 }
 
+#' @title TODO: fill this field
+#' @description TODO: fill this field
+#' @param X TODO: fill this field
+#' @param Z TODO: fill this field
+#' @param theta TODO: fill this field
+#' @return TODO: fill this field
 #' @export
 compute_pliable<-function(X, Z, theta){
   p=ncol(X)
@@ -1941,6 +1982,9 @@ quick.func<- function(xz = c(),xn){
 }
 
 #' Generate the matrix W as used in Appendix I for use in the function.
+#' @param X TODO: fill in description
+#' @param Z TODO: fill in description
+#' @param quad TODO: fill in description
 #' @export
 generate.my.w<- function(X=matrix(),Z=matrix(), quad = TRUE){
 
@@ -1984,6 +2028,8 @@ twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
 #' @param Z  n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning
 #'   algorithm that predicts z from test features x  and possibly other features.
 #' @param y N by D matrix  of responses.
+#' @param lambda  TODO: fill in description
+#' @param ... additional arguments to the generic \code{predict()} method
 #'  @return  predicted values
 #' @export
 predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){

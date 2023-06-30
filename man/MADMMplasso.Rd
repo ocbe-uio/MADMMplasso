@@ -37,8 +37,13 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 
 \item{y}{N by D matrix  of responses. The X and Z variables are centered in the function. We recommmend that X and Z also be standardized before the call}
 
-\item{alpha}{mixing parameter- default 0.5
-@param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000}
+\item{alpha}{mixing parameter- default 0.5}
+
+\item{my_lambda}{TODO: fill in}
+
+\item{lambda_min}{TODO: fill in}
+
+\item{max_it}{TODO: fill in}
 
 \item{e.abs}{absolute error for the admm}
 
@@ -50,14 +55,29 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 
 \item{rho}{the Lagrange variable for the ADMM}
 
+\item{my_print}{TODO: fill in}
+
+\item{alph}{TODO: fill in}
+
+\item{tree}{TODO: fill in}
+
+\item{cv}{TODO: fill in}
+
+\item{parallel}{TODO: fill in}
+
+\item{pal}{TODO: fill in}
+
 \item{gg}{penalty term for the tree structure}
 
-\item{lambda.min.ratio}{the smallest value for lambda , as a fraction of
-lambda.max, the (data derived) entry value (i.e. the smallest value for which all coefficients are zero).
-Default is 0.001 if n>p, and 0.01 if n< p.}
+\item{tol}{TODO: fill in}
+
+\item{cl}{TODO: fill in}
 }
 \value{
 predicted values for the MADMMplasso fit
+}
+\description{
+TODO: add description (This function fits a multi-response pliable lasso model over a path of regularization values?)
 }
 \examples{
 # Train the model
