@@ -5,7 +5,7 @@ Authors@R:
     c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
 Description: This system allows one to model a multi response problem that has correlation among the
 	responses and also has main and interaction effects among the covariates.
-Depends:
+Imports:
     dplyr,
     tidyr,
     Matrix,
@@ -22,7 +22,9 @@ Depends:
     parallel,
     stats,
     spatstat.sparse,
-    doMC
+    doMC,
+    methods
+Suggests: testthat,
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
