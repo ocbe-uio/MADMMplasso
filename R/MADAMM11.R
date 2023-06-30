@@ -1707,7 +1707,6 @@ cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50
 
 
 
-#' @export
 error.bars <-function(x, upper, lower, width = 0.02, ...) {
   xlim <- range(x)
   barw <- diff(xlim) * width
@@ -1742,7 +1741,6 @@ compute_pliable<-function(X, Z, theta){
 }
 
 
-#' @export
 model<-function(beta0, theta0, beta, theta, X, Z){
   p=ncol(X)
   N=nrow(X)
@@ -1903,11 +1901,6 @@ count_nonzero_a<-function(x){
   return (n)
 
 }
-
-
-
-
-#' @export
 
 reg<-function(r,Z){
   K=ncol(Z)
