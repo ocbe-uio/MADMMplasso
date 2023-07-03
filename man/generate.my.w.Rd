@@ -2,10 +2,10 @@
 % Please edit documentation in R/MADAMM11.R
 \name{generate.my.w}
 \alias{generate.my.w}
-\title{Generate the matrix \widetilde{W} as used in Appendix I for use in the function.}
+\title{Generate the matrix \deqn{\widetilde{W} } as used in Appendix I for use in the function.}
 \usage{
 generate.my.w(X = matrix(), Z = matrix(), quad = TRUE)
 }
 \description{
-Generate the matrix \widetilde{W} as used in Appendix I for use in the function.
+Generate the matrix \deqn{\widetilde{W} } as used in Appendix I for use in the function.
 }

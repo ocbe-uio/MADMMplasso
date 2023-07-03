@@ -5,24 +5,19 @@ Authors@R:
     c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
 Description: This system allows one to model a multi response problem that has correlation among the
 	responses and also has main and interaction effects among the covariates.
-Depends:
-    dplyr,
-    tidyr,
+Imports:  
     Matrix,
-    bigalgebra,
-    SparseM,
     Rcpp,
     RcppArmadillo,
     MASS,
     foreach,
     doParallel,
-    pracma,
     class,
     graphics,
     parallel,
     stats,
     spatstat.sparse,
-    doMC
+    methods
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

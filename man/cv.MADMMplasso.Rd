@@ -48,8 +48,8 @@ results containing the CV values
 Carries out cross-validation for  a  pliable lasso model over a path of regularization values
 }
 \examples{
-Train the model
-generate some data
+# Train the model
+# generate some data
 set.seed(1235)
 N = 100 ; p =50;nz=4; K=nz
 X <- matrix(rnorm(n = N * p), nrow = N, ncol = p)
@@ -78,14 +78,13 @@ theta[6,1,4]<-2;theta[8,2,4]<-2;theta[9,3,4]<- -2;theta[10,4,4]<- -2;
 theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2;
 theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 
-library(MASS)
 pliable = matrix(0,N,6)
 for (e in 1:6) {
 pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
 }
 
 esd<-diag(6)
-e<-mvrnorm(N,mu=rep(0,6),Sigma=esd)
+e<-MASS::mvrnorm(N,mu=rep(0,6),Sigma=esd)
 y_train<-X\%*\%Beta+pliable+e
 y=y_train
 #colnames(y)<-c(1:6)
@@ -95,13 +94,11 @@ plot(TT$h_clust)
 gg1=matrix(0,2,2)
 gg1[1,]<-c(0.02,0.02)
 gg1[2,]<-c(0.02,0.02)
-qq
-cl=detectCores()
 nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = F,alph=1,parallel =F,pal=1,gg=gg1,tol=tol,cl=cl-2 ) 
+  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6 ) 
   gg1=fit$gg
  
- cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel = F,pal=1,gg=gg1,TT=TT,tol=tol)
+ cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel = FALSE,pal=1,gg=gg1,TT=TT,tol=tol)
  
  plot(cv_admp)
 }
