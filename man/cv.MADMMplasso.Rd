@@ -17,10 +17,10 @@ cv.MADMMplasso(
   e.rel = 0.001,
   nlambda,
   rho = 5,
-  my_print = F,
+  my_print = FALSE,
   alph = 1,
   foldid = NULL,
-  parallel = T,
+  parallel = TRUE,
   pal = 0,
   gg = c(7, 0.5),
   TT,
@@ -31,15 +31,49 @@ cv.MADMMplasso(
 \arguments{
 \item{fit}{object returned by the pliable function}
 
-\item{nfolds}{number of cross-validation folds
-@param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
+\item{nfolds}{number of cross-validation folds}
 
 \item{X}{N by p matrix of predictors}
 
-\item{Z}{N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
-Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
+\item{Z}{N by K matrix of modifying variables. The elements of Z  may
+represent quantitative or categorical variables, or a mixture of the two.
+Categorical varables should be coded by 0-1 dummy variables: for a k-level
+variable, one can use either k or k-1  dummy variables.}
 
-\item{y}{N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call}
+\item{y}{N by D-matrix of responses. The X and Z variables are centered in
+the function. We recommmend that x and z also be standardized before the call}
+
+\item{alpha}{TODO: add parameter description}
+
+\item{lambda}{TODO: add parameter description}
+
+\item{max_it}{TODO: add parameter description}
+
+\item{e.abs}{TODO: add parameter description}
+
+\item{e.rel}{TODO: add parameter description}
+
+\item{nlambda}{TODO: add parameter description}
+
+\item{rho}{TODO: add parameter description}
+
+\item{my_print}{TODO: add parameter description}
+
+\item{alph}{TODO: add parameter description}
+
+\item{foldid}{TODO: add parameter description}
+
+\item{parallel}{TODO: add parameter description}
+
+\item{pal}{TODO: add parameter description}
+
+\item{gg}{TODO: add parameter description}
+
+\item{TT}{TODO: add parameter description}
+
+\item{tol}{TODO: add parameter description}
+
+\item{cl}{TODO: add parameter description}
 }
 \value{
 results containing the CV values
@@ -61,10 +95,20 @@ Z =matrix(rnorm(N*nz),N,nz)
 mz=colMeans(Z)
 sz=sqrt(apply(Z,2,var))
 Z=scale(Z,mz,sz)
-beta_1 <- rep(x = 0, times = p); beta_2<-rep(x = 0, times = p);beta_3<-rep(x = 0, times = p);beta_4<-rep(x = 0, times = p);beta_5<-rep(x = 0, times = p);beta_6<-rep(x = 0, times = p)
+beta_1 <- rep(x = 0, times = p)
+beta_2<-rep(x = 0, times = p)
+beta_3<-rep(x = 0, times = p)
+beta_4<-rep(x = 0, times = p)
+beta_5<-rep(x = 0, times = p)
+beta_6<-rep(x = 0, times = p)
 
 
-beta_1[1:5] <- c(2, 2, 2, 2,2); beta_2[1:5]<-c(2, 2, 2, 2,2); beta_3[6:10]<-c(2, 2, 2, -2,-2); beta_4[6:10] <- c(2, 2, 2, -2,-2); beta_5[11:15] <- c(-2,  -2,-2, -2,-2);beta_6[11:15] <- c(-2, -2, -2, -2,-2)
+beta_1[1:5] <- c(2, 2, 2, 2,2)
+beta_2[1:5]<-c(2, 2, 2, 2,2)
+beta_3[6:10]<-c(2, 2, 2, -2,-2)
+beta_4[6:10] <- c(2, 2, 2, -2,-2)
+beta_5[11:15] <- c(-2,  -2,-2, -2,-2)
+beta_6[11:15] <- c(-2, -2, -2, -2,-2)
 
 Beta<-cbind(beta_1,beta_2,beta_3,beta_4,beta_5,beta_6)
 colnames(Beta)<-c(1:6)
@@ -94,11 +138,22 @@ plot(TT$h_clust)
 gg1=matrix(0,2,2)
 gg1[1,]<-c(0.02,0.02)
 gg1[2,]<-c(0.02,0.02)
-nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-  fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6 ) 
-  gg1=fit$gg
- 
- cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel = FALSE,pal=1,gg=gg1,TT=TT,tol=tol)
- 
- plot(cv_admp)
+nlambda = 50
+e.abs=1E-4
+e.rel=1E-2
+alpha=.2
+tol=1E-3
+fit <- MADMMplasso(
+  X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
+  e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5,tree=TT,
+  my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+)
+gg1=fit$gg
+
+cv_admp <- cv.MADMMplasso(
+  fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
+  e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
+  foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
+)
+plot(cv_admp)
 }

@@ -27,7 +27,7 @@ admm.MADMMplasso(
   alph,
   svd.w,
   tree,
-  my_print = T,
+  my_print = TRUE,
   invmat,
   V,
   Q,
@@ -42,14 +42,80 @@ admm.MADMMplasso(
 )
 }
 \arguments{
+\item{beta0}{TODO: fill paramater description}
+
+\item{theta0}{TODO: fill paramater description}
+
+\item{beta}{TODO: fill paramater description}
+
+\item{beta_hat}{TODO: fill paramater description}
+
+\item{theta}{TODO: fill paramater description}
+
+\item{rho1}{TODO: fill paramater description}
+
 \item{X}{n by p matrix of predictors}
 
-\item{Z}{n by nz matrix of modifying variables. The elements of z  may represent quantitative or categorical variables, or a mixture of the two.
-Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
+\item{Z}{n by nz matrix of modifying variables. The elements of z
+may represent quantitative or categorical variables, or a mixture of the two.
+Categorical varables should be coded by 0-1 dummy variables: for a k-level
+variable, one can use either k or k-1  dummy variables.}
+
+\item{max_it}{TODO: fill paramater description}
+
+\item{W_hat}{TODO: fill paramater description}
+
+\item{XtY}{TODO: fill paramater description}
+
+\item{y}{TODO: fill paramater description}
+
+\item{N}{TODO: fill paramater description}
+
+\item{p}{TODO: fill paramater description}
+
+\item{K}{TODO: fill paramater description}
+
+\item{e.abs}{TODO: fill paramater description}
+
+\item{e.rel}{TODO: fill paramater description}
+
+\item{alpha}{TODO: fill paramater description}
+
+\item{lambda}{TODO: fill paramater description}
+
+\item{alph}{TODO: fill paramater description}
+
+\item{svd.w}{TODO: fill paramater description}
+
+\item{tree}{TODO: fill paramater description}
+
+\item{my_print}{TODO: fill paramater description}
+
+\item{invmat}{TODO: fill paramater description}
+
+\item{V}{TODO: fill paramater description}
+
+\item{Q}{TODO: fill paramater description}
+
+\item{E}{TODO: fill paramater description}
+
+\item{EE}{TODO: fill paramater description}
+
+\item{O}{TODO: fill paramater description}
+
+\item{P}{TODO: fill paramater description}
+
+\item{H}{TODO: fill paramater description}
+
+\item{HH}{TODO: fill paramater description}
+
+\item{cv}{TODO: fill paramater description}
+
+\item{gg}{TODO: fill paramater description}
 }
 \value{
 predicted values for the ADMM part
 }
 \description{
-Fit the ADMM part of  model for a given lambda vale
+TODO: add description
 }
