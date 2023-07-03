@@ -8,6 +8,8 @@ Description: This system allows one to model a multi response problem that has c
 Imports:
     Matrix,
     MASS,
+    Rcpp,
+    RcppArmadillo,
     foreach,
     doParallel,
     class,

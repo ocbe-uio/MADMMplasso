@@ -1,7 +1,9 @@
 #' Fit the ADMM part of  model for a given lambda vale
 #' @param X  n by p matrix of predictors
-#' @param Z n by nz matrix of modifying variables. The elements of z  may represent quantitative or categorical variables, or a mixture of the two.
-#' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
+#' @param Z n by nz matrix of modifying variables. The elements of z
+#' may represent quantitative or categorical variables, or a mixture of the two.
+#' Categorical varables should be coded by 0-1 dummy variables: for a k-level
+#' variable, one can use either k or k-1  dummy variables.
 #' @param beta0 TODO: fill paramater description
 #' @param theta0 TODO: fill paramater description
 #' @param beta TODO: fill paramater description
@@ -738,18 +740,17 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
 #'
-#' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6)
-#'  plot(fit)
-
-
-
-
-
-
-
-
-
+#' nlambda = 50
+#' e.abs=1E-4
+#' e.rel=1E-2
+#' alpha=.2
+#' tol=1E-3
+#' fit <- MADMMplasso(
+#'   X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
+#'   e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5, tree=TT,
+#'   my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+#' )
+#' plot(fit)
 #' @export
 MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=FALSE,alph=1.8,tree,cv=FALSE,parallel=TRUE,pal=0,gg=NULL,tol=1E-4,cl=4){
 
@@ -1372,10 +1373,12 @@ tree.parms <- function(y=y, h=.7){
 
 
 #'  Simulate data for the model
-#' @param p: column for X which is the main effect
-#' @param n: number of observations
-#'  @param m: number of responses
-
+#' @param p column for X which is the main effect
+#' @param n number of observations
+#' @param m number of responses
+#' @param nz TODO: fill in (number of modifiers?)
+#' @param rho  TODO: fill in (correlation between the main effect and modifiers?)
+#' @param B.elem  TODO: fill in (the proportion of non-zero elements in beta?)
 #' @return  The simulated data with the following components:
 #'  Beta: matrix of actual beta coefficients  p by D
 #'  Theta: a D by p by K array of actual theta coefficients
@@ -1527,9 +1530,12 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' Carries out cross-validation for  a  pliable lasso model over a path of regularization values
 #' @param fit  object returned by the pliable function
 #' @param X  N by p matrix of predictors
-#' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
-#'  Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
-#' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
+#' @param Z N by K matrix of modifying variables. The elements of Z  may
+#' represent quantitative or categorical variables, or a mixture of the two.
+#'  Categorical varables should be coded by 0-1 dummy variables: for a k-level
+#' variable, one can use either k or k-1  dummy variables.
+#' @param y N by D-matrix of responses. The X and Z variables are centered in
+#' the function. We recommmend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
 #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
 #' @param alpha TODO: add parameter description
@@ -1607,13 +1613,24 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
-#' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6 )
-#'   gg1=fit$gg
+#' nlambda = 50
+#' e.abs=1E-4
+#' e.rel=1E-2
+#' alpha=.2
+#' tol=1E-3
+#' fit <- MADMMplasso(
+#'   X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
+#'   e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5,tree=TT,
+#'   my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+#' )
+#' gg1=fit$gg
 #'
-#'  cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel = FALSE,pal=1,gg=gg1,TT=TT,tol=tol)
-#'
-#'  plot(cv_admp)
+#' cv_admp <- cv.MADMMplasso(
+#'   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
+#'   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
+#'   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
+#' )
+#' plot(cv_admp)
 #' @export
 cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel=TRUE,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
   BIG=10e9
@@ -1772,8 +1789,6 @@ compute_pliable<-function(X, Z, theta){
 
 }
 
-
-#' @export
 model_p<-function(beta0, theta0, beta, theta, X, Z){
   p=ncol(X)
   N=nrow(X)
@@ -2017,7 +2032,9 @@ twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
 #'  Make predictions from a fitted pliable lasso model
 #' @param object object returned from a call to pliable
 #' @param X  N by p matrix of predictors
-#' @param Z  n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning algorithm that predicts z from test features x  and possibly other features.
+#' @param Z  n by nz matrix of modifying variables. These may be observed or
+#' the predictions from a supervised learning algorithm that predicts z from
+#' test features x  and possibly other features.
 #' @param y N by D matrix  of responses.
 #' @param lambda  TODO: fill in description
 #' @param ... additional arguments to the generic \code{predict()} method
