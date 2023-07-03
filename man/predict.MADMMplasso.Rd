@@ -12,8 +12,7 @@ Make predictions from a fitted pliable lasso model}
 
 \item{X}{N by p matrix of predictors}
 
-\item{Z}{n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning
-algorithm that predicts z from test features x  and possibly other features.}
+\item{Z}{n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning algorithm that predicts z from test features x  and possibly other features.}
 
 \item{y}{N by D matrix  of responses.}
 

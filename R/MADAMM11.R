@@ -642,7 +642,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
   }
   # print(dim(W_hat)); print(dim(beta_hat11))
-  y_hat<-model(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
+  y_hat<-model_p(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
 
   out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,V=V,Q=Q,O=O,P=P,E=E,H=H,EE=EE,HH=HH,beta_hat=beta_hat,y_hat=y_hat)
   class(out)="admm.MADMMplasso"
@@ -727,7 +727,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' }
 #'
 #' esd<-diag(6)
-#' e<-mvrnorm(N,mu=rep(0,6),Sigma=esd)
+#' e<-MASS::mvrnorm(N,mu=rep(0,6),Sigma=esd)
 #' y_train<-X%*%Beta+pliable+e
 #' y=y_train
 #' #colnames(y)<-c(1:6)
@@ -738,14 +738,18 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
 #'
-#' cl=parallel::detectCores()
-#' nlambda = 50; e.abs=1E-4; e.rel=1E-2; alpha=.2; tol=1E-3
-#' fit <- MADMMplasso(
-#'  X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
-#'  e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5, tree=TT,
-#'  my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=cl-2
-#' )
-#' plot(fit)
+#' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6)
+#'  plot(fit)
+
+
+
+
+
+
+
+
+
 #' @export
 MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=FALSE,alph=1.8,tree,cv=FALSE,parallel=TRUE,pal=0,gg=NULL,tol=1E-4,cl=4){
 
@@ -942,8 +946,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 
   C<-TT$Tree
   CW<-TT$Tw
-  svd.w$tu<- t(svd.w$u)
-  svd.w$tv<- t(svd.w$v)
+
 
   D=dim(y)[2]
 
@@ -1054,7 +1057,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     lam=lambda_i
   }
 
-  ggg=gg
+
 
 
 
@@ -1368,13 +1371,11 @@ tree.parms <- function(y=y, h=.7){
 }
 
 
-#' Simulate data for the model
-#' @param p column for X which is the main effect
-#' @param n number of observations
-#' @param m number of responses
-#' @param nz TODO: add description (number of modifiers?)
-#' @param rho TODO: add description (correlation between covariates?)
-#' @param B.elem TODO: add description (the proportion of non-zero elements in beta?)
+#'  Simulate data for the model
+#' @param p: column for X which is the main effect
+#' @param n: number of observations
+#'  @param m: number of responses
+
 #' @return  The simulated data with the following components:
 #'  Beta: matrix of actual beta coefficients  p by D
 #'  Theta: a D by p by K array of actual theta coefficients
@@ -1404,13 +1405,13 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
     }
 
     Xsigma<-rbind(cbind(Xsigma1))
-    X<-	mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
+    X<-	MASS::mvrnorm(n,mu=rep(0,p),Sigma=Xsigma)
     #X1<-X[,1:p[1]]
     #X2<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
     #X[,(p[1]+1):(p[1]+p[2])]<-data.matrix(X[,(p[1]+1):(p[1]+p[2])] > 0) + 0
     # generate uncorrelated error term
     esd<-diag(m)
-    e<-mvrnorm(n,mu=rep(0,m),Sigma=esd)
+    e<-MASS::mvrnorm(n,mu=rep(0,m),Sigma=esd)
 
     ## generate beta1 matrix
     Beta1<-matrix(0,nrow=m,ncol=p)
@@ -1527,7 +1528,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' @param fit  object returned by the pliable function
 #' @param X  N by p matrix of predictors
 #' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
-#' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
+#'  Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D-matrix of responses. The X and Z variables are centered in the function. We recommmend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
 #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
@@ -1589,14 +1590,14 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' theta[11,1,5]<-2;theta[13,2,5]<-2;theta[14,3,5]<- -2;theta[15,4,5]<- -2;
 #' theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 #'
-#' library(MASS)
+
 #' pliable = matrix(0,N,6)
 #' for (e in 1:6) {
 #' pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
 #' }
 #'
 #' esd<-diag(6)
-#' e<-mvrnorm(N,mu=rep(0,6),Sigma=esd)
+#' e<-MASS::mvrnorm(N,mu=rep(0,6),Sigma=esd)
 #' y_train<-X%*%Beta+pliable+e
 #' y=y_train
 #' #colnames(y)<-c(1:6)
@@ -1606,21 +1607,11 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
-#' cl=parallel::detectCores()
 #' nlambda = 50;e.abs=1E-4;e.rel=1E-2;alpha=.2;tol=1E-3
-#'   fit <- MADMMplasso(
-#'     X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
-#'     e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5, tree = TT,
-#'     my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=cl-2
-#'   )
-#'
+#'   fit<-MADMMplasso(X,Z,y,alpha=alpha,my_lambda=NULL,lambda_min=0.001,max_it=5000,e.abs=e.abs,e.rel=e.rel,maxgrid=50,nlambda = nlambda, rho=5,tree = TT,my_print = FALSE,alph=1,parallel =FALSE,pal=1,gg=gg1,tol=tol,cl=6 )
 #'   gg1=fit$gg
 #'
-#'  cv_admp <- cv.MADMMplasso(
-#'    fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
-#'    e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
-#'    foldid=NULL, parallel = FALSE, pal=1, gg=gg1, TT=TT, tol=tol
-#'  )
+#'  cv_admp<-cv.MADMMplasso(fit,nfolds=5,X,Z,y,alpha=alpha,lambda=fit$Lambdas,max_it=5000,e.abs=e.abs,e.rel=e.rel,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel = FALSE,pal=1,gg=gg1,TT=TT,tol=tol)
 #'
 #'  plot(cv_admp)
 #' @export
@@ -1782,7 +1773,8 @@ compute_pliable<-function(X, Z, theta){
 }
 
 
-model<-function(beta0, theta0, beta, theta, X, Z){
+#' @export
+model_p<-function(beta0, theta0, beta, theta, X, Z){
   p=ncol(X)
   N=nrow(X)
   K=ncol(Z)
@@ -1868,7 +1860,7 @@ model_intercept<-function( beta0, theta0, beta, theta, X, Z){
 objective<-function(beta0,theta0,beta,theta,X,Z,y,alpha,lambda,p,N,IB,W,beta1){
   #print(length(y))
 
-  loss<- ( norm(y-model(beta0, theta0, beta=beta1, theta, X=W, Z), type="F")^2 )
+  loss<- ( norm(y-model_p(beta0, theta0, beta=beta1, theta, X=W, Z), type="F")^2 )
   # print(length(matrix(model(beta0, theta0, beta, theta, X, Z),N,1 )))
   #rbind(matrix(y,nrow  =length(y),ncol =1),matrix(model(beta0, theta0, beta, theta, X, Z),nrow=nrow(X),ncol =1 ))
   mse=(1 / (2*N )) * loss
@@ -2022,11 +2014,10 @@ twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
 
 #' Compute predicted values from a fitted pliable  object
 
-#' Make predictions from a fitted pliable lasso model
+#'  Make predictions from a fitted pliable lasso model
 #' @param object object returned from a call to pliable
 #' @param X  N by p matrix of predictors
-#' @param Z  n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning
-#'   algorithm that predicts z from test features x  and possibly other features.
+#' @param Z  n by nz matrix of modifying variables. These may be observed or the predictions from a supervised learning algorithm that predicts z from test features x  and possibly other features.
 #' @param y N by D matrix  of responses.
 #' @param lambda  TODO: fill in description
 #' @param ... additional arguments to the generic \code{predict()} method
@@ -2161,7 +2152,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){
     # pred_beta[x]<-beta
     # beta=matrix(unlist(BETA[x]),p)
     #n_i<-beta0*as.numeric(beta0)*matrix(1,nrow = N,ncol = 1)+Z%*%(theta0)+X%*%matrix(beta) + XZ_term
-    n_i<-(model(beta0, theta0, beta=beta_hat, theta, X=my_W_hat, Z) )
+    n_i<-(model_p(beta0, theta0, beta=beta_hat, theta, X=my_W_hat, Z) )
 
     #  }
 
@@ -2197,7 +2188,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){
     DEV[ii]<-(Dev)
 
     # DEV[ii]<- ((2)*sum(Dev))#+
-    yh[,,ii]<- (n_i)
+    yh[,,ii]<- as.matrix(n_i)
 
   }
   out=list(y_hat=yh,beta0=pBETA0,beta=pBETA,beta_hat=pBETA_hat,theta0=pTHETA0,theta=pTHETA,deviance=DEV)

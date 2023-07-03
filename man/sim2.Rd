@@ -7,17 +7,10 @@
 sim2(p = 500, n = 100, m = 24, nz = 4, rho = 0.4, B.elem = 0.5)
 }
 \arguments{
-\item{p}{column for X which is the main effect}
+\item{p:}{column for X which is the main effect}
 
-\item{n}{number of observations}
-
-\item{m}{number of responses}
-
-\item{nz}{TODO: add description (number of modifiers?)}
-
-\item{rho}{TODO: add description (correlation between covariates?)}
-
-\item{B.elem}{TODO: add description (the proportion of non-zero elements in beta?)}
+\item{n:}{number of observations
+@param m: number of responses}
 }
 \value{
 The simulated data with the following components:
