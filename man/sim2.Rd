@@ -10,7 +10,7 @@ sim2(p = 500, n = 100, m = 24, nz = 4, rho = 0.4, B.elem = 0.5)
 \item{p:}{column for X which is the main effect}
 
 \item{n:}{number of observations
-#' @param m: number of responses}
+@param m: number of responses}
 }
 \value{
 The simulated data with the following components:
