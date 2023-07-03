@@ -740,14 +740,14 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
 #'
-#' nlambda = 50
+#' nlambda = 2
 #' e.abs=1E-4
 #' e.rel=1E-2
 #' alpha=.2
 #' tol=1E-3
 #' fit <- MADMMplasso(
 #'   X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
-#'   e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5, tree=TT,
+#'   e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda, nlambda=nlambda, rho=5, tree=TT,
 #'   my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
 #' )
 #' plot(fit)
@@ -1556,6 +1556,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' @param cl TODO: add parameter description
 #' @return  results containing the CV values
 #' @examples
+#' \dontrun{
 #' # Train the model
 #' # generate some data
 #' set.seed(1235)
@@ -1631,6 +1632,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #'   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
 #' )
 #' plot(cv_admp)
+#' }
 #' @export
 cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel=TRUE,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
   BIG=10e9

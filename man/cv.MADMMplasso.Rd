@@ -82,6 +82,7 @@ results containing the CV values
 Carries out cross-validation for  a  pliable lasso model over a path of regularization values
 }
 \examples{
+\dontrun{
 # Train the model
 # generate some data
 set.seed(1235)
@@ -156,4 +157,5 @@ cv_admp <- cv.MADMMplasso(
   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
 )
 plot(cv_admp)
+}
 }
