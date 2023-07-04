@@ -149,5 +149,4 @@ fit <- MADMMplasso(
   nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
   pal=1, gg=gg1, tol=tol, cl=6
 )
-plot(fit)
 }
