@@ -1,3 +1,7 @@
+#include <RcppArmadillo.h>
+
+// [[Rcpp::depends(RcppArmadillo)]]
+
 // #' Fit the ADMM part of  model for a given lambda vale
 // #' @param X  n by p matrix of predictors
 // #' @param Z n by nz matrix of modifying variables. The elements of z
@@ -34,15 +38,46 @@
 // #' @param P TODO: fill paramater description
 // #' @param H TODO: fill paramater description
 // #' @param HH TODO: fill paramater description
-// #' @param cv TODO: fill paramater description
 // #' @param gg TODO: fill paramater description
 // #' @return  predicted values for the ADMM part
 // #' @description TODO: add description
-
-
-
 // #' @export
-// admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=TRUE,invmat,V,Q,E,EE,O,P,H,HH,cv=cv,gg=0.2){
+// [[Rcpp::export]]
+Rcpp::List admm_MADMMplasso_cpp(
+  arma::vec beta0,
+  arma::mat theta0,
+  arma::mat beta,
+  arma::mat beta_hat,
+  arma::mat theta,
+  double rho1,
+  arma::mat X,
+  arma::mat Z,
+  int max_it,
+  arma::mat W_hat,
+  arma::mat XtY,
+  arma::mat y,
+  int N,
+  int p,
+  int K,
+  double e_abs,
+  double e_rel,
+  double alpha,
+  arma::vec lambda,
+  double alph,
+  Rcpp::List svd_w,
+  Rcpp::List tree,
+  Rcpp::List invmat,
+  arma::cube V,
+  arma::cube Q,
+  arma::mat E,
+  arma::cube EE,
+  arma::cube O,
+  arma::cube P,
+  arma::mat H,
+  arma::cube HH,
+  bool my_print = true,
+  double gg = 0.2 // FIXME: should be arma::vec. But what's the default size?
+) {
 
 //   TT<-tree
 
@@ -108,7 +143,7 @@
 
 //   V_old<-V;Q_old<-Q;E_old<-E;EE_old<-EE
 //   res_pri=0;res_dual=0
-//   obj<-c()
+  arma::vec obj;
 
 
 
@@ -603,7 +638,7 @@
 //       converge=T
 //       break
 //     }
-//     converge = F
+    bool converge = false;
 
 //   }### iteration
 
@@ -644,12 +679,28 @@
 //     beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
 //   }
 //   # print(dim(W_hat)); print(dim(beta_hat11))
-//   y_hat<-model_p(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
+  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TODO: necessary?
+  Rcpp::Function model_p = MADMMplasso["model_p"]; // TODO: necessary?
+  Rcpp::NumericMatrix y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z); // FIXME: output as arma::mat
 
-//   out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,V=V,Q=Q,O=O,P=P,E=E,H=H,EE=EE,HH=HH,beta_hat=beta_hat,y_hat=y_hat)
-//   class(out)="admm.MADMMplasso"
-
-//   return(out)
-
-
-// }
+  Rcpp::List out = Rcpp::List::create(
+    Rcpp::Named("beta0") = beta0,
+    Rcpp::Named("theta0") = theta0,
+    Rcpp::Named("beta") = beta,
+    Rcpp::Named("theta") = theta,
+    Rcpp::Named("converge") = converge,
+    Rcpp::Named("obj") = obj,
+    Rcpp::Named("V") = V,
+    Rcpp::Named("Q") = Q,
+    Rcpp::Named("O") = O,
+    Rcpp::Named("P") = P,
+    Rcpp::Named("E") = E,
+    Rcpp::Named("H") = H,
+    Rcpp::Named("EE") = EE,
+    Rcpp::Named("HH") = HH,
+    Rcpp::Named("beta_hat") = beta_hat,
+    Rcpp::Named("y_hat") = y_hat
+  );
+  out.attr("class") = "admm.MADMMplasso";
+  return out;
+}

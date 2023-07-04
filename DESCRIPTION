@@ -18,6 +18,7 @@ Imports:
     stats,
     spatstat.sparse,
     methods
+LinkingTo: Rcpp, RcppArmadillo
 Suggests: testthat,
 License: GPL-3
 Encoding: UTF-8
