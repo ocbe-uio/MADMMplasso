@@ -2229,7 +2229,9 @@ plot.MADMMplasso=
 
 plotCoeff=
   function(beta,theta,error,nz,p,K,D,nlambda,Lambda){
-
+    if (nlambda == 1) {
+      stop("nlambda must be greater than 1 to produce plot")
+    }
 
     gg=nlambda
     my_beta1<-array(NA,c(p,nlambda,D) )
@@ -2255,9 +2257,9 @@ plotCoeff=
 
     for (ii in 1:D) {
 
-      my_beta <- as.matrix(my_beta1[, , ii])
+      my_beta <- my_beta1[, , ii]
 
-      b=ifelse(is.null(dim(my_beta)), sum(abs(my_beta)), apply(abs(my_beta), 2, sum))
+      b <- apply(abs(my_beta), 2, sum)
       b=log(unlist(Lambda[,ii]))
       n=dim(my_beta)[2]
       matplot(b, t(my_beta),type="n",col="red", ylim = range(my_beta),  xlab="Log Lambda", ylab=  ( paste(  "coefficient",ii)))
