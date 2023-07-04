@@ -751,7 +751,6 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #'   nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
 #'   pal=1, gg=gg1, tol=tol, cl=6
 #' )
-#' plot(fit)
 #' @export
 MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=FALSE,alph=1.8,tree,cv=FALSE,parallel=TRUE,pal=0,gg=NULL,tol=1E-4,cl=4){
 
