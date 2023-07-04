@@ -740,15 +740,16 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
 #'
-#' nlambda = 50
+#' nlambda = 1
 #' e.abs=1E-4
 #' e.rel=1E-2
 #' alpha=.2
 #' tol=1E-3
 #' fit <- MADMMplasso(
-#'   X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
-#'   e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5, tree=TT,
-#'   my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+#'   X, Z, y, alpha=alpha, my_lambda=matrix(rep(0.2,dim(y)[2]),1),
+#'   lambda_min=0.001, max_it=5000, e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda,
+#'   nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
+#'   pal=1, gg=gg1, tol=tol, cl=6
 #' )
 #' plot(fit)
 #' @export
@@ -1100,7 +1101,6 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     # print(hh)
     res_dual <- 0    # dual residual
     res_pri <- 0    # primal residual
-
     lambda=lam[hh,]
     #  print(lambda)
     #print(lambda)
@@ -1248,7 +1248,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 convNd2T <- function(Nd, w, w_max){
   # Nd : node list
   # w : a vector of weights for internal nodes
-  # Tree : VxK matrix
+  # Tree : VxK matrix\
   #	V is the number of leaf nodes and internal nodes
   #	K is the number of tasks
   #	Element (v,k) is set to 1 if task k has a membership to
@@ -1556,6 +1556,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' @param cl TODO: add parameter description
 #' @return  results containing the CV values
 #' @examples
+#' \dontrun{
 #' # Train the model
 #' # generate some data
 #' set.seed(1235)
@@ -1631,6 +1632,7 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #'   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
 #' )
 #' plot(cv_admp)
+#' }
 #' @export
 cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel=TRUE,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
   BIG=10e9
@@ -2227,7 +2229,9 @@ plot.MADMMplasso=
 
 plotCoeff=
   function(beta,theta,error,nz,p,K,D,nlambda,Lambda){
-
+    if (nlambda == 1) {
+      stop("nlambda must be greater than 1 to produce plot")
+    }
 
     gg=nlambda
     my_beta1<-array(NA,c(p,nlambda,D) )
@@ -2253,11 +2257,9 @@ plotCoeff=
 
     for (ii in 1:D) {
 
+      my_beta <- my_beta1[, , ii]
 
-      my_beta<-my_beta1[,,ii]
-
-
-      b=apply(abs(my_beta), 2, sum)
+      b <- apply(abs(my_beta), 2, sum)
       b=log(unlist(Lambda[,ii]))
       n=dim(my_beta)[2]
       matplot(b, t(my_beta),type="n",col="red", ylim = range(my_beta),  xlab="Log Lambda", ylab=  ( paste(  "coefficient",ii)))
