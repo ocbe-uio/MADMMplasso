@@ -740,15 +740,16 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #' gg1[1,]<-c(0.02,0.02)
 #' gg1[2,]<-c(0.02,0.02)
 #'
-#' nlambda = 2
+#' nlambda = 1
 #' e.abs=1E-4
 #' e.rel=1E-2
 #' alpha=.2
 #' tol=1E-3
 #' fit <- MADMMplasso(
-#'   X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
-#'   e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda, nlambda=nlambda, rho=5, tree=TT,
-#'   my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+#'   X, Z, y, alpha=alpha, my_lambda=matrix(rep(0.2,dim(y)[2]),1),
+#'   lambda_min=0.001, max_it=5000, e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda,
+#'   nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
+#'   pal=1, gg=gg1, tol=tol, cl=6
 #' )
 #' plot(fit)
 #' @export
@@ -1100,7 +1101,6 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     # print(hh)
     res_dual <- 0    # dual residual
     res_pri <- 0    # primal residual
-
     lambda=lam[hh,]
     #  print(lambda)
     #print(lambda)
@@ -1248,7 +1248,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 convNd2T <- function(Nd, w, w_max){
   # Nd : node list
   # w : a vector of weights for internal nodes
-  # Tree : VxK matrix
+  # Tree : VxK matrix\
   #	V is the number of leaf nodes and internal nodes
   #	K is the number of tasks
   #	Element (v,k) is set to 1 if task k has a membership to
@@ -2255,11 +2255,9 @@ plotCoeff=
 
     for (ii in 1:D) {
 
+      my_beta <- as.matrix(my_beta1[, , ii])
 
-      my_beta<-my_beta1[,,ii]
-
-
-      b=apply(abs(my_beta), 2, sum)
+      b=ifelse(is.null(dim(my_beta)), sum(abs(my_beta)), apply(abs(my_beta), 2, sum))
       b=log(unlist(Lambda[,ii]))
       n=dim(my_beta)[2]
       matplot(b, t(my_beta),type="n",col="red", ylim = range(my_beta),  xlab="Log Lambda", ylab=  ( paste(  "coefficient",ii)))
