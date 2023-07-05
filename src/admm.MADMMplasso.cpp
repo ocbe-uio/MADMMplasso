@@ -87,10 +87,10 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   // for response groups #######################################################
   arma::ivec input = Rcpp::seq_len(D * C.n_rows);
-  arma::ivec multiple_of_D = multiples_of(input, D);  // FIXME: return indices, not values
+  arma::ivec multiple_of_D = multiples_of(input, D);
 
   arma::mat I = arma::zeros<arma::mat>(C.n_rows * D, D);
-  // arma::ivec II = input(multiple_of_D);
+  // arma::ivec II = input.elem(multiple_of_D);  // FIXME: cast multiple_of_D as uvec?
 //   II<-input[multiple_of_D]
 //   diag(I[c(1:dim(y)[2] ),])<-C[1,]*(CW[1])
 
