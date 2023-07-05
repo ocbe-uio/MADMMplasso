@@ -77,9 +77,9 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec gg,
   bool my_print = true
 ) {
-//   TT<-tree
 
-//   C<-TT$Tree
+  Rcpp::List TT = tree;
+  arma::sp_mat C = TT["Tree"]; // FIXME: sp_mat is for > 100x100 matrices. Use "mat" if this is not the case
 //   CW<-TT$Tw
 //   svd.w$tu<- t(svd.w$u)
 //   svd.w$tv<- t(svd.w$v)
@@ -700,6 +700,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Named("beta_hat") = beta_hat,
     Rcpp::Named("y_hat") = y_hat
   );
-  // out.attr("class") = "admm.MADMMplasso";
+  out.attr("class") = "admm.MADMMplasso";
   return out;
 }
