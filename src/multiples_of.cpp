@@ -3,10 +3,17 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 arma::ivec multiples_of(arma::ivec x, int divisor) {
-  // Returns a vector of booleans indicating whether each element of x is a
-  // multiple of divisor.
-  for (arma::uword i = 0; i < x.size(); i++) {
-    x[i] = (x[i] % divisor == 0)? true: false;
+  // Returns a vector of the elements of x that are a multiple of divisor.
+
+  // Validation
+  if (divisor == 0) {
+    Rcpp::stop("divisor cannot be 0");
   }
-  return x;
+
+  // Finding and returning multiples
+  arma::ivec div_idx = arma::zeros<arma::ivec>(x.size());
+  for (arma::uword i = 0; i < x.size(); i++) {
+    div_idx[i] = (x[i] % divisor == 0)? i + 1: 0;
+  }
+  return arma::nonzeros(div_idx);
 }
