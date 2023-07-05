@@ -35,8 +35,6 @@ model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
   return(shared_model)
 }
 
-library(pracma)
-
 reg <- function(r, Z) {
   K <- ncol(Z)
   beta01 <- matrix(0, 1, ncol(r))
@@ -45,7 +43,7 @@ reg <- function(r, Z) {
     my_one <- matrix(1, nrow(Z))
     my_w <- data.frame(Z, my_one)
     my_w <- as.matrix(my_w)
-    my_inv <- pinv(t(my_w) %*% my_w)
+    my_inv <- pracma::pinv(t(my_w) %*% my_w)
     my_res <- my_inv %*% (t(my_w) %*% r[, e])
     beta01[e] <- matrix(my_res[(K + 1)])
     theta01[, e] <- matrix(my_res[c(1:(K))])
@@ -338,3 +336,40 @@ E <- my_values$E
 H <- my_values$H
 beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
+
+test_that("final objects have correct dimensions", {
+	expect_equal(dim(beta0), c(1, 6))
+	expect_equal(dim(theta0), c(4, 6))
+	expect_equal(dim(beta), c(50, 6))
+	expect_equal(dim(theta), c(50, 4, 6))
+	expect_equal(length(converge), 1)
+	expect_equal(dim(V), c(50, 10, 6))
+	expect_equal(dim(Q), c(50, 5, 6))
+	expect_equal(dim(O), c(50, 10, 6))
+	expect_equal(dim(P), c(50, 5, 6))
+	expect_equal(dim(E), c(18, 250))
+	expect_equal(dim(H), c(18, 250))
+	expect_equal(dim(EE), c(50, 5, 6))
+	expect_equal(dim(HH), c(50, 5, 6))
+	expect_equal(dim(beta_hat), c(250, 6))
+	expect_equal(dim(y_hat), c(100, 6))
+})
+
+test_that("mean values of final objects are expected", {
+  tolerance <- 1e-4
+	expect_equal(mean(beta0), 5.132656e-02, tolerance = tolerance)
+	expect_equal(mean(theta0), 5.123034e-02, tolerance = tolerance)
+	expect_equal(mean(beta), 2.104393e-02, tolerance = tolerance)
+	expect_equal(mean(theta), 2.841666e-04, tolerance = tolerance)
+	expect_equal(converge, TRUE)
+	expect_equal(mean(V), 2.329982e-03, tolerance = tolerance)
+	expect_equal(mean(Q), 4.439442e-03, tolerance = tolerance)
+	expect_equal(mean(O), 1.462051e-03, tolerance = tolerance)
+	expect_equal(mean(P), 6.868194e-04, tolerance = tolerance)
+	expect_equal(mean(E), 1.477602e-03, tolerance = tolerance)
+	expect_equal(mean(H), -2.318846e-05, tolerance = tolerance)
+	expect_equal(mean(EE), 0, tolerance = tolerance)
+	expect_equal(mean(HH), -6.948488e-05, tolerance = tolerance)
+	expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tolerance)
+	expect_equal(mean(y_hat), -8.380419e-02, tolerance = tolerance)
+})
