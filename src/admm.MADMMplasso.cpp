@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include "misc.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // #' Fit the ADMM part of  model for a given lambda vale
@@ -84,14 +85,9 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]);
   int D = y.n_cols;
 
-//   ### for response groups ###############################################################
-
-
-//   input<-1:(dim(y)[2]*nrow(C))
-//   multiple_of_D = (input %% dim(y)[2]) == 0
-
-
-
+  // for response groups #######################################################
+  arma::ivec input = Rcpp::seq_len(D * C.n_rows);
+  arma::ivec multiple_of_D = multiples_of(input, D);
 
 //   I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
 //   II<-input[multiple_of_D]
