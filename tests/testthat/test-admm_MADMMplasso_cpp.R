@@ -1,20 +1,5 @@
 # Auxiliary funcions ===========================================================
-S_func <- function(x, a) { # Soft Thresholding Operator
-  return(pmax(abs(x) - a, 0) * sign(x))
-}
-
-compute_pliable <- function(X, Z, theta) {
-  p <- ncol(X)
-  N <- nrow(X)
-  K <- ncol(Z)
-  xz_theta <- lapply(
-    seq_len(p),
-    function(j) (matrix(X[, j], nrow = N, ncol = K) * Z) %*% t(theta)[, j]
-  )
-  xz_term <- (Reduce(f = "+", x = xz_theta))
-  return(xz_term)
-}
-
+# TODO: ask why these are not in the package?
 model <- function(beta0, theta0, beta, theta, X, Z) {
   p <- ncol(X)
   N <- nrow(X)
@@ -24,15 +9,6 @@ model <- function(beta0, theta0, beta, theta, X, Z) {
   shared_model <- X %*% (beta)
   pliable <- matrix(0, N, D)
   return(intercepts + shared_model)
-}
-
-model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
-  p <- ncol(X)
-  N <- nrow(X)
-  K <- ncol(Z)
-  D <- dim(beta0)[2]
-  shared_model <- X %*% (beta)
-  return(shared_model)
 }
 
 reg <- function(r, Z) {
@@ -51,142 +27,7 @@ reg <- function(r, Z) {
   return(list(beta0 = beta01, theta0 = theta01))
 }
 
-twonorm <- function(x) sqrt(sum(x^2, na.rm = TRUE))
-
-quick.func <- function(xz = c(), xn) {
-  as.vector(xz[1:xn] %o% xz[-(1:xn)])
-}
-
-generate.my.w <- function(X = matrix(), Z = matrix(), quad = TRUE) {
-  p1 <- ncol(X)
-  p2 <- ncol(Z)
-  if (quad == FALSE) {
-    p <- p1
-    if (p1 != p2) stop("To remove quadtratic terms p1 must be equal to p2")
-    ind <- (1:p) * p + (2 * (1:p) + 1)
-  }
-
-  # Just in case we have only one oberservation? Not sure why I did this
-  if (is.vector(X)) p1 <- length(X)
-  if (is.vector(Z)) p2 <- length(Z)
-
-  # Add the intercept
-  x <- X
-  z <- cbind(1, Z)
-  W <- t(apply(cbind(x, z), 1, quick.func, xn = p1))
-  if (quad == FALSE) {
-    W <- W[, -ind]
-  }
-  return(W)
-}
-
-convNd2T <- function(Nd, w, w_max) {
-  # Nd : node list
-  # w : a vector of weights for internal nodes
-  # Tree : VxK matrix
-  # 	V is the number of leaf nodes and internal nodes
-  # 	K is the number of tasks
-  # 	Element (v,k) is set to 1 if task k has a membership to
-  # 	the cluster represented by node v. Otherwise, it's 0.
-  # Tw : V vector
-
-  find_leaves <- function(Nd, ch, K, Jt, w, Tw) {
-    for (ii in 1:length(ch)) {
-      if (Nd[ch[ii], 2] > K) {
-        leaves0 <- find_leaves(Nd, which(Nd[, 1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
-        Jt <- leaves0$Jt
-        Tw <- leaves0$Tw
-      } else {
-        Jt <- c(Jt, Nd[ch[ii], 2])
-      }
-    }
-    Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
-    return(list(Jt = Jt, Tw = Tw))
-  }
-
-  # of leaf nodes
-  K <- Nd[1, 1] - 1
-  if (sum(w < w_max) < 1) {
-    V <- 1 + K
-  } else {
-    ind0 <- which(w < w_max) # only the internal nodes with w<w_max
-    V <- ind0[length(ind0)] + K
-  }
-
-  # for leaf nodes
-  I <- 1:K
-  J <- 1:K
-  Tw <- rep(1, V)
-
-  # for internal nodes
-  for (i in (K + 1):V) {
-    Jt <- NULL
-    Tw[i] <- Tw[i] * (1 - w[i - K])
-    leaves0 <- find_leaves(Nd, which(Nd[, 1] == i), K, Jt, w[i - K], Tw)
-    Jt <- leaves0$Jt
-    Tw <- leaves0$Tw
-    I <- c(I, rep(1, length(Jt)) * i)
-    J <- c(J, Jt)
-  }
-  Tree <- sparseMatrix(i = I, j = J, x = rep(1, length(I)), dims = c(V, K))
-  return(list(Tree = Tree, Tw = Tw))
-}
-
-convH2T <- function(H, w_max) {
-  K <- dim(H)[1] + 1
-  Nd <- cbind(rep((K + 1):(2 * K - 1), each = 2), as.vector(t(H[, 1:2])))
-  W_norm <- H[, 3] / max(H[, 3])
-  conv0 <- convNd2T(Nd, W_norm, w_max)
-  return(conv0)
-}
-
-fastCorr <- function(A) {
-  C <- crossprod(scale(A)) / (dim(A)[1] - 1)
-  return(C)
-}
-
-tree.parms <- function(y = y, h = .7) {
-  m <- dim(y)[2]
-  myDist0 <- 1 - abs(fastCorr(y))
-  myDist <- myDist0[lower.tri(myDist0)]
-  a0 <- dist(t(y))
-  a0[1:length(a0)] <- myDist
-
-  # hierarchical clustering for multivariate responses
-  myCluster_0 <- hclust(a0, method = "complete")
-  myCluster <- cbind(
-    ifelse(
-      myCluster_0$merge < 0,
-      -myCluster_0$merge,
-      myCluster_0$merge + m
-    ),
-    myCluster_0$height
-  )
-
-  conv0 <- convH2T(myCluster, h)
-  Tree <- conv0$Tree
-  if (is.null(dim(Tree))) {
-    Tree <- matrix(Tree, nrow = 1)
-  }
-  Tw <- conv0$Tw
-  idx <- c(apply(Tree, 1, sum) == 1)
-  Tree <- Tree[!idx, ]
-  if (is.null(dim(Tree))) {
-    Tree <- matrix(Tree, nrow = 1)
-  }
-  Tw <- Tw[!idx]
-  out <- list(
-    Tree = Tree, Tw = Tw, h_clust = myCluster_0, y.colnames = colnames(y)
-  )
-  return(out)
-}
-
 # Generate the data ============================================================
-
-library(stats)
-library(MASS)
-library(Matrix)
-
 set.seed(1235)
 N <- 100
 p <- 50
