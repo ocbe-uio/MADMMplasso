@@ -77,19 +77,12 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec gg,
   bool my_print = true
 ) {
-
   Rcpp::List TT = tree;
   arma::sp_mat C = TT["Tree"]; // FIXME: sp_mat is for > 100x100 matrices. Use "mat" if this is not the case
-//   CW<-TT$Tw
-//   svd.w$tu<- t(svd.w$u)
-//   svd.w$tv<- t(svd.w$v)
-//   D=dim(y)[2]
-
-
-
-
-
-
+  arma::vec CW = TT["Tw"];
+  arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]);
+  arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]);
+  int D = y.n_cols;
 
 //   ### for response groups ###############################################################
 
