@@ -10,4 +10,6 @@
 #' @importFrom spatstat.sparse as.sparse3Darray
 #' @importFrom class knn1
 #' @importFrom MASS mvrnorm
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib MADMMplasso, .registration = TRUE
 NULL

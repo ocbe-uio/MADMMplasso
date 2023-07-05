@@ -1,7 +1,6 @@
 #include <RcppArmadillo.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
-
 // #' Fit the ADMM part of  model for a given lambda vale
 // #' @param X  n by p matrix of predictors
 // #' @param Z n by nz matrix of modifying variables. The elements of z
@@ -48,7 +47,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::mat theta0,
   arma::mat beta,
   arma::mat beta_hat,
-  arma::mat theta,
+  arma::cube theta,
   double rho1,
   arma::mat X,
   arma::mat Z,
@@ -75,10 +74,9 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::cube P,
   arma::mat H,
   arma::cube HH,
-  bool my_print = true,
-  double gg = 0.2 // FIXME: should be arma::vec. But what's the default size?
+  arma::vec gg,
+  bool my_print = true
 ) {
-
 //   TT<-tree
 
 //   C<-TT$Tree
@@ -679,9 +677,10 @@ Rcpp::List admm_MADMMplasso_cpp(
 //     beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
 //   }
 //   # print(dim(W_hat)); print(dim(beta_hat11))
-  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TODO: necessary?
-  Rcpp::Function model_p = MADMMplasso["model_p"]; // TODO: necessary?
-  Rcpp::NumericMatrix y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z); // FIXME: output as arma::mat
+  // Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TODO: necessary?
+  // Rcpp::Function model_p = MADMMplasso["model_p"]; // TODO: necessary?
+  // Rcpp::NumericMatrix y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z); // FIXME: output as arma::mat
+  Rcpp::NumericMatrix y_hat; // TEMP: placeholder
 
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("beta0") = beta0,
@@ -701,6 +700,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Named("beta_hat") = beta_hat,
     Rcpp::Named("y_hat") = y_hat
   );
-  out.attr("class") = "admm.MADMMplasso";
+  // out.attr("class") = "admm.MADMMplasso";
   return out;
 }
