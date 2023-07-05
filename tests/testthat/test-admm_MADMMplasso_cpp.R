@@ -157,13 +157,13 @@ beta0 <- b$beta0
 theta0 <- b$theta0
 new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 XtY <- crossprod((my_W_hat), (new_y))
-my_values <- admm.MADMMplasso(
+my_values <- suppressMessages(admm.MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, p, K, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
   my_print = FALSE, invmat = invmat, V = V, Q = Q, E = E, EE = EE, O = O, P = P,
   H = H, HH = HH, cv = cv, gg = gg
-)
+))
 beta <- my_values$beta
 theta <- my_values$theta
 converge <- my_values$converge

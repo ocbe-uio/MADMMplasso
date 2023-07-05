@@ -599,7 +599,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 
 
       # Update convergence message
-      print(c("Convergence reached after  iterations",(i)))
+      message("Convergence reached after ", i, " iterations")
       converge=T
       break
     }
