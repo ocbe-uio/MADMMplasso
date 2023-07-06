@@ -132,12 +132,11 @@ Rcpp::List admm_MADMMplasso_cpp(
   //     main_beta<-array(0,c(p,K+1,D))
   //     res_val<-rho*(t(I)%*%(E)-(t(I)%*%(H)))
   //     v.diff1<-matrix(0,D); q.diff1<-matrix(0,D); ee.diff1<-matrix(0,D)
-
   //     new_G<-matrix(0,(p+p*K))
   //     new_G[c(1:p)]<-1;new_G[-c(1:p)]<-2
   //     new_G[c(1:p)]<-rho*(1+new_G[c(1:p)]);new_G[-c(1:p)]<-rho*(1+new_G[-c(1:p)])
-
   //     invmat<-list() #denominator of the beta estimates
+
   //     for (rr in 1:D) {
   //       DD1<-rho*(new_I[rr]+1)
   //       DD2<-new_G+DD1
@@ -169,45 +168,37 @@ Rcpp::List admm_MADMMplasso_cpp(
   //       new.mat<- b_hat +HH[,,jj]
   //       row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
   //       coef.term1<- pmax(1-  (gg[2]) /rho/(row.norm1),0)
-  //     ee1<-scale(t(as.matrix(new.mat)),center = FALSE,scale = 1/coef.term1)
-  //     EE[,,jj]<-  t(ee1)
-
+  //       ee1<-scale(t(as.matrix(new.mat)),center = FALSE,scale = 1/coef.term1)
+  //       EE[,,jj]<-  t(ee1)
   //       Big_beta<-t(tcrossprod(G,(beta_hat1)) )
   //       Big_beta11[,,jj]<-Big_beta
   //       Big_beta1<-alph*Big_beta+(1-alph)*V[,,jj]
-
   //       #Now we have the main part.
   //       new.mat<- Big_beta1+O[,,jj]
   //       new.mat1<-new.mat[,c(1:(K+1))];new.mat2<-new.mat[,-c(1:(K+1))]
   //       row.norm1<- sqrt(apply(new.mat1^2,1,sum,na.rm = T))
   //       row.norm2<- sqrt(apply(new.mat2^2,1,sum,na.rm = T))
-
   //       coef.term1<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm1),0)
   //       coef.term2<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm2),0)
   //       N_V1<-scale(t( new.mat1 ),center = FALSE,scale = 1/coef.term1)
   //       N_V2<-scale(t( new.mat2),center = FALSE,scale = 1/coef.term2)
-
   //       V[,,jj]= cbind(t(N_V1),t(N_V2))
-
   //       P[,,jj]<- P[,,jj]+beta_hat1-Q[,,jj]
   //       HH[,,jj]<-HH[,,jj]+beta_hat1-EE[,,jj]
   //       O[,,jj]<-O[,,jj]+Big_beta-V[,,jj]
-
   //       v.diff1[jj]<-sum(((Big_beta-V[,,jj]))^2,na.rm = TRUE)
   //       q.diff1[jj]<-sum(((beta_hat1-Q[,,jj]))^2,na.rm = TRUE)
   //       ee.diff1[jj]<-sum(((beta_hat1-EE[,,jj]))^2,na.rm = TRUE)
-  //     }
+  //     } // TODO: end of for (jj in 1:D)
 
   //     Big_beta_respone<-((I)%*%t( beta_hat ))
   //     b_hat_response<-alph*Big_beta_respone+(1-alph)*E
   //     new.mat<- b_hat_response +H
-
   //     new.mat_group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
   //     beta.group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
   //     N_E<-list()
   //     new.mat_group[,,1]<-t( (new.mat[c(1:dim(y)[2]),] ))
   //     beta.group[,,1]<-t( (Big_beta_respone[c(1:dim(y)[2]),]))
-
   //     beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
   //     beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,1],ncol = (K+1), nrow = p)
   //     input2<-1:(dim(y)[2]*(1+K))
@@ -222,13 +213,10 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   //     norm_res<-((apply(beta_transform,c(1),twonorm)))
   //     coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
-
   //     N_E1<-scale(t(beta_transform),center = FALSE,scale = 1/coef.term1)
-
   //     N_E1<-t(N_E1)
   //     beta_transform1<-matrix(0,p+p*K,dim(y)[2])
   //     beta_transform1[,1]<-as.vector(N_E1[,c(1:(K+1))])
-
   //     input3<-1:(dim(y)[2]*(1+K))
   //     multiple_of_K = (input3 %% (K+1)) == 0
   //     II3<-input3[multiple_of_K]
@@ -240,12 +228,11 @@ Rcpp::List admm_MADMMplasso_cpp(
   //     }
 
   //     N_E[[1]]<-(t(beta_transform1))
-
   //     e=II[-length(II)][1]
+
   //     for (c_count in 2:dim(C)[1]) {
   //       new.mat_group[,,c_count]<-t( (new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
   //       beta.group[,,c_count]<-t(Big_beta_respone[c((e+1):( c_count*dim(y)[2]) ),])
-
   //       beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
   //       beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,c_count],ncol = (K+1), nrow = p)
   //       input2<-1:(dim(y)[2]*(1+K))
@@ -268,19 +255,21 @@ Rcpp::List admm_MADMMplasso_cpp(
   //       multiple_of_K = (input3 %% (K+1)) == 0
   //       II3<-input3[multiple_of_K]
   //       e3=II3[-length(II3)][1]
+
   //       for (c_count3 in 2:dim(y)[2]) {
   //         beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
   //         e3=II3[c_count3]
   //       }
+
   //       N_E[[c_count]]<-(t( (beta_transform1)) )
   //       e=II[c_count]
-  //     }
+  //     } //end of for (c_count in 2:dim(C)[1])
 
   //     N_beta.group<-apply(beta.group, 3, twonorm)
   //     E[c(1:dim(C)[2]),]<-N_E[[1]]
-
   //     c_count<-2
   //     e=II[-length(II)][1]
+
   //     for (c_count in 2:dim(C)[1]) {
   //       E[c((e+1):( c_count*dim(y)[2]) ),]<-N_E[[c_count]]
   //       e=II[c_count]
@@ -288,26 +277,19 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   //     H<-H+Big_beta_respone-E
   //     obj<-c(obj, obj)
-
   //     v.diff<-sum((-rho*(V-V_old))^2,na.rm = TRUE)
-
   //     q.diff<-sum((-rho*(Q-Q_old))^2,na.rm = TRUE)
   //     e.diff<-sum((-rho*(E-E_old))^2,na.rm = TRUE)
   //     ee.diff<-sum((-rho*(EE-EE_old))^2,na.rm = TRUE)
-
   //     s <- sqrt(v.diff+q.diff+e.diff+ee.diff)
-
   //     v.diff1<-sum(v.diff1)
   //     q.diff1<-sum(q.diff1)
   //     e.diff1<-sum(((Big_beta_respone-E))^2,na.rm = TRUE)
   //     ee.diff1<-sum(ee.diff1)#sum(((beta_hat-EE))^2,na.rm = TRUE)
   //     r <- sqrt(v.diff1+q.diff1+e.diff1+ee.diff1)
-
   //     res_dual<-s
   //     res_pri<-r
-
   //     e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c((Big_beta11),(beta_hat),(beta_hat),(Big_beta_respone) )), twonorm(-c((V),(Q),(E),(EE) )))
-
   //     e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c((O),(P),(H),(HH) )))
   //     V_old <- V
   //     Q_old <- Q
@@ -322,35 +304,34 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   //     if(my_print==T){
   //       print(c(res_dual,e.dual,res_pri,e.primal))}
+
   //     if (res_pri <= e.primal && res_dual <= e.dual){
   //       # Update convergence message
   //       print(c("Convergence reached after  iterations",(i)))
   //       converge=T
   //       break
   //     }
+
     const bool converge = false;
-
-  //   }### iteration
-
+  //   } // iteration; end of for (i in 2:max_it)
 
 
-  //   res_val<-t(I)%*%(E)
-  //   for (jj in 1:dim(y)[2]) {
-  //     group<-(t(G)%*%t((V[,,jj]) )   )
 
-  //     group1<-group[1,]; group2<-t(group[-1,])
-  //     new_group=matrix(0,p,(K+1))
-  //     new_group[,1]<-group1; new_group[,-1]<-group2
-  //     new_g_theta<-as.vector(new_group)
+  // res_val<-t(I)%*%(E)
+  // for (jj in 1:dim(y)[2]) {
+  //   group<-(t(G)%*%t((V[,,jj]) )   )
+  //   group1<-group[1,]; group2<-t(group[-1,])
+  //   new_group=matrix(0,p,(K+1))
+  //   new_group[,1]<-group1; new_group[,-1]<-group2
+  //   new_g_theta<-as.vector(new_group)
+  //   finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
+  //   finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
+  //   beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
+  //   beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
+  //   theta[,,jj]<-(beta_hat1[,-1])
+  //   beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
+  // }
 
-  //     finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
-  //     finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
-
-  //     beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
-  //     beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
-  //     theta[,,jj]<-(beta_hat1[,-1])
-  //     beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
-  //   }
   // Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TODO: necessary?
   // Rcpp::Function model_p = MADMMplasso["model_p"]; // TODO: necessary?
   // Rcpp::NumericMatrix y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z); // FIXME: output as arma::mat
