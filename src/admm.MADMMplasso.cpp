@@ -78,47 +78,50 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec gg,
   const bool my_print = true
 ) {
-  Rcpp::List TT = tree;
-  arma::sp_mat C = TT["Tree"]; // FIXME: sp_mat is for > 100x100 matrices. Use "mat" if this is not the case
-  arma::vec CW = TT["Tw"];
-  arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]);
-  arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]);
-  int D = y.n_cols;
+  const Rcpp::List TT = tree;
+  const arma::sp_mat C = TT["Tree"];
+  const arma::vec CW = TT["Tw"];
+  const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]);
+  const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]);
+  const int D = y.n_cols;
 
-  // for response groups #######################################################
-  arma::ivec input = Rcpp::seq_len(D * C.n_rows);
-  arma::ivec multiple_of_D = multiples_of(input, D);
-
+  // for response groups =======================================================
+  const arma::ivec input = Rcpp::seq_len(D * C.n_rows);
   arma::mat I = arma::zeros<arma::mat>(C.n_rows * D, D);
-  // arma::ivec II = input.elem(multiple_of_D);  // FIXME: cast multiple_of_D as uvec?
-  //   II<-input[multiple_of_D]
-  //   diag(I[c(1:dim(y)[2] ),])<-C[1,]*(CW[1])
-  //   c_count<-2
-  //   for (e in II[-length(II)]) {
-  //     diag(I[c((e+1):( c_count*dim(y)[2]) ),]) <-C[c_count,]*(CW[c_count])
-  //     c_count= 1+c_count
-  //   }
-  //   new_I=diag(t(I)%*%I)
+  const arma::ivec II = multiples_of(input, D, true);
 
-  //   ###### overlapping group fro covariates########
+  // Updating I ================================================================
+  I.rows(0, D - 1).diag() = arma::conv_to<arma::mat>::from(C.row(0) * CW(0));
 
-  //   G=matrix(0,2*(1+K),(1+K))
-  //   diag_G<-matrix(0,(K+1),(K+1))
-  //   diag(diag_G)<-1
-  //   for (i in 1:(K+1)) {
-  //     G[i,]<-diag_G[i,]
-  //   }
-  //   for (i in (K+3):(2*(K+1))) {
-  //     G[i,]<-diag_G[(i-(K+1)),]
-  //   }
-  //   V_old<-V;Q_old<-Q;E_old<-E;EE_old<-EE
-  //   res_pri=0;res_dual=0
-  arma::vec obj;
-  //   SVD_D<-Diagonal(x=svd.w$d)
-  //   R_svd<-(svd.w$u%*%SVD_D)/N
+  int c_count = 2;
+  for (unsigned int e = 0; e < II.n_elem - 1; ++e) {
+    I.rows(II(e), c_count * D - 1).diag() = arma::conv_to<arma::mat>::from(C.row(c_count - 1) * CW(c_count - 1));
+    ++c_count;
+  }
+  const arma::vec new_I = diagvec(I.t() * I);
 
-  //   rho=rho1
-  //   Big_beta11<-V
+  // Overlapping group from covariates =========================================
+  arma::mat G = arma::zeros<arma::mat>(2 * (1 + K), 1 + K);
+  const arma::mat diag_G = arma::eye(K + 1, K + 1);
+  for (int i = 0; i < K + 1; ++i) {
+    G.row(i) = diag_G.row(i);
+  }
+  for (int i = K + 2; i < 2 * (K + 1); ++i) {
+    G.row(i) = diag_G.row(i - (K + 1));
+  }
+
+  arma::cube V_old = V;
+  arma::cube Q_old = Q;
+  arma::mat E_old = E;
+  arma::cube EE_old = EE;
+  double res_pri = 0.;
+  double res_dual = 0.;
+  const arma::vec obj;
+  const arma::mat SVD_D = arma::diagmat(Rcpp::as<arma::vec>(svd_w["d"]));
+  const arma::mat R_svd = (svd_w_tu * SVD_D) / N;
+  double rho = rho1;
+  arma::cube Big_beta11 = V;
+
   //   for (i in 2:max_it) {
   //     r_current = (y-model_intercept(beta0,theta0,beta=beta_hat, theta, X=W_hat, Z))
   //     b = reg(r_current,Z)  # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
@@ -325,7 +328,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   //       converge=T
   //       break
   //     }
-    bool converge = false;
+    const bool converge = false;
 
   //   }### iteration
 
