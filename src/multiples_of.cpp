@@ -2,7 +2,7 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-arma::ivec multiples_of(arma::ivec x, int divisor, bool subset_out = false) {
+arma::ivec multiples_of(arma::ivec x, const int divisor, const bool subset_out = false) {
   // Returns a vector of the elements of x that are a multiple of divisor.
 
   // Validation
