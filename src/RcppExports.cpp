@@ -55,21 +55,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // multiples_of
-arma::ivec multiples_of(arma::ivec x, int divisor);
-RcppExport SEXP _MADMMplasso_multiples_of(SEXP xSEXP, SEXP divisorSEXP) {
+arma::ivec multiples_of(arma::ivec x, int divisor, bool subset_out);
+RcppExport SEXP _MADMMplasso_multiples_of(SEXP xSEXP, SEXP divisorSEXP, SEXP subset_outSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::ivec >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type divisor(divisorSEXP);
-    rcpp_result_gen = Rcpp::wrap(multiples_of(x, divisor));
+    Rcpp::traits::input_parameter< bool >::type subset_out(subset_outSEXP);
+    rcpp_result_gen = Rcpp::wrap(multiples_of(x, divisor, subset_out));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_admm_MADMMplasso_cpp", (DL_FUNC) &_MADMMplasso_admm_MADMMplasso_cpp, 33},
-    {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 2},
+    {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
     {NULL, NULL, 0}
 };
 

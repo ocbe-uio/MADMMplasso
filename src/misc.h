@@ -3,6 +3,6 @@
 
 #include <RcppArmadillo.h>
 
-arma::ivec multiples_of(arma::ivec, int);
+arma::ivec multiples_of(arma::ivec, int, bool = false);
 
 #endif
