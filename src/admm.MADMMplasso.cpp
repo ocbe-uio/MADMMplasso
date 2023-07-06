@@ -361,7 +361,6 @@ Rcpp::List admm_MADMMplasso_cpp(
 //     beta.group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
 //     N_E<-list()
 //     #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
-//     II<-input[multiple_of_D]
 //     new.mat_group[,,1]<-t( (new.mat[c(1:dim(y)[2]),] ))
 //     beta.group[,,1]<-t( (Big_beta_respone[c(1:dim(y)[2]),]))
 
@@ -480,7 +479,6 @@ Rcpp::List admm_MADMMplasso_cpp(
 //     # new.mat_group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
 //     # beta.group<-array(NA,c(p+p*K,dim(y)[2],dim(C)[1]))
 //     # #I<-matrix(0,nrow = nrow(C)*dim(y)[2],ncol = dim(y)[2])
-//     # II<-input[multiple_of_D]
 //     # new.mat_group[,,1]<-t(new.mat[c(1:dim(y)[2]),])
 //     # beta.group[,,1]<-t(Big_beta_respone[c(1:dim(y)[2]),])
 //     # c_count<-2
