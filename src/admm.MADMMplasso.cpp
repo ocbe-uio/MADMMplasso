@@ -128,6 +128,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso");
   Rcpp::Function model_intercept = MADMMplasso["model_intercept"];
   Rcpp::Function reg = MADMMplasso["reg"];
+  Rcpp::Function model_p = MADMMplasso["model_p"];
 
   bool converge = false;
   for (int i = 1; i < max_it; i++) {
@@ -342,10 +343,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   //   beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
   // }
 
-  // Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TODO: necessary?
-  // Rcpp::Function model_p = MADMMplasso["model_p"]; // TODO: necessary?
-  // Rcpp::NumericMatrix y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z); // FIXME: output as arma::mat
-  Rcpp::NumericMatrix y_hat; // TEMP: placeholder
+  arma::mat y_hat = Rcpp::as<arma::mat>(model_p(beta0.t(), theta0, beta_hat, theta, W_hat, Z));
 
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("beta0") = beta0,
