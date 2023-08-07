@@ -148,13 +148,13 @@ Rcpp::List admm_MADMMplasso_cpp(
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);
     new_G = rho * (1 + new_G);
-    Rcpp::List invmat;  // denominator of the beta estimates
+    arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
 
-  //     for (rr in 1:D) {
-  //       DD1<-rho*(new_I[rr]+1)
-  //       DD2<-new_G+DD1
-  //       invmat[[rr]] <-DD2# Matrix::chol2inv( Matrix::chol(new_sparse) )
-  //     }
+    for (int rr = 0; rr < D; rr++) {
+      double DD1 = rho * (new_I(rr) + 1);
+      arma::colvec DD2 = new_G + DD1;
+      invmat.slice(rr) = DD2;  // Matrix::chol2inv( Matrix::chol(new_sparse) )
+    }
 
   //     for (jj in 1:D) {
   //       group<-(rho)*(t(G)%*%t(V[,,jj])-t(G)%*%t(O[,,jj])   )

@@ -1808,7 +1808,6 @@ model_p<-function(beta0, theta0, beta, theta, X, Z){
   #beta0<-array(0,c(1,1,D))
 
   #print(D)
-
   intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
   #intercepts1<-matrix(0,N,D)
   #intercepts1[,]<-intercepts
