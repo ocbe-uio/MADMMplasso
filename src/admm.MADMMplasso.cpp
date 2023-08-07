@@ -122,20 +122,32 @@ Rcpp::List admm_MADMMplasso_cpp(
   double rho = rho1;
   arma::cube Big_beta11 = V;
 
-  //   for (i in 2:max_it) {
-  //     r_current = (y-model_intercept(beta0,theta0,beta=beta_hat, theta, X=W_hat, Z))
-  //     b = reg(r_current,Z)  # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
-  //     beta0<-b$beta0
-  //     theta0<-b$theta0
-  //     new_y<- y-( matrix(1,N)%*%beta0+Z%*%((theta0)))
-  //     XtY <- crossprod((W_hat), (new_y))
-  //     main_beta<-array(0,c(p,K+1,D))
-  //     res_val<-rho*(t(I)%*%(E)-(t(I)%*%(H)))
-  //     v.diff1<-matrix(0,D); q.diff1<-matrix(0,D); ee.diff1<-matrix(0,D)
-  //     new_G<-matrix(0,(p+p*K))
-  //     new_G[c(1:p)]<-1;new_G[-c(1:p)]<-2
-  //     new_G[c(1:p)]<-rho*(1+new_G[c(1:p)]);new_G[-c(1:p)]<-rho*(1+new_G[-c(1:p)])
-  //     invmat<-list() #denominator of the beta estimates
+  // Importing R functions (this adds compute overhead)
+  // Ideally, these functions should also be ported to C++ to reduce
+  // cross-language communication
+  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso");
+  Rcpp::Function model_intercept = MADMMplasso["model_intercept"];
+  Rcpp::Function reg = MADMMplasso["reg"];
+
+  bool converge = false;
+  for (int i = 1; i < max_it; i++) {
+    arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
+    arma::mat r_current = y - shared_model;
+    Rcpp::List b = reg(r_current,Z);
+    arma::mat beta0 = b["beta0"];
+    arma::mat theta0 = b["theta0"];
+    arma::mat new_y = y - (arma::ones(N) * beta0 + Z * theta0);
+    arma::mat XtY = W_hat.t() * new_y;
+    arma::cube main_beta(p, K + 1, D, arma::fill::zeros);
+    arma::mat res_val = rho * (I.t() * E - (I.t() * H));
+    arma::vec v_diff1(D, arma::fill::zeros);
+    arma::vec q_diff1(D, arma::fill::zeros);
+    arma::vec ee_diff1(D, arma::fill::zeros);
+    arma::vec new_G(p + p * K, arma::fill::zeros);
+    new_G.rows(0, p - 1).fill(1);
+    new_G.rows(p, p + p * K - 1).fill(2);
+    new_G = rho * (1 + new_G);
+    Rcpp::List invmat;  // denominator of the beta estimates
 
   //     for (rr in 1:D) {
   //       DD1<-rho*(new_I[rr]+1)
@@ -311,9 +323,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   //       converge=T
   //       break
   //     }
-
-    const bool converge = false;
-  //   } // iteration; end of for (i in 2:max_it)
+    } // iteration; end of for (i in 2:max_it)
 
 
 
