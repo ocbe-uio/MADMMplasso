@@ -9,3 +9,7 @@ multiples_of <- function(x, divisor, subset_out = FALSE) {
     .Call(`_MADMMplasso_multiples_of`, x, divisor, subset_out)
 }
 
+scale_cpp <- function(x, scale) {
+    .Call(`_MADMMplasso_scale_cpp`, x, scale)
+}
+

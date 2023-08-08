@@ -22,3 +22,13 @@ test_that("multiples_of() works", {
   expect_equal(multiples_of(y, 15, TRUE), matrix(c(y[1], y[5], y[9])))
   expect_equal(multiples_of(y, 10, TRUE), matrix(as.integer(NULL)))
 })
+
+N <- rpois(1, 10)
+p <- rpois(1, 10)
+x <- matrix(rnorm(N * p), N, p)
+y <- matrix(rnorm(p), p)
+
+test_that("C++ scale() works like R scale()", {
+  expect_equal(scale(x, FALSE, y), scale_cpp(x, y), ignore_attr = TRUE)
+  expect_equal(scale(x, FALSE, 1 / y), scale_cpp(x, 1 / y), ignore_attr = TRUE)
+})
