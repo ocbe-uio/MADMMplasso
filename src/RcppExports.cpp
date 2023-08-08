@@ -79,11 +79,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sqrt_sum_squared_rows
+arma::vec sqrt_sum_squared_rows(arma::mat x);
+RcppExport SEXP _MADMMplasso_sqrt_sum_squared_rows(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(sqrt_sum_squared_rows(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_admm_MADMMplasso_cpp", (DL_FUNC) &_MADMMplasso_admm_MADMMplasso_cpp, 33},
     {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
     {"_MADMMplasso_scale_cpp", (DL_FUNC) &_MADMMplasso_scale_cpp, 2},
+    {"_MADMMplasso_sqrt_sum_squared_rows", (DL_FUNC) &_MADMMplasso_sqrt_sum_squared_rows, 1},
     {NULL, NULL, 0}
 };
 

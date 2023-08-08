@@ -13,3 +13,7 @@ scale_cpp <- function(x, scale) {
     .Call(`_MADMMplasso_scale_cpp`, x, scale)
 }
 
+sqrt_sum_squared_rows <- function(x) {
+    .Call(`_MADMMplasso_sqrt_sum_squared_rows`, x)
+}
+

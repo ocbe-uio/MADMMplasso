@@ -32,3 +32,10 @@ test_that("C++ scale() works like R scale()", {
   expect_equal(scale(x, FALSE, y), scale_cpp(x, y), ignore_attr = TRUE)
   expect_equal(scale(x, FALSE, 1 / y), scale_cpp(x, 1 / y), ignore_attr = TRUE)
 })
+
+test_that("sqrt_sum_squared_rows() works", {
+  sssr <- function(x) sqrt(apply(x ^ 2, 1, sum, na.rm = TRUE))
+  expect_equal(sssr(x), sqrt_sum_squared_rows(x), ignore_attr = TRUE)
+  expect_equal(sssr(y), sqrt_sum_squared_rows(y), ignore_attr = TRUE)
+  expect_equal(sssr(t(y)), sqrt_sum_squared_rows(t(y)), ignore_attr = TRUE)
+})
