@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // admm_MADMMplasso_cpp
-Rcpp::List admm_MADMMplasso_cpp(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, const arma::mat beta_hat, const arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, const arma::mat XtY, const arma::mat y, const int N, const int p, const int K, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const Rcpp::List invmat, const arma::cube V, const arma::cube Q, const arma::mat E, const arma::cube EE, const arma::cube O, const arma::cube P, const arma::mat H, const arma::cube HH, const arma::vec gg, const bool my_print);
+Rcpp::List admm_MADMMplasso_cpp(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, arma::mat beta_hat, const arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, const arma::mat XtY, const arma::mat y, const int N, const int p, const int K, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const Rcpp::List invmat, arma::cube V, arma::cube Q, const arma::mat E, arma::cube EE, arma::cube O, arma::cube P, const arma::mat H, arma::cube HH, const arma::vec gg, const bool my_print);
 RcppExport SEXP _MADMMplasso_admm_MADMMplasso_cpp(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP beta_hatSEXP, SEXP thetaSEXP, SEXP rho1SEXP, SEXP XSEXP, SEXP ZSEXP, SEXP max_itSEXP, SEXP W_hatSEXP, SEXP XtYSEXP, SEXP ySEXP, SEXP NSEXP, SEXP pSEXP, SEXP KSEXP, SEXP e_absSEXP, SEXP e_relSEXP, SEXP alphaSEXP, SEXP lambdaSEXP, SEXP alphSEXP, SEXP svd_wSEXP, SEXP treeSEXP, SEXP invmatSEXP, SEXP VSEXP, SEXP QSEXP, SEXP ESEXP, SEXP EESEXP, SEXP OSEXP, SEXP PSEXP, SEXP HSEXP, SEXP HHSEXP, SEXP ggSEXP, SEXP my_printSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -20,7 +20,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec >::type beta0(beta0SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type theta0(theta0SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type beta_hat(beta_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type beta_hat(beta_hatSEXP);
     Rcpp::traits::input_parameter< const arma::cube >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const double >::type rho1(rho1SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
@@ -40,14 +40,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::List >::type svd_w(svd_wSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List >::type tree(treeSEXP);
     Rcpp::traits::input_parameter< const Rcpp::List >::type invmat(invmatSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type V(VSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type Q(QSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type V(VSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type Q(QSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type E(ESEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type EE(EESEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type O(OSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type P(PSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type EE(EESEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type O(OSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type P(PSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type H(HSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type HH(HHSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type HH(HHSEXP);
     Rcpp::traits::input_parameter< const arma::vec >::type gg(ggSEXP);
     Rcpp::traits::input_parameter< const bool >::type my_print(my_printSEXP);
     rcpp_result_gen = Rcpp::wrap(admm_MADMMplasso_cpp(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, p, K, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, V, Q, E, EE, O, P, H, HH, gg, my_print));

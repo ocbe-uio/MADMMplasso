@@ -47,7 +47,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec beta0,
   const arma::mat theta0,
   const arma::mat beta,
-  const arma::mat beta_hat,
+  arma::mat beta_hat,
   const arma::cube theta,
   const double rho1,
   const arma::mat X,
@@ -67,22 +67,22 @@ Rcpp::List admm_MADMMplasso_cpp(
   const Rcpp::List svd_w,
   const Rcpp::List tree,
   const Rcpp::List invmat,
-  const arma::cube V,
-  const arma::cube Q,
+  arma::cube V,
+  arma::cube Q,
   const arma::mat E,
-  const arma::cube EE,
-  const arma::cube O,
-  const arma::cube P,
+  arma::cube EE,
+  arma::cube O,
+  arma::cube P,
   const arma::mat H,
-  const arma::cube HH,
+  arma::cube HH,
   const arma::vec gg,
   const bool my_print = true
 ) {
   const Rcpp::List TT = tree;
   const arma::sp_mat C = TT["Tree"];
   const arma::vec CW = TT["Tw"];
-  const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]);
-  const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]);
+  const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]).t();
+  const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]).t();
   const int D = y.n_cols;
 
   // for response groups =======================================================
@@ -152,57 +152,66 @@ Rcpp::List admm_MADMMplasso_cpp(
 
     for (int rr = 0; rr < D; rr++) {
       double DD1 = rho * (new_I(rr) + 1);
-      arma::colvec DD2 = new_G + DD1;
+      arma::vec DD2 = new_G + DD1;
       invmat.slice(rr) = DD2;  // Matrix::chol2inv( Matrix::chol(new_sparse) )
     }
 
-  //     for (jj in 1:D) {
-  //       group<-(rho)*(t(G)%*%t(V[,,jj])-t(G)%*%t(O[,,jj])   )
-  //       group1<-group[1,]; group2<-t(group[-1,])
-  //       new_group=matrix(0,p,(K+1))
-  //       new_group[,1]<-group1; new_group[,-1]<-group2
-  //       my_beta_jj<-XtY[,jj]/N  +as.vector(new_group)+as.vector(res_val[jj,])+as.vector(rho*(Q[,,jj]-P[,,jj] ))+as.vector(rho*(EE[,,jj]-HH[,,jj] ))
-  //       my_beta_jj<-matrix(my_beta_jj,ncol = 1)
-  //       DD3=Diagonal(x=1/invmat[[jj]])
-  //       part_z<-DD3%*%t(W_hat )
-  //       part_y<-DD3%*%my_beta_jj
-  //       beta_hat_j<- solve(solve(R_svd)+(svd.w$tv)%*%part_z)
-  //       beta_hat_j<-beta_hat_j%*%((svd.w$tv)%*%part_y)
-  //       beta_hat_j<-part_z%*%beta_hat_j
-  //       beta_hat_JJ<-part_y-beta_hat_j
-  //       beta_hat_JJ<-matrix(beta_hat_JJ,ncol = 1)
-  //       beta_hat[,jj]<-beta_hat_JJ
-  //       beta_hat1<-matrix(beta_hat_JJ,p,(1+K))#main_beta[,,jj]#matrix(0,p,(K+1))
-  //       b_hat<-alph*beta_hat1+(1-alph)*Q[,,jj]
-  //       Q[,1,jj]<-b_hat[,1]+(P[,1,jj])
-  //       new.mat<- b_hat[,-1] +P[,-1,jj]
-  //       Q[,-1,jj]<- sign(new.mat)*pmax(abs(new.mat)-((alpha*lambda[jj])/(rho)),0)
-  //       b_hat<-alph*beta_hat1+(1-alph)*EE[,,jj]
-  //       new.mat<- b_hat +HH[,,jj]
-  //       row.norm1<- sqrt(apply(new.mat^2,1,sum,na.rm = T))
-  //       coef.term1<- pmax(1-  (gg[2]) /rho/(row.norm1),0)
-  //       ee1<-scale(t(as.matrix(new.mat)),center = FALSE,scale = 1/coef.term1)
-  //       EE[,,jj]<-  t(ee1)
-  //       Big_beta<-t(tcrossprod(G,(beta_hat1)) )
-  //       Big_beta11[,,jj]<-Big_beta
-  //       Big_beta1<-alph*Big_beta+(1-alph)*V[,,jj]
-  //       #Now we have the main part.
-  //       new.mat<- Big_beta1+O[,,jj]
-  //       new.mat1<-new.mat[,c(1:(K+1))];new.mat2<-new.mat[,-c(1:(K+1))]
-  //       row.norm1<- sqrt(apply(new.mat1^2,1,sum,na.rm = T))
-  //       row.norm2<- sqrt(apply(new.mat2^2,1,sum,na.rm = T))
-  //       coef.term1<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm1),0)
-  //       coef.term2<- pmax(1-( (1-alpha)*lambda[jj] )/(rho)/(row.norm2),0)
-  //       N_V1<-scale(t( new.mat1 ),center = FALSE,scale = 1/coef.term1)
-  //       N_V2<-scale(t( new.mat2),center = FALSE,scale = 1/coef.term2)
-  //       V[,,jj]= cbind(t(N_V1),t(N_V2))
-  //       P[,,jj]<- P[,,jj]+beta_hat1-Q[,,jj]
-  //       HH[,,jj]<-HH[,,jj]+beta_hat1-EE[,,jj]
-  //       O[,,jj]<-O[,,jj]+Big_beta-V[,,jj]
-  //       v.diff1[jj]<-sum(((Big_beta-V[,,jj]))^2,na.rm = TRUE)
-  //       q.diff1[jj]<-sum(((beta_hat1-Q[,,jj]))^2,na.rm = TRUE)
-  //       ee.diff1[jj]<-sum(((beta_hat1-EE[,,jj]))^2,na.rm = TRUE)
-  //     } // TODO: end of for (jj in 1:D)
+    for (int jj = 0; jj < D; jj++) {
+      arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
+      arma::vec group1 = group.row(0).t();
+      arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
+      arma::mat new_group(p, K + 1, arma::fill::zeros);
+      new_group.col(0) = group1;
+      new_group.tail_cols(new_group.n_cols - 1) = group2;
+      arma::vec my_beta_jj = XtY.col(jj) / N +\
+        arma::vectorise(new_group) + res_val.row(jj).t() +\
+        arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
+        arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
+      arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
+      arma::mat part_z = DD3 * W_hat.t();
+      arma::mat part_y = DD3 * my_beta_jj;
+      arma::mat beta_hat_j = arma::inv(arma::inv(R_svd) + svd_w_tv * part_z);
+      beta_hat_j = beta_hat_j * (svd_w_tv * part_y);
+      beta_hat_j = part_z * beta_hat_j;
+      arma::vec beta_hat_JJ = arma::vectorise(part_y - beta_hat_j);
+      beta_hat.col(jj) = beta_hat_JJ;
+      arma::mat beta_hat1 = arma::reshape(beta_hat_JJ, p, 1 + K);
+      arma::mat b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
+      Q.slice(jj).col(0) = b_hat.col(0) + P.slice(jj).col(0);
+      arma::mat new_mat = b_hat.tail_cols(b_hat.n_cols - 1) + P.slice(jj).tail_cols(P.slice(jj).n_cols - 1);
+      Q.slice(jj).tail_cols(Q.slice(jj).n_cols - 1) = arma::sign(new_mat) % arma::max(arma::abs(new_mat) - ((alpha * lambda(jj)) / rho), arma::zeros(arma::size(new_mat)));
+      b_hat = alph * beta_hat1 + (1 - alph) * EE.slice(jj);
+      new_mat = b_hat + HH.slice(jj);
+
+      arma::vec row_norm1 = sqrt_sum_squared_rows(new_mat);
+
+      arma::vec coef_term1 = arma::max(1 - gg(1) / rho / row_norm1, arma::zeros(arma::size(row_norm1)));
+
+      arma::mat ee1 = scale_cpp(new_mat.t(), 1 / coef_term1);
+      EE.slice(jj) = arma::trans(ee1);
+
+      arma::mat Big_beta = arma::trans(G * beta_hat1.t());
+      Big_beta11.slice(jj) = Big_beta;
+      arma::mat Big_beta1 = alph * Big_beta + (1 - alph) * V.slice(jj);
+
+      // Now we have the main part.
+      new_mat = Big_beta1 + O.slice(jj);
+      arma::mat new_mat1 = new_mat.head_cols(K + 1);
+      arma::mat new_mat2 = new_mat.tail_cols(new_mat.n_cols - K - 1);
+      row_norm1 = sqrt_sum_squared_rows(new_mat1);
+      arma::vec row_norm2 = sqrt_sum_squared_rows(new_mat2);
+      coef_term1 = arma::max(1 - (1 - alpha) * lambda(jj) / rho / row_norm1, arma::zeros(arma::size(row_norm1)));
+      arma::vec coef_term2 = arma::max(1 - (1 - alpha) * lambda(jj) / rho / row_norm2, arma::zeros(arma::size(row_norm2)));
+      arma::mat N_V1 = scale_cpp(new_mat1.t(), 1 / coef_term1);
+      arma::mat N_V2 = scale_cpp(new_mat2.t(), 1 / coef_term2);
+      V.slice(jj) = arma::join_horiz(N_V1.t(), N_V2.t());
+      P.slice(jj) += beta_hat1 - Q.slice(jj);
+      HH.slice(jj) += beta_hat1 - EE.slice(jj);
+      O.slice(jj) += Big_beta - V.slice(jj);
+      v_diff1(jj) = arma::accu(arma::pow(Big_beta - V.slice(jj), 2));
+      q_diff1(jj) = arma::accu(arma::pow(beta_hat1 - Q.slice(jj), 2));
+      ee_diff1(jj) = arma::accu(arma::pow(beta_hat1 - EE.slice(jj), 2));
+    }
 
   //     Big_beta_respone<-((I)%*%t( beta_hat ))
   //     b_hat_response<-alph*Big_beta_respone+(1-alph)*E

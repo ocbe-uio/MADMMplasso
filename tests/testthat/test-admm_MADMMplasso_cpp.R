@@ -216,6 +216,7 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
+max_it = 100L  # TEMP
 my_values_cpp <- admm_MADMMplasso_cpp(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, p, K, e.abs,
