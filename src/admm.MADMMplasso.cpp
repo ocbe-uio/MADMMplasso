@@ -58,7 +58,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat y,
   const int N,
   const int p,
-  const int K,
+  const uint K,
   const double e_abs,
   const double e_rel,
   const double alpha,
