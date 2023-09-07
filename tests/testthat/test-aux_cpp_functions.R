@@ -39,3 +39,11 @@ test_that("sqrt_sum_squared_rows() works", {
   expect_equal(sssr(y), sqrt_sum_squared_rows(y), ignore_attr = TRUE)
   expect_equal(sssr(t(y)), sqrt_sum_squared_rows(t(y)), ignore_attr = TRUE)
 })
+
+test_that("modulo() works", {
+  top <- rpois(1, 20)
+  for (i in seq_len(top)) {
+    x <- matrix(rpois(top, i))
+    expect_equal(x %% i, modulo(x, i))
+  }
+})

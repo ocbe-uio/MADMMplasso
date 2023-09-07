@@ -5,6 +5,10 @@ admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, 
     .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, p, K, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, V, Q, E, EE, O, P, H, HH, gg, my_print)
 }
 
+modulo <- function(x, n) {
+    .Call(`_MADMMplasso_modulo`, x, n)
+}
+
 multiples_of <- function(x, divisor, subset_out = FALSE) {
     .Call(`_MADMMplasso_multiples_of`, x, divisor, subset_out)
 }
