@@ -103,10 +103,10 @@ Rcpp::List admm_MADMMplasso_cpp(
   // Overlapping group from covariates =========================================
   arma::mat G = arma::zeros<arma::mat>(2 * (1 + K), 1 + K);
   const arma::mat diag_G = arma::eye(K + 1, K + 1);
-  for (int i = 0; i < K + 1; ++i) {
+  for (uint i = 0; i < K + 1; ++i) {
     G.row(i) = diag_G.row(i);
   }
-  for (int i = K + 2; i < 2 * (K + 1); ++i) {
+  for (uint i = K + 2; i < 2 * (K + 1); ++i) {
     G.row(i) = diag_G.row(i - (K + 1));
   }
 
