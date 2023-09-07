@@ -213,25 +213,26 @@ Rcpp::List admm_MADMMplasso_cpp(
       ee_diff1(jj) = arma::accu(arma::pow(beta_hat1 - EE.slice(jj), 2));
     }
 
-  //     Big_beta_respone<-((I)%*%t( beta_hat ))
-  //     b_hat_response<-alph*Big_beta_respone+(1-alph)*E
-  //     new.mat<- b_hat_response +H
-  //     new.mat_group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
-  //     beta.group<-(array(NA,c(p+p*K,dim(y)[2],dim(C)[1])))
-  //     N_E<-list()
-  //     new.mat_group[,,1]<-t( (new.mat[c(1:dim(y)[2]),] ))
-  //     beta.group[,,1]<-t( (Big_beta_respone[c(1:dim(y)[2]),]))
-  //     beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
-  //     beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,1],ncol = (K+1), nrow = p)
-  //     input2<-1:(dim(y)[2]*(1+K))
-  //     multiple_of_K = (input2 %% (K+1)) == 0
-  //     II2<-input2[multiple_of_K]
-  //     e2=II2[-length(II2)][1]
-
   //     for (c_count2 in 2:dim(y)[2]) {
   //       beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,1],ncol = (K+1), nrow = p)
   //       e2=II2[c_count2]
   //     }
+    arma::mat Big_beta_response = I * beta_hat.t();
+    arma::mat b_hat_response = alph * Big_beta_response + (1 - alph) * E;
+    arma::mat new_mat = b_hat_response + H;
+    arma::cube new_mat_group(p + p * K, y.n_cols, C.n_rows);
+    arma::cube beta_group(p + p * K, y.n_cols, C.n_rows);
+    Rcpp::List N_E;
+    new_mat_group.slice(0) = new_mat.rows(0, y.n_cols - 1).t();
+    beta_group.slice(0) = Big_beta_response.rows(0, y.n_cols - 1).t();
+    arma::mat beta_transform(p, (K + 1) * y.n_cols, arma::fill::zeros);
+    arma::mat new_mat_group_sub = new_mat_group.slice(0).col(0);
+    beta_transform.cols(0, K) = new_mat_group_sub.reshape(p, K + 1);
+    arma::uvec input2 = arma::regspace<arma::uvec>(1, y.n_cols + 1 + K);
+    arma::uvec multiple_of_K = modulo(input2, K + 1);
+    arma::uvec II2 = input2.elem(arma::find(multiple_of_K == 0));
+    int e2 = II2(0);
+
 
   //     norm_res<-((apply(beta_transform,c(1),twonorm)))
   //     coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
