@@ -55,12 +55,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // modulo
-arma::vec modulo(arma::vec x, int n);
+arma::ivec modulo(arma::ivec x, int n);
 RcppExport SEXP _MADMMplasso_modulo(SEXP xSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(modulo(x, n));
     return rcpp_result_gen;
