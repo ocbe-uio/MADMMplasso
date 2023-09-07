@@ -54,6 +54,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// modulo
+arma::vec modulo(arma::vec x, int n);
+RcppExport SEXP _MADMMplasso_modulo(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(modulo(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
 // multiples_of
 arma::ivec multiples_of(arma::ivec x, const int divisor, const bool subset_out);
 RcppExport SEXP _MADMMplasso_multiples_of(SEXP xSEXP, SEXP divisorSEXP, SEXP subset_outSEXP) {
@@ -93,6 +105,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_admm_MADMMplasso_cpp", (DL_FUNC) &_MADMMplasso_admm_MADMMplasso_cpp, 33},
+    {"_MADMMplasso_modulo", (DL_FUNC) &_MADMMplasso_modulo, 2},
     {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
     {"_MADMMplasso_scale_cpp", (DL_FUNC) &_MADMMplasso_scale_cpp, 2},
     {"_MADMMplasso_sqrt_sum_squared_rows", (DL_FUNC) &_MADMMplasso_sqrt_sum_squared_rows, 1},
