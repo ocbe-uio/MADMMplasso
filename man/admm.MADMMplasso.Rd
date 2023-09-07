@@ -27,16 +27,8 @@ admm.MADMMplasso(
   alph,
   svd.w,
   tree,
-  my_print = TRUE,
+  my_print = T,
   invmat,
-  V,
-  Q,
-  E,
-  EE,
-  O,
-  P,
-  H,
-  HH,
   cv = cv,
   gg = 0.2
 )
@@ -93,6 +85,10 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{invmat}{TODO: fill paramater description}
 
+\item{cv}{TODO: fill paramater description}
+
+\item{gg}{TODO: fill paramater description}
+
 \item{V}{TODO: fill paramater description}
 
 \item{Q}{TODO: fill paramater description}
@@ -108,10 +104,6 @@ variable, one can use either k or k-1  dummy variables.}
 \item{H}{TODO: fill paramater description}
 
 \item{HH}{TODO: fill paramater description}
-
-\item{cv}{TODO: fill paramater description}
-
-\item{gg}{TODO: fill paramater description}
 }
 \value{
 predicted values for the ADMM part

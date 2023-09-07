@@ -7,9 +7,8 @@
 tree.parms(y = y, h = 0.7)
 }
 \arguments{
-\item{y}{N by D matrix of response variables}
-
-\item{h}{is the tree cut off}
+\item{y}{N by D matrix of response variables
+@param h is the tree cut off}
 }
 \value{
 A trained the tree with the following components:
