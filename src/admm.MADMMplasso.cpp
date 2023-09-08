@@ -57,8 +57,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat XtY,
   const arma::mat y,
   const int N,
-  const int p,
-  const uint K,
   const double e_abs,
   const double e_rel,
   const double alpha,
@@ -67,14 +65,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   const Rcpp::List svd_w,
   const Rcpp::List tree,
   const Rcpp::List invmat,
-  arma::cube V,
-  arma::cube Q,
-  const arma::mat E,
-  arma::cube EE,
-  arma::cube O,
-  arma::cube P,
-  const arma::mat H,
-  arma::cube HH,
   const arma::vec gg,
   const bool my_print = true
 ) {
@@ -84,6 +74,19 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]).t();
   const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]).t();
   const int D = y.n_cols;
+  const int p = X.n_cols;
+  const uint K = Z.n_cols;
+
+  arma::cube V(p, 2 * (1 + K),D, arma::fill::zeros);
+  arma::cube O(p, 2 * (1 + K),D, arma::fill::zeros);
+  const arma::mat E(y.n_cols * C.n_rows, p + p * K);
+  arma::cube EE(p, 1 + K, D, arma::fill::zeros);
+
+  arma::cube Q(p, 1 + K, D, arma::fill::zeros);
+  arma::cube P(p, 1 + K, D, arma::fill::zeros);
+  const arma::mat H(y.n_cols * C.n_rows, p + p * K);
+  arma::cube HH(p, 1 + K, D, arma::fill::zeros);
+
 
   // for response groups =======================================================
   const arma::ivec input = Rcpp::seq_len(D * C.n_rows);
