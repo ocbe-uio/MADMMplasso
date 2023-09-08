@@ -42,7 +42,7 @@
 
 
 #' @export
-admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=TRUE,invmat,V,Q,E,EE,O,P,H,HH,cv=cv,gg=0.2){
+admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2){
 
   TT<-tree
 
@@ -51,9 +51,19 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   svd.w$tu<- t(svd.w$u)
   svd.w$tv<- t(svd.w$v)
   D=dim(y)[2]
+  p=dim(X)[2]
+  K=dim(Z)[2]
+
+  V=(array(0,c(p,2*(1+K),D) ))
+  O=(array(0,c(p,2*(1+K),D) ))
+  E<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K))) #response auxiliary
+  EE<-(array(0,c(p,(1+K),D) ))
 
 
-
+  Q=(array(0,c(p,(1+K),D) ))
+  P=(array(0,c(p,(1+K),D) ))
+  H<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K)))  # response multiplier
+  HH<-(array(0,c(p,(1+K),D) ))
 
 
 
@@ -161,29 +171,12 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     new_G[c(1:p)]<-1;new_G[-c(1:p)]<-2
     new_G[c(1:p)]<-rho*(1+new_G[c(1:p)]);new_G[-c(1:p)]<-rho*(1+new_G[-c(1:p)])
 
-    invmat<-list() #denominator of the beta estimates
-    for (rr in 1:D) {
+    #invmat<-list() #denominator of the beta estimates
+    invmat<- lapply(seq_len(D),
+           function(j)(
+                        new_G+rho*( new_I[j]+1)
 
-      DD1<-rho*(new_I[rr]+1)
-
-      #DD1<-rho1*(obv_beta_matrix)
-
-      DD2<-new_G+DD1
-
-      #DD2[c(1:p)]<-DD2[c(1:p)]+DD1
-
-
-
-
-
-
-      #print(rbind(part4[3,]-as.matrix(part4[3,]) ))
-      invmat[[rr]] <-DD2# Matrix::chol2inv( Matrix::chol(new_sparse) )
-      #print(dim(invmat))
-      # # #Matrix::chol2inv()
-
-
-    }
+                        ))
 
 
 
@@ -274,6 +267,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
       N_V2<-scale(t( new.mat2),center = FALSE,scale = 1/coef.term2)
       # N_V<-   lapply(seq_len(p),
       #           function(j) (  c(matrix(scale(new.mat1[j,], center = FALSE, scale = 1/coef.term1[j])  ),matrix(scale(new.mat2[j,], center = FALSE, scale = 1/coef.term2[j]) ) )  ) )
+
 
 
       V[,,jj]= cbind(t(N_V1),t(N_V2))
@@ -629,9 +623,9 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 
 
     #finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)*(as.vector((res_val[jj,c(1:p)] ))!=0)
-    # finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)*(as.vector((EE[,jj] ))!=0)
+    # finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)*(as.vector((EE[,1,jj] ))!=0)*(as.vector((res_val[jj,c(1:p)] ))!=0)
     finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
-    #finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)*(as.vector((res_val[jj,-c(1:p)] ))!=0)
+    #finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)*(as.vector((res_val[jj,-c(1:p)] ))!=0)*(as.vector((EE[,-1,jj] ))!=0)
     finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
 
     beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
@@ -645,13 +639,14 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   # print(dim(W_hat)); print(dim(beta_hat11))
   y_hat<-model_p(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
 
-  out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,V=V,Q=Q,O=O,P=P,E=E,H=H,EE=EE,HH=HH,beta_hat=beta_hat,y_hat=y_hat)
+  out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,beta_hat=beta_hat,y_hat=y_hat)
   class(out)="admm.MADMMplasso"
 
   return(out)
 
 
 }
+
 
 
 #' @title Fit a multi-response pliable lasso model over a path of regularization values
@@ -751,7 +746,8 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 #'   pal=1, gg=gg1, tol=tol, cl=6
 #' )
 #' @export
-MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=FALSE,alph=1.8,tree,cv=FALSE,parallel=TRUE,pal=0,gg=NULL,tol=1E-4,cl=4){
+
+MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.abs=1E-3,e.rel=1E-3,maxgrid,nlambda, rho=5,my_print=F,alph=1.8,tree,cv=F,parallel=T,pal=0,gg=NULL,tol=1E-4,cl=4){
 
   N=nrow(X)
   #print(c(N,length(y)))
@@ -760,6 +756,11 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   K=ncol(Z)
   D=dim(y)[2]
 
+
+  TT<-tree
+
+  C<-TT$Tree
+  CW<-TT$Tw
 
 
   BETA0<-lapply(seq_len(nlambda),
@@ -802,7 +803,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     r = y
 
     lammax<-	lapply(seq_len(dim(y)[2]),
-                    function(g){l_max<- max(abs(t(X)%*%(r- colMeans(r) ) )/length(r[,1]))/((1-alpha))
+                    function(g){l_max<- max(abs(t(X)%*%(r- colMeans(r) ) )/length(r[,1]))/((1-alpha)+( max(gg[1,])*max(CW) +max(gg[2,]) ))
                     # l_max<-l_max/((1-alpha)*l_max/gg)
                     return( l_max)
                     })
@@ -942,10 +943,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   # my_G[,c(1:p)]=G[,1]
   # my_G[,-c(1:p)]=G[,c(2:(K+1))]
   # new_G<-diag(t(my_G)%*%my_G)
-  TT<-tree
 
-  C<-TT$Tree
-  CW<-TT$Tw
 
 
   D=dim(y)[2]
@@ -1034,20 +1032,13 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   theta0 = matrix(0,K,D)
   beta =  (matrix(0,p,D))
   beta_hat<-(matrix(0,p+p*(K),D))
-  V=(array(0,c(p,2*(1+K),D) ))
-  O=(array(0,c(p,2*(1+K),D) ))
-  E<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K))) #response auxiliary
-  EE<-(array(0,c(p,(1+K),D) ))
 
 
 
   # auxiliary variables for the L1 norm####
 
   theta =( array(0,c(p,K,D)))
-  Q=(array(0,c(p,(1+K),D) ))
-  P=(array(0,c(p,(1+K),D) ))
-  H<-(matrix(0,dim(y)[2]*nrow(C),(p+p*K)))  # response multiplier
-  HH<-(array(0,c(p,(1+K),D) ))
+
   if(is.null(my_lambda)){
     lam<-matrix(0,nlambda,dim(y)[2])
     for (i in 1:dim(y)[2] ) {
@@ -1075,21 +1066,22 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   #registerDoMC(cl1)
   if(parallel){
     #registerDoSEQ()
-    cl = makeCluster(cl1,type="SOCK")
-    registerDoParallel(cl)
+    cl = makeCluster(cl1,type="FORK")
 
+    doParallel::registerDoParallel(cl=cl)
+    foreach::getDoParRegistered()
     #on.exit(stopCluster(cl))
-    getDoParRegistered()
+
     #registerDoParaqqqllel(numCores)
 
     my_values<- foreach (i=1:nlambda,.packages='MADMMplasso', .combine=rbind) %dopar% {
-      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[i,])
+      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[i,])
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
 
   }else if(parallel==F & pal==0){
     my_values=   lapply(seq_len(nlambda),
-                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[g,])      ))
+                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[g,])      ))
 
   }
 
@@ -1099,6 +1091,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     # print(hh)
     res_dual <- 0    # dual residual
     res_pri <- 0    # primal residual
+
     lambda=lam[hh,]
     #  print(lambda)
     #print(lambda)
@@ -1130,29 +1123,29 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 
     start_time <- Sys.time()
     if(pal==1){
-      my_values<-	admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,V=V,Q=Q,E=E,EE=EE,O=O,P=P,H=H,HH=HH,cv=cv,gg=gg[hh,])
+      my_values<-	admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[hh,])
 
       beta=my_values$beta;theta=my_values$theta;converge=my_values$converge;my_obj[[hh]]<-list(my_values$obj);beta0=my_values$beta0;theta0=my_values$theta0### iteration
-      V=my_values$V;Q=my_values$Q;O=my_values$O;P=my_values$P;E=my_values$E;H=my_values$H;beta_hat=my_values$beta_hat; y_hat<-my_values$y_hat
+      beta_hat=my_values$beta_hat; y_hat<-my_values$y_hat
     }
     cost_time <- Sys.time() - start_time
     print(cost_time)
     #
     if(parallel==T & pal==0){
       beta=my_values[hh,]$beta;theta=my_values[hh,]$theta;converge=my_values[hh,]$converge;my_obj[[hh]]<-list(my_values[hh,]$obj);beta0=my_values[hh,]$beta0;theta0=my_values[hh,]$theta0### iteration
-      V=my_values[hh,]$V;Q=my_values[hh,]$Q;O=my_values[hh,]$O;P=my_values[hh,]$P;beta_hat=my_values[hh,]$beta_hat;y_hat<-my_values[hh,]$y_hat
+    beta_hat=my_values[hh,]$beta_hat;y_hat<-my_values[hh,]$y_hat
       # beta=my_values[[hh]]$beta;theta=my_values[[hh]]$theta;converge=my_values[[hh]]$converge;my_obj[[hh]]<-list(my_values[[hh]]$obj);beta0=my_values[[hh]]$beta0;theta0=my_values[[hh]]$theta0### iteration
       # V=my_values[[hh]]$V;Q=my_values[[hh]]$Q;O=my_values[[hh]]$O;P=my_values[[hh]]$P;beta_hat=my_values[[hh]]$beta_hat;y_hat<-my_values[[hh]]$y_hat
     }else if(parallel==F & pal==0){
       beta=my_values[[hh]]$beta;theta=my_values[[hh]]$theta;converge=my_values[[hh]]$converge;my_obj[[hh]]<-list(my_values[[hh]]$obj);beta0=my_values[[hh]]$beta0;theta0=my_values[[hh]]$theta0### iteration
-      V=my_values[[hh]]$V;Q=my_values[[hh]]$Q;O=my_values[[hh]]$O;P=my_values[[hh]]$P;beta_hat=my_values[[hh]]$beta_hat;y_hat<-my_values[[hh]]$y_hat
+      beta_hat=my_values[[hh]]$beta_hat;y_hat<-my_values[[hh]]$y_hat
 
     }
 
 
     #	my_values<-main_function(rho1,X,Z,max_it,W_hat,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print)### iteration
 
-    #function(rho1,max_it,W,W_hat,my_W_hat,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,my_print=TRUE,svd.w=svd.w)
+    #function(rho1,max_it,W,W_hat,my_W_hat,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,my_print=T,svd.w=svd.w)
 
     beta1=as(beta*(abs(beta)>tol),"sparseMatrix");theta1=as.sparse3Darray(theta*(abs(theta)>tol));beta_hat1=as(beta_hat*(abs(beta_hat)>tol),"sparseMatrix")
     #beta1=beta;theta1=theta;beta_hat1=beta_hat
@@ -1229,7 +1222,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
   #}
 
   remove(invmat)
-  remove(V); remove(E);remove(H);remove(Q);remove(P);remove(O)
+ # remove(V); remove(E);remove(H);remove(Q);remove(P);remove(O)
   remove(my_values);remove(my_W_hat)
 
   obj[1]<-obj[2]
@@ -1246,7 +1239,7 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 convNd2T <- function(Nd, w, w_max){
   # Nd : node list
   # w : a vector of weights for internal nodes
-  # Tree : VxK matrix\
+  # Tree : VxK matrix
   #	V is the number of leaf nodes and internal nodes
   #	K is the number of tasks
   #	Element (v,k) is set to 1 if task k has a membership to
@@ -1324,10 +1317,11 @@ fastCorr <- function(A){
 
 #' Fit the hierarchical tree structure
 #' @param y  N by D matrix of response variables
-#' @param h is the tree cut off
+#'  @param h is the tree cut off
 #' @return  A trained the tree with the following components:
 #' Tree: the tree matrix stored in 1's and 0's
-#' Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
+#'  Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
+
 #' @export
 tree.parms <- function(y=y, h=.7){
   m <- dim(y)[2]
@@ -1383,6 +1377,8 @@ tree.parms <- function(y=y, h=.7){
 #'  Y: a N by D matrix of response variables
 #'  X: a N by p matrix of covariates
 #'  Z: a N by K matrix of modifiers
+
+
 #' @export
 sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
   b<-10
@@ -1525,6 +1521,7 @@ sim2 <- function(p=500,n=100,m=24,nz=4,rho=.4,B.elem=0.5){
 errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 
 
+
 #' Carries out cross-validation for  a  pliable lasso model over a path of regularization values
 #' @param fit  object returned by the pliable function
 #' @param X  N by p matrix of predictors
@@ -1631,8 +1628,10 @@ errfun.gaussian<-function(y,yhat,w=rep(1,length(y))){  ( w*(y-yhat)^2) }
 #' )
 #' plot(cv_admp)
 #' }
+
 #' @export
-cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=FALSE,alph=1,foldid=NULL,parallel=TRUE,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
+
+cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50000,e.abs=1E-3,e.rel=1E-3,nlambda, rho=5,my_print=F,alph=1,foldid=NULL,parallel=T,pal=0,gg=c(7,0.5),TT,tol=1E-4,cl=2){
   BIG=10e9
   no<-nrow(X)
   ni<-ncol(X)
@@ -1657,7 +1656,7 @@ cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50
 
 
 
-    ggg[[ii]]<-   MADMMplasso(X=X[!oo,,drop=F],Z=Z[!oo,,drop=F],y=y[!oo,,drop=F],alpha = alpha,my_lambda=lambda,lambda_min=.01,max_it=max_it,e.abs=e.abs,e.rel=e.rel,nlambda=length(lambda[,1]), rho=rho,tree = TT,my_print = my_print,alph=alph,cv=TRUE,parallel = parallel,pal=pal,gg=gg,tol=tol,cl=cl)
+    ggg[[ii]]<-   MADMMplasso(X=X[!oo,,drop=F],Z=Z[!oo,,drop=F],y=y[!oo,,drop=F],alpha = alpha,my_lambda=lambda,lambda_min=.01,max_it=max_it,e.abs=e.abs,e.rel=e.rel,nlambda=length(lambda[,1]), rho=rho,tree = TT,my_print = my_print,alph=alph,cv=T,parallel = parallel,pal=pal,gg=gg,tol=tol,cl=cl)
 
 
 
@@ -1750,6 +1749,7 @@ cv.MADMMplasso<-function(fit,nfolds,X,Z,y,alpha=0.5,lambda=fit$Lambdas,max_it=50
 
 
 
+
 error.bars <-function(x, upper, lower, width = 0.02, ...) {
   xlim <- range(x)
   barw <- diff(xlim) * width
@@ -1766,6 +1766,7 @@ error.bars <-function(x, upper, lower, width = 0.02, ...) {
 S_func <- function(x, a) {  # Soft Thresholding Operator
   return(pmax(abs(x) - a,0) * sign(x))
 }
+
 
 #' @title TODO: fill this field
 #' @description TODO: fill this field
@@ -1788,6 +1789,8 @@ compute_pliable<-function(X, Z, theta){
 
 
 }
+
+
 
 model_p<-function(beta0, theta0, beta, theta, X, Z){
   p=ncol(X)
@@ -1949,6 +1952,11 @@ count_nonzero_a<-function(x){
 
 }
 
+
+
+
+
+
 reg<-function(r,Z){
   K=ncol(Z)
   N=nrow(Z)
@@ -2039,7 +2047,7 @@ twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
 #' @param ... additional arguments to the generic \code{predict()} method
 #'  @return  predicted values
 #' @export
-predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){
+predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
   lambda.arg=lambda
   if(is.null(lambda.arg))
   { lambda=object$Lambdas[,1]
@@ -2214,7 +2222,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){
 
 #' @export
 plot.MADMMplasso=
-  function(x,...){
+  function(x){
     fit=x
     beta<-fit$beta; theta<-fit$theta
     p=nrow(fit$beta[[1]]);K<-nrow(fit$theta0[[1]]);D=ncol(fit$theta0[[1]]);nlambda<-length(fit$Lambdas[,1])
@@ -2226,9 +2234,7 @@ plot.MADMMplasso=
 
 plotCoeff=
   function(beta,theta,error,nz,p,K,D,nlambda,Lambda){
-    if (nlambda == 1) {
-      stop("nlambda must be greater than 1 to produce plot")
-    }
+
 
     gg=nlambda
     my_beta1<-array(NA,c(p,nlambda,D) )
@@ -2254,9 +2260,11 @@ plotCoeff=
 
     for (ii in 1:D) {
 
-      my_beta <- my_beta1[, , ii]
 
-      b <- apply(abs(my_beta), 2, sum)
+      my_beta<-my_beta1[,,ii]
+
+
+      b=apply(abs(my_beta), 2, sum)
       b=log(unlist(Lambda[,ii]))
       n=dim(my_beta)[2]
       matplot(b, t(my_beta),type="n",col="red", ylim = range(my_beta),  xlab="Log Lambda", ylab=  ( paste(  "coefficient",ii)))
