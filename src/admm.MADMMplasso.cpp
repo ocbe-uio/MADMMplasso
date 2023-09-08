@@ -213,10 +213,6 @@ Rcpp::List admm_MADMMplasso_cpp(
       ee_diff1(jj) = arma::accu(arma::pow(beta_hat1 - EE.slice(jj), 2));
     }
 
-  //     for (c_count2 in 2:dim(y)[2]) {
-  //       beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,1],ncol = (K+1), nrow = p)
-  //       e2=II2[c_count2]
-  //     }
     arma::mat Big_beta_response = I * beta_hat.t();
     arma::mat b_hat_response = alph * Big_beta_response + (1 - alph) * E;
     arma::mat new_mat = b_hat_response + H;
@@ -232,6 +228,10 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::uvec multiple_of_K = modulo(input2, K + 1);
     arma::uvec II2 = input2.elem(arma::find(multiple_of_K == 0));
     int e2 = II2(0);
+    // for (c_count2 in 2:dim(y)[2]) {
+    //   beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,1],ncol = (K+1), nrow = p)
+    //   e2=II2[c_count2]
+    // }
 
 
   //     norm_res<-((apply(beta_transform,c(1),twonorm)))
