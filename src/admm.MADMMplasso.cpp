@@ -222,8 +222,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     new_mat_group.slice(0) = new_mat.rows(0, y.n_cols - 1).t();
     beta_group.slice(0) = Big_beta_response.rows(0, y.n_cols - 1).t();
     arma::mat beta_transform(p, (K + 1) * y.n_cols, arma::fill::zeros);
-    arma::mat new_mat_group_sub = new_mat_group.slice(0).col(0);
-    beta_transform.cols(0, K) = new_mat_group_sub.reshape(p, K + 1);
+    beta_transform.cols(0, K) = arma::reshape(new_mat_group.slice(0).col(0), p, K + 1);
     arma::uvec input2 = arma::regspace<arma::uvec>(1, y.n_cols + 1 + K);
     arma::uvec multiple_of_K = modulo(input2, K + 1);
     arma::uvec II2 = input2.elem(arma::find(multiple_of_K == 0));
