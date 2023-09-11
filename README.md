@@ -193,7 +193,11 @@ s_ad=which(cv_admp$lambda[,1]==cv_admp$lambda.min)
 
 
 
+
+
 fit$beta[[s_ad]]
+
+
 ![Screenshot 2023-09-11 at 16 03 48](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/0420164e-bfb9-476a-a7ef-3e97bde377e2)
 
 
