@@ -123,7 +123,7 @@ gg1=matrix(0,2,2)
 
 gg1[1,]<-c(0.02,0.02)
 
-gg1[2,]<-c(0.02,0.02)
+gg1[2,]<-c(0.2,0.2)
 
 nlambda = 50
 
@@ -147,23 +147,24 @@ fit <- MADMMplasso(
 plot(fit)
 
 
-
-![1](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/dbf999bb-d07a-47ff-9a6d-b9ab8cc81dcd)
-
+![1](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/b8841ba1-aac6-4539-9924-70c70accddd9)
 
 
-![2](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/b28f4d07-b634-40be-b303-0335304e1f37)
+![2](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/c2e4bfcf-22c8-49a7-bf99-07ddb436437b)
 
 
-![3](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/c56e02a8-bff6-4bd7-9e51-6d8fabe5b384)
 
 
-![4](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/bbdc715a-33bf-4ae9-84c2-cb1852deb860)
-
-![5](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/ff78e14a-00af-4afb-82a2-8b538349b04a)
-![6](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/81b87875-511c-4239-ac9d-37c2218688b3)
+![3](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/b319ad79-71bf-4de2-9d9e-457f50393a1e)
 
 
+![4](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/34d8d6e1-c912-4654-a497-4bade67d5ee1)  ![5](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/fe375fff-51e2-4b49-9520-f7cbcaec6bbb)
+
+
+
+
+
+![6](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/c4c46d9b-3cd3-4c55-95d1-abbb59405422)
 
 
 
@@ -183,14 +184,19 @@ plot(cv_admp)
 
 
 
+
+
+
+
+
+![cv](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/0118f157-dd7a-4387-88f9-f0e18434d59d)
+
+
+
+
+
+
 s_ad=which(cv_admp$lambda[,1]==cv_admp$lambda.min)
-
-
-
-
-
-![cv](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/d5beae83-bf02-475c-999c-d156bd7b9936)
-
 
 
 
@@ -198,11 +204,12 @@ s_ad=which(cv_admp$lambda[,1]==cv_admp$lambda.min)
 fit$beta[[s_ad]]
 
 
-![Screenshot 2023-09-11 at 16 03 48](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/0420164e-bfb9-476a-a7ef-3e97bde377e2)
 
 
 
 
+
+![Screenshot 2023-09-11 at 16 25 59](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/f762b9e1-9212-43c7-a21c-b83a9a48662f)
 
 
 
