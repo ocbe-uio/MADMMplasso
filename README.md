@@ -17,7 +17,7 @@ A typical example is when one wants to model drug response for multiple drugs an
 Author: Theophilus Asenso, Manuela Zucknick
 
 
-
+## Usage
 
 devtools::install_github("ocbe-uio/MADMMplasso")
 
