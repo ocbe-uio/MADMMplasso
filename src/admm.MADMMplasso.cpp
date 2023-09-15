@@ -364,14 +364,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Named("theta") = theta,
     Rcpp::Named("converge") = converge,
     Rcpp::Named("obj") = obj,
-    Rcpp::Named("V") = V,
-    Rcpp::Named("Q") = Q,
-    Rcpp::Named("O") = O,
-    Rcpp::Named("P") = P,
-    Rcpp::Named("E") = E,
-    Rcpp::Named("H") = H,
-    Rcpp::Named("EE") = EE,
-    Rcpp::Named("HH") = HH,
     Rcpp::Named("beta_hat") = beta_hat,
     Rcpp::Named("y_hat") = y_hat
   );
