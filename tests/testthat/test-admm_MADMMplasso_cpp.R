@@ -157,24 +157,19 @@ beta0 <- b$beta0
 theta0 <- b$theta0
 new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 XtY <- crossprod((my_W_hat), (new_y))
+
+# Testing the R function =======================================================
 my_values <- suppressMessages(admm.MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
-  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, p, K, e.abs,
+  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = FALSE, invmat = invmat, V = V, Q = Q, E = E, EE = EE, O = O, P = P,
-  H = H, HH = HH, cv = cv, gg = gg
+  my_print = FALSE, invmat = invmat, cv = FALSE, gg = gg
 ))
 beta <- my_values$beta
 theta <- my_values$theta
 converge <- my_values$converge
 beta0 <- my_values$beta0
 theta0 <- my_values$theta0 ### iteration
-V <- my_values$V
-Q <- my_values$Q
-O <- my_values$O
-P <- my_values$P
-E <- my_values$E
-H <- my_values$H
 beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
@@ -184,14 +179,6 @@ test_that("final objects have correct dimensions", {
 	expect_equal(dim(beta), c(50, 6))
 	expect_equal(dim(theta), c(50, 4, 6))
 	expect_equal(length(converge), 1)
-	expect_equal(dim(V), c(50, 10, 6))
-	expect_equal(dim(Q), c(50, 5, 6))
-	expect_equal(dim(O), c(50, 10, 6))
-	expect_equal(dim(P), c(50, 5, 6))
-	expect_equal(dim(E), c(18, 250))
-	expect_equal(dim(H), c(18, 250))
-	expect_equal(dim(EE), c(50, 5, 6))
-	expect_equal(dim(HH), c(50, 5, 6))
 	expect_equal(dim(beta_hat), c(250, 6))
 	expect_equal(dim(y_hat), c(100, 6))
 })
@@ -203,14 +190,6 @@ test_that("mean values of final objects are expected", {
 	expect_equal(mean(beta), 2.104393e-02, tolerance = tolerance)
 	expect_equal(mean(theta), 2.841666e-04, tolerance = tolerance)
 	expect_equal(converge, TRUE)
-	expect_equal(mean(V), 2.329982e-03, tolerance = tolerance)
-	expect_equal(mean(Q), 4.439442e-03, tolerance = tolerance)
-	expect_equal(mean(O), 1.462051e-03, tolerance = tolerance)
-	expect_equal(mean(P), 6.868194e-04, tolerance = tolerance)
-	expect_equal(mean(E), 1.477602e-03, tolerance = tolerance)
-	expect_equal(mean(H), -2.318846e-05, tolerance = tolerance)
-	expect_equal(mean(EE), 0, tolerance = tolerance)
-	expect_equal(mean(HH), -6.948488e-05, tolerance = tolerance)
 	expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tolerance)
 	expect_equal(mean(y_hat), -8.380419e-02, tolerance = tolerance)
 })
@@ -219,12 +198,12 @@ test_that("mean values of final objects are expected", {
 max_it = 100L  # TEMP
 my_values_cpp <- admm_MADMMplasso_cpp(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
-  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, p, K, e.abs,
+  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd_w = svd.w, tree = TT,
-  my_print = FALSE, invmat = invmat, V = V, Q = Q, E = E, EE = EE, O = O, P = P,
-  H = H, HH = HH, gg = gg
+  my_print = FALSE, invmat = invmat, gg = gg
 )
 
 test_that("C++ function output structure", {
-  expect_equal(length(my_values_cpp), 16)
+  expect_equal(length(my_values_cpp), length(my_values))
+  expect_equal(names(my_values_cpp), names(my_values))
 })
