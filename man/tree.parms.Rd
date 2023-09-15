@@ -2,13 +2,15 @@
 % Please edit documentation in R/MADAMM11.R
 \name{tree.parms}
 \alias{tree.parms}
-\title{Fit the hierarchical tree structure}
+\title{Tree parameters # TODO: check}
 \usage{
 tree.parms(y = y, h = 0.7)
 }
 \arguments{
 \item{y}{N by D matrix of response variables
 @param h is the tree cut off}
+
+\item{h}{h # TODO: add description!}
 }
 \value{
 A trained the tree with the following components:
@@ -16,5 +18,8 @@ Tree: the tree matrix stored in 1's and 0's
 Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
 }
 \description{
+Calculate tree parameters # TODO: add description!
+}
+\details{
 Fit the hierarchical tree structure
 }

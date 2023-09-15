@@ -18,8 +18,6 @@ admm.MADMMplasso(
   XtY,
   y,
   N,
-  p,
-  K,
   e.abs,
   e.rel,
   alpha,
@@ -63,10 +61,6 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{N}{TODO: fill paramater description}
 
-\item{p}{TODO: fill paramater description}
-
-\item{K}{TODO: fill paramater description}
-
 \item{e.abs}{TODO: fill paramater description}
 
 \item{e.rel}{TODO: fill paramater description}
@@ -88,22 +82,6 @@ variable, one can use either k or k-1  dummy variables.}
 \item{cv}{TODO: fill paramater description}
 
 \item{gg}{TODO: fill paramater description}
-
-\item{V}{TODO: fill paramater description}
-
-\item{Q}{TODO: fill paramater description}
-
-\item{E}{TODO: fill paramater description}
-
-\item{EE}{TODO: fill paramater description}
-
-\item{O}{TODO: fill paramater description}
-
-\item{P}{TODO: fill paramater description}
-
-\item{H}{TODO: fill paramater description}
-
-\item{HH}{TODO: fill paramater description}
 }
 \value{
 predicted values for the ADMM part
