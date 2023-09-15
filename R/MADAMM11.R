@@ -15,8 +15,6 @@
 #' @param XtY TODO: fill paramater description
 #' @param y TODO: fill paramater description
 #' @param N TODO: fill paramater description
-#' @param p TODO: fill paramater description
-#' @param K TODO: fill paramater description
 #' @param e.abs TODO: fill paramater description
 #' @param e.rel TODO: fill paramater description
 #' @param alpha TODO: fill paramater description
@@ -26,14 +24,6 @@
 #' @param tree TODO: fill paramater description
 #' @param my_print TODO: fill paramater description
 #' @param invmat TODO: fill paramater description
-#' @param V TODO: fill paramater description
-#' @param Q TODO: fill paramater description
-#' @param E TODO: fill paramater description
-#' @param EE TODO: fill paramater description
-#' @param O TODO: fill paramater description
-#' @param P TODO: fill paramater description
-#' @param H TODO: fill paramater description
-#' @param HH TODO: fill paramater description
 #' @param cv TODO: fill paramater description
 #' @param gg TODO: fill paramater description
 #' @return  predicted values for the ADMM part
@@ -42,7 +32,7 @@
 
 
 #' @export
-admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2){
+admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2){
 
   TT<-tree
 
@@ -1075,13 +1065,24 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
     #registerDoParaqqqllel(numCores)
 
     my_values<- foreach (i=1:nlambda,.packages='MADMMplasso', .combine=rbind) %dopar% {
-      admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[i,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[i,])
+      admm.MADMMplasso(
+        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+        y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
+        invmat, cv, gg[i, ])
     }
     parallel::stopCluster(cl)
 
   }else if(parallel==F & pal==0){
-    my_values=   lapply(seq_len(nlambda),
-                        function(g)( admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lam[g,],alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[g,])      ))
+    my_values=   lapply(
+      seq_len(nlambda),
+      function(g) {
+        admm.MADMMplasso(
+          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
+          XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
+          invmat, cv, gg[g, ]
+        )
+      }
+    )
 
   }
 
@@ -1123,7 +1124,11 @@ MADMMplasso<-function(X,Z,y,alpha,my_lambda=NULL,lambda_min=.001,max_it=50000,e.
 
     start_time <- Sys.time()
     if(pal==1){
-      my_values<-	admm.MADMMplasso(beta0=beta0,theta0=theta0,beta=beta,beta_hat=beta_hat,theta=theta,rho1,X,Z,max_it,W_hat=my_W_hat,XtY,y,N,p,K,e.abs, e.rel,alpha, lambda=lambda,alph,svd.w=svd.w,tree = tree,my_print=my_print,invmat=invmat,cv=cv,gg=gg[hh,])
+      my_values<-	admm.MADMMplasso(
+        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+        y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
+        cv, gg[hh, ]
+      )
 
       beta=my_values$beta;theta=my_values$theta;converge=my_values$converge;my_obj[[hh]]<-list(my_values$obj);beta0=my_values$beta0;theta0=my_values$theta0### iteration
       beta_hat=my_values$beta_hat; y_hat<-my_values$y_hat
@@ -1323,6 +1328,9 @@ fastCorr <- function(A){
 #'  Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
 
 #' @export
+#' @title Tree parameters # TODO: check
+#' @description Calculate tree parameters # TODO: add description!
+#' @param h h # TODO: add description!
 tree.parms <- function(y=y, h=.7){
   m <- dim(y)[2]
   myDist0 <- 1 - abs(fastCorr(y))
@@ -2047,7 +2055,7 @@ twonorm <- function(x) sqrt(sum(x^2,na.rm = TRUE))
 #' @param ... additional arguments to the generic \code{predict()} method
 #'  @return  predicted values
 #' @export
-predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
+predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL, ...){
   lambda.arg=lambda
   if(is.null(lambda.arg))
   { lambda=object$Lambdas[,1]
@@ -2222,7 +2230,7 @@ predict.MADMMplasso<-function(object ,X,Z,y,lambda=NULL){
 
 #' @export
 plot.MADMMplasso=
-  function(x){
+  function(x, ...){
     fit=x
     beta<-fit$beta; theta<-fit$theta
     p=nrow(fit$beta[[1]]);K<-nrow(fit$theta0[[1]]);D=ncol(fit$theta0[[1]]);nlambda<-length(fit$Lambdas[,1])
