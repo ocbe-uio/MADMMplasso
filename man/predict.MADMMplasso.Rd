@@ -5,7 +5,7 @@
 \title{Compute predicted values from a fitted pliable  object
 Make predictions from a fitted pliable lasso model}
 \usage{
-\method{predict}{MADMMplasso}(object, X, Z, y, lambda = NULL)
+\method{predict}{MADMMplasso}(object, X, Z, y, lambda = NULL, ...)
 }
 \arguments{
 \item{object}{object returned from a call to pliable}
