@@ -1,6 +1,6 @@
 Package: MADMMplasso
 Title: Multi variate multi response 'ADMM' with interaction effects
-Version: 0.0.0.9005
+Version: 0.0.0.9006
 Authors@R:
     c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
 Description: This system allows one to model a multi response problem that has correlation among the
