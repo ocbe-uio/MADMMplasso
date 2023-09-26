@@ -5,7 +5,7 @@ Multi variate multi-response 'ADMM' with interaction effects combines the usual 
 The method can be powperful in situations where one assumes that;
 1.	certain factors influence the main covariate seperatly and aims to include these fatcors as modifying varibles to the main covariate. 
 2.	There exists some form of grouping within the responses and want to include this information. We assume that the responses form overlapping groups that follows a certain hierarchy. 
-A typical example is when one wants to model drug response for multiple drugs and assumes that some of the drugs share certain properties in common, for example drug target and chemical compounds and aims to include this information to improve prediction and also aim to predict which drug could be suitable for which patient (disease). The various diseases under study could be the modifying variable. 
+A typical example is when one wants to model drug response for multiple drugs and assumes that some of the drugs share certain properties in common, for example drug target and chemical compounds and aims to include this information to improve prediction and also aim to predict which drug could be suitable for which patient (given a particular disease). The various diseases under study could be the modifying variable. 
 
 
 
