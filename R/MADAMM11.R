@@ -359,7 +359,6 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     e3=II3[-length(II3)][1]
 
     for (c_count3 in 2:dim(y)[2]) {
-
       beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
 
 

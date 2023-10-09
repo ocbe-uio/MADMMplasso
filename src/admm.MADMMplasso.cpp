@@ -246,10 +246,10 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::uvec II3 = input2.elem(arma::find(multiple_of_K == 0));
     int e3 = II3(0);
 
-  //     for (c_count3 in 2:dim(y)[2]) {
-  //       beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
-  //       e3=II3[c_count3]
-  //     }
+    for (arma::uword c_count3 = 1; c_count3 < y.n_cols; c_count3++) {
+      beta_transform1.col(c_count3) = N_E1.cols(e3, (K + 1) * (c_count3 + 1) - 1).as_col();
+      e3 = II3(c_count3);
+    }
 
   //     N_E[[1]]<-(t(beta_transform1))
   //     e=II[-length(II)][1]
