@@ -221,7 +221,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::mat new_mat = b_hat_response + H;
     arma::cube new_mat_group(p + p * K, y.n_cols, C.n_rows);
     arma::cube beta_group(p + p * K, y.n_cols, C.n_rows);
-    Rcpp::List N_E;
     new_mat_group.slice(0) = new_mat.rows(0, y.n_cols - 1).t();
     beta_group.slice(0) = Big_beta_response.rows(0, y.n_cols - 1).t();
     arma::mat beta_transform(p, (K + 1) * y.n_cols, arma::fill::zeros);
@@ -230,6 +229,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::uvec multiple_of_K = modulo(input2, K + 1);
     arma::uvec II2 = input2.elem(arma::find(multiple_of_K == 0));
     int e2 = II2(0);
+
     for (arma::uword c_count2 = 2; c_count2 < y.n_cols + 1; c_count2++) {
       arma::mat new_mat_group_sub = arma::trans(new_mat_group.slice(0).col(c_count2 - 1));
       beta_transform.cols(e2, (c_count2 * (1 + K)) - 1) = new_mat_group_sub.reshape(p, K + 1);
@@ -251,8 +251,8 @@ Rcpp::List admm_MADMMplasso_cpp(
       e3 = II3(c_count3);
     }
 
-  //     N_E[[1]]<-(t(beta_transform1))
-  //     e=II[-length(II)][1]
+    Rcpp::List N_E = Rcpp::List::create(beta_transform1.t());
+    int e = II(0);
 
   //     for (c_count in 2:dim(C)[1]) {
   //       new.mat_group[,,c_count]<-t( (new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
