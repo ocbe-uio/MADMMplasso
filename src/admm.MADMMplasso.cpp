@@ -291,70 +291,69 @@ Rcpp::List admm_MADMMplasso_cpp(
       e = II(c_count);
     }
 
-  //     N_beta.group<-apply(beta.group, 3, twonorm)
-  //     E[c(1:dim(C)[2]),]<-N_E[[1]]
-  //     c_count<-2
-  //     e=II[-length(II)][1]
+      // N_beta.group<-apply(beta.group, 3, twonorm)
+      // E[c(1:dim(C)[2]),]<-N_E[[1]]
+      // c_count<-2
+      // e=II[-length(II)][1]
 
-  //     for (c_count in 2:dim(C)[1]) {
-  //       E[c((e+1):( c_count*dim(y)[2]) ),]<-N_E[[c_count]]
-  //       e=II[c_count]
-  //     }
+      for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
+        // E[c((e+1):( c_count*dim(y)[2]) ),]<-N_E[[c_count]]
+        // e=II[c_count]
+      }
 
-  //     H<-H+Big_beta_respone-E
-  //     obj<-c(obj, obj)
-  //     v.diff<-sum((-rho*(V-V_old))^2,na.rm = TRUE)
-  //     q.diff<-sum((-rho*(Q-Q_old))^2,na.rm = TRUE)
-  //     e.diff<-sum((-rho*(E-E_old))^2,na.rm = TRUE)
-  //     ee.diff<-sum((-rho*(EE-EE_old))^2,na.rm = TRUE)
-  //     s <- sqrt(v.diff+q.diff+e.diff+ee.diff)
-  //     v.diff1<-sum(v.diff1)
-  //     q.diff1<-sum(q.diff1)
-  //     e.diff1<-sum(((Big_beta_respone-E))^2,na.rm = TRUE)
-  //     ee.diff1<-sum(ee.diff1)#sum(((beta_hat-EE))^2,na.rm = TRUE)
-  //     r <- sqrt(v.diff1+q.diff1+e.diff1+ee.diff1)
-  //     res_dual<-s
-  //     res_pri<-r
-  //     e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c((Big_beta11),(beta_hat),(beta_hat),(Big_beta_respone) )), twonorm(-c((V),(Q),(E),(EE) )))
-  //     e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c((O),(P),(H),(HH) )))
-  //     V_old <- V
-  //     Q_old <- Q
-  //     E_old<-E
-  //     EE_old<-EE
+      // H<-H+Big_beta_respone-E
+      // obj<-c(obj, obj)
+      // v.diff<-sum((-rho*(V-V_old))^2,na.rm = TRUE)
+      // q.diff<-sum((-rho*(Q-Q_old))^2,na.rm = TRUE)
+      // e.diff<-sum((-rho*(E-E_old))^2,na.rm = TRUE)
+      // ee.diff<-sum((-rho*(EE-EE_old))^2,na.rm = TRUE)
+      // s <- sqrt(v.diff+q.diff+e.diff+ee.diff)
+      // v.diff1<-sum(v.diff1)
+      // q.diff1<-sum(q.diff1)
+      // e.diff1<-sum(((Big_beta_respone-E))^2,na.rm = TRUE)
+      // ee.diff1<-sum(ee.diff1)#sum(((beta_hat-EE))^2,na.rm = TRUE)
+      // r <- sqrt(v.diff1+q.diff1+e.diff1+ee.diff1)
+      // res_dual<-s
+      // res_pri<-r
+      // e.primal <- sqrt(length(Big_beta11)+2*length(beta_hat) + length(Big_beta_respone) ) * e.abs + e.rel * max(twonorm(c((Big_beta11),(beta_hat),(beta_hat),(Big_beta_respone) )), twonorm(-c((V),(Q),(E),(EE) )))
+      // e.dual <-  sqrt(length(Big_beta11)+2*length(beta_hat)+length(Big_beta_respone) ) * e.abs + e.rel * twonorm((c((O),(P),(H),(HH) )))
+      // V_old <- V
+      // Q_old <- Q
+      // E_old<-E
+      // EE_old<-EE
 
-  //     if( res_pri > 10*res_dual ){
-  //       rho<- 2*rho
-  //     }else if(res_pri*10 < res_dual ){
-  //       rho<- rho/2
-  //     }
+      if (res_pri > 10 * res_dual) {
+        // rho<- 2*rho
+      } else if (res_pri * 10 < res_dual ) {
+        // rho<- rho/2
+      }
 
-  //     if(my_print==T){
-  //       print(c(res_dual,e.dual,res_pri,e.primal))}
+      if (my_print) {
+        // print(c(res_dual,e.dual,res_pri,e.primal))
+      }
 
-  //     if (res_pri <= e.primal && res_dual <= e.dual){
-  //       # Update convergence message
-  //       print(c("Convergence reached after  iterations",(i)))
-  //       converge=T
-  //       break
-  //     }
-    } // iteration; end of for (i in 2:max_it)
-
-
+      if (res_pri <= e_abs && res_dual <= e_rel) {
+        // # Update convergence message
+        // print(c("Convergence reached after  iterations",(i)))
+        // converge=T
+        // break
+      }
+  } // iteration; end of for (i in 2:max_it)
 
   // res_val<-t(I)%*%(E)
-  // for (jj in 1:dim(y)[2]) {
-  //   group<-(t(G)%*%t((V[,,jj]) )   )
-  //   group1<-group[1,]; group2<-t(group[-1,])
-  //   new_group=matrix(0,p,(K+1))
-  //   new_group[,1]<-group1; new_group[,-1]<-group2
-  //   new_g_theta<-as.vector(new_group)
-  //   finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
-  //   finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
-  //   beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
-  //   beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
-  //   theta[,,jj]<-(beta_hat1[,-1])
-  //   beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
-  // }
+  for (arma::uword jj = 0; jj < y.n_cols; jj++) {
+    // group<-(t(G)%*%t((V[,,jj]) )   )
+    // group1<-group[1,]; group2<-t(group[-1,])
+    // new_group=matrix(0,p,(K+1))
+    // new_group[,1]<-group1; new_group[,-1]<-group2
+    // new_g_theta<-as.vector(new_group)
+    // finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
+    // finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
+    // beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
+    // beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
+    // theta[,,jj]<-(beta_hat1[,-1])
+    // beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
+  }
 
   arma::mat y_hat = Rcpp::as<arma::mat>(model_p(beta0.t(), theta0, beta_hat, theta, W_hat, Z));
 
