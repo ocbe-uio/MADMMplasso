@@ -251,43 +251,45 @@ Rcpp::List admm_MADMMplasso_cpp(
       e3 = II3(c_count3);
     }
 
-    Rcpp::List N_E = Rcpp::List::create(beta_transform1.t());
+    // Original code has N_E as list, but it's only storing beta_transform1.t()
+    arma::cube N_E(beta_transform1.n_cols, beta_transform1.n_rows, C.n_rows);
+
+    N_E.slice(0) = beta_transform1.t();
     int e = II(0);
 
-  //     for (c_count in 2:dim(C)[1]) {
-  //       new.mat_group[,,c_count]<-t( (new.mat[c((e+1):( c_count*dim(y)[2]) ),]) )
-  //       beta.group[,,c_count]<-t(Big_beta_respone[c((e+1):( c_count*dim(y)[2]) ),])
-  //       beta_transform<-matrix(0,p,(K+1)*dim(y)[2])
-  //       beta_transform[,c(1:(1+K))]<-matrix(new.mat_group[,1,c_count],ncol = (K+1), nrow = p)
-  //       input2<-1:(dim(y)[2]*(1+K))
-  //       multiple_of_K = (input2 %% (K+1)) == 0
-  //       II2<-input2[multiple_of_K]
-  //       e2=II2[-length(II2)][1]
+    for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
+      new_mat_group.slice(c_count) = new_mat.rows(e, ((c_count + 1) * y.n_cols) - 1).t();
+      beta_group.slice(c_count) = Big_beta_response.rows(e, ((c_count + 1) * y.n_cols) - 1).t();
+      arma::mat beta_transform(p, (K + 1) * y.n_cols, arma::fill::zeros);
+      beta_transform.cols(0, K) = arma::reshape(new_mat_group.slice(c_count).col(0), p, K + 1);
+      arma::uvec input2 = arma::regspace<arma::uvec>(1, y.n_cols * (1 + K));
+      arma::uvec multiple_of_K = modulo(input2, K + 1);
+      arma::uvec II2 = input2.elem(arma::find(multiple_of_K == 0));
+      int e2 = II2(0);
 
-  //       for (c_count2 in 2:dim(y)[2]) {
-  //         beta_transform[,c((e2+1):(c_count2*(1+K)))]<-matrix(new.mat_group[,c_count2,c_count],ncol = (K+1), nrow = p)
-  //         e2=II2[c_count2]
-  //       }
+      for (int c_count2 = 1; c_count2 < y.n_cols; c_count2++) {
+        beta_transform.cols(e2, c_count2 * (K + 1) + K) = arma::reshape(new_mat_group.slice(c_count).col(c_count2), p, K + 1);
+        e2 = II2(c_count2);
+      }
 
-  //       norm_res<-((apply(beta_transform,c(1),twonorm)))
-  //       coef.term1<- pmax(1-  (gg[1]) /rho/(norm_res),0)
-  //       N_E1<-scale(t(beta_transform),center = FALSE,scale = 1/coef.term1)
-  //       N_E1<-t(N_E1)
-  //       beta_transform1<-matrix(0,p+p*K,dim(y)[2])
-  //       beta_transform1[,1]<-as.vector(N_E1[,c(1:(K+1))])
-  //       input3<-1:(dim(y)[2]*(1+K))
-  //       multiple_of_K = (input3 %% (K+1)) == 0
-  //       II3<-input3[multiple_of_K]
-  //       e3=II3[-length(II3)][1]
+      norm_res = sqrt_sum_squared_rows(beta_transform);
+      coef_term1 = arma::max(1 - gg(0) / rho / norm_res, arma::zeros(arma::size(norm_res)));
+      N_E1 = scale_cpp(beta_transform.t(), 1 / coef_term1).t();
+      beta_transform1 = arma::zeros<arma::mat>(p + p * K, y.n_cols);
+      beta_transform1.col(0) = N_E1.head_cols(K + 1).as_col();
+      arma::uvec input3 = arma::regspace<arma::uvec>(1, y.n_cols * (1 + K));
+      multiple_of_K = modulo(input3, K + 1);
+      arma::uvec II3 = input2.elem(arma::find(multiple_of_K == 0));
+      int e3 = II3(0);
 
-  //       for (c_count3 in 2:dim(y)[2]) {
-  //         beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
-  //         e3=II3[c_count3]
-  //       }
+      for (arma::uword c_count3 = 1; c_count3 < y.n_cols; c_count3++) {
+        beta_transform1.col(c_count3) = N_E1.cols(e3, (K + 1) * (c_count3 + 1) - 1).as_col();
+        e3 = II3(c_count3);
+      }
 
-  //       N_E[[c_count]]<-(t( (beta_transform1)) )
-  //       e=II[c_count]
-  //     } //end of for (c_count in 2:dim(C)[1])
+      N_E.slice(c_count) = beta_transform1.t();
+      e = II(c_count);
+    }
 
   //     N_beta.group<-apply(beta.group, 3, twonorm)
   //     E[c(1:dim(C)[2]),]<-N_E[[1]]
