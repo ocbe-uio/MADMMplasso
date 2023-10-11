@@ -336,7 +336,7 @@ Rcpp::List admm_MADMMplasso_cpp(
 
       double part_2_3 = std::max(part_2_norm, part_3_norm);
 
-      double e_primal = part_1 + e_abs + e_rel * part_2_3;
+      double e_primal = part_1 * e_abs + e_rel * part_2_3;
 
       arma::vec O_vec = arma::vectorise(O);
       arma::vec P_vec = arma::vectorise(P);
