@@ -146,11 +146,15 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::vec v_diff1(D, arma::fill::zeros);
     arma::vec q_diff1(D, arma::fill::zeros);
     arma::vec ee_diff1(D, arma::fill::zeros);
+
     arma::vec new_G(p + p * K, arma::fill::zeros);
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);
     new_G = rho * (1 + new_G);
     arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
+    for (arma::uword slc = 0; slc < D; slc++) {
+      invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
+    }
 
     for (int rr = 0; rr < D; rr++) {
       double DD1 = rho * (new_I(rr) + 1);
