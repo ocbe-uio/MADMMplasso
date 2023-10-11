@@ -195,7 +195,6 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
-max_it = 100L  # TEMP
 my_values_cpp <- admm_MADMMplasso_cpp(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
@@ -206,4 +205,14 @@ my_values_cpp <- admm_MADMMplasso_cpp(
 test_that("C++ function output structure", {
   expect_equal(length(my_values_cpp), length(my_values))
   expect_equal(names(my_values_cpp), names(my_values))
+})
+
+test_that("Values are the same", {
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0))  # TODO: transpose somewhere (return?)
+  expect_equal(my_values$theta0, my_values_cpp$theta0)
+  expect_equal(my_values$beta, my_values_cpp$beta) # FIXME: no match
+  expect_equal(my_values$theta, my_values_cpp$theta)
+  expect_equal(my_values$converge, my_values_cpp$converge) # FIXME: no match
+  expect_equal(my_values$beta_hat, my_values_cpp$beta_hat) # FIXME: no match
+  expect_equal(my_values$y_hat, my_values_cpp$y_hat)
 })
