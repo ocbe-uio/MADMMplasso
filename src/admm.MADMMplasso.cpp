@@ -77,8 +77,8 @@ Rcpp::List admm_MADMMplasso_cpp(
   const int p = X.n_cols;
   const uint K = Z.n_cols;
 
-  arma::cube V(p, 2 * (1 + K),D, arma::fill::zeros);
-  arma::cube O(p, 2 * (1 + K),D, arma::fill::zeros);
+  arma::cube V(p, 2 * (1 + K), D, arma::fill::zeros);
+  arma::cube O(p, 2 * (1 + K), D, arma::fill::zeros);
   arma::mat E(y.n_cols * C.n_rows, p + p * K);
   arma::cube EE(p, 1 + K, D, arma::fill::zeros);
 
@@ -137,7 +137,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   for (int i = 1; i < max_it; i++) {
     arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
     arma::mat r_current = y - shared_model;
-    Rcpp::List b = reg(r_current,Z);
+    Rcpp::List b = reg(r_current, Z);
     arma::mat beta0 = b["beta0"];
     arma::mat theta0 = b["theta0"];
     arma::mat new_y = y - (arma::ones(N) * beta0 + Z * theta0);
