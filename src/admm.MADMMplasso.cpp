@@ -134,7 +134,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   Rcpp::Function model_p = MADMMplasso["model_p"];
 
   bool converge = false;
-  for (int i = 1; i < max_it; i++) {
+  for (int i = 1; i < max_it + 1; i++) {
     arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
     arma::mat r_current = y - shared_model;
     Rcpp::List b = reg(r_current, Z);
