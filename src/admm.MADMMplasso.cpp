@@ -46,9 +46,9 @@
 Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec beta0,
   const arma::mat theta0,
-  const arma::mat beta,
+  arma::mat beta,
   arma::mat beta_hat,
-  const arma::cube theta,
+  arma::cube theta,
   const double rho1,
   const arma::mat X,
   const arma::mat Z,
@@ -366,17 +366,28 @@ Rcpp::List admm_MADMMplasso_cpp(
   res_val = I.t() * E;
 
   for (arma::uword jj = 0; jj < y.n_cols; jj++) {
-    // group<-(t(G)%*%t((V[,,jj]) )   )
-    // group1<-group[1,]; group2<-t(group[-1,])
-    // new_group=matrix(0,p,(K+1))
-    // new_group[,1]<-group1; new_group[,-1]<-group2
-    // new_g_theta<-as.vector(new_group)
-    // finB1<- as.vector(beta_hat[c(1:p),jj])*(new_g_theta[c(1:p)]!=0)*(as.vector((Q[,1,jj] ))!=0)
-    // finB2<- as.vector(beta_hat[-c(1:p),jj])*(new_g_theta[-c(1:p)]!=0)*(as.vector((Q[,-1,jj] ))!=0)
-    // beta_hat1<- matrix(c(finB1,finB2), ncol = (K+1), nrow = p )
-    // beta[,jj]<- beta_hat1[,1]#main_beta[,1]#
-    // theta[,,jj]<-(beta_hat1[,-1])
-    // beta_hat[,jj]<-c(c(beta_hat1[,1],as.vector(theta[,,jj])))
+    arma::mat group = G.t() * V.slice(jj).t();
+    arma::vec group1 = group.row(0).t();
+    arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
+    arma::mat new_group = arma::zeros<arma::mat>(p, K + 1);
+    new_group.col(0) = group1;
+    new_group.tail_cols(new_group.n_cols - 1) = group2;
+    arma::vec new_g_theta = arma::vectorise(new_group);
+
+    arma::mat beta_hat_B1 = beta_hat.submat(0, jj, p - 1, jj);
+    arma::vec new_g_theta_B1 = new_g_theta.subvec(0, p - 1);
+    arma::vec Q_B1 = Q.slice(jj).col(0);
+    arma::vec finB1 = arma::vectorise(beta_hat_B1 % (new_g_theta_B1 != 0) % (Q_B1 != 0));
+
+    arma::mat beta_hat_B2 = beta_hat.submat(p, jj, beta_hat.n_rows - 1, jj);
+    arma::vec new_g_theta_B2 = new_g_theta.subvec(p, new_g_theta.n_elem - 1);
+    arma::vec Q_B2 = arma::vectorise(Q.subcube(0, 1, jj, Q.n_rows - 1, Q.n_cols - 1, jj));
+    arma::vec finB2 = arma::vectorise(beta_hat_B2 % (new_g_theta_B2 != 0) % (Q_B2 != 0));
+
+    arma::mat beta_hat1 = arma::reshape(arma::join_vert(finB1, finB2), p, K + 1);
+    beta.col(jj) = beta_hat1.col(0);
+    theta.slice(jj) = beta_hat1.tail_cols(beta_hat1.n_cols - 1);
+    beta_hat.col(jj) = arma::join_vert(beta_hat1.col(0), arma::vectorise(theta.slice(jj)));
   }
 
   arma::mat y_hat = Rcpp::as<arma::mat>(model_p(beta0.t(), theta0, beta_hat, theta, W_hat, Z));
