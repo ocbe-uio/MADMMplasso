@@ -176,16 +176,18 @@ Rcpp::List admm_MADMMplasso_cpp(
       arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
       arma::mat part_z = DD3 * W_hat.t();
       arma::mat part_y = DD3 * my_beta_jj;
+
       arma::mat beta_hat_j = arma::inv(arma::inv(R_svd) + svd_w_tv * part_z);
       beta_hat_j = beta_hat_j * (svd_w_tv * part_y);
       beta_hat_j = part_z * beta_hat_j;
+
       arma::vec beta_hat_JJ = arma::vectorise(part_y - beta_hat_j);
       beta_hat.col(jj) = beta_hat_JJ;
       arma::mat beta_hat1 = arma::reshape(beta_hat_JJ, p, 1 + K);
       arma::mat b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
       Q.slice(jj).col(0) = b_hat.col(0) + P.slice(jj).col(0);
       arma::mat new_mat = b_hat.tail_cols(b_hat.n_cols - 1) + P.slice(jj).tail_cols(P.slice(jj).n_cols - 1);
-      Q.slice(jj).tail_cols(Q.slice(jj).n_cols - 1) = arma::sign(new_mat) % arma::max(arma::abs(new_mat) - ((alpha * lambda(jj)) / rho), arma::zeros(arma::size(new_mat)));
+      Q.slice(jj).tail_cols(Q.n_cols - 1) = arma::sign(new_mat) % arma::max(arma::abs(new_mat) - ((alpha * lambda(jj)) / rho), arma::zeros(arma::size(new_mat)));
       b_hat = alph * beta_hat1 + (1 - alph) * EE.slice(jj);
       new_mat = b_hat + HH.slice(jj);
 
