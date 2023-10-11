@@ -104,8 +104,8 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec new_I = diagvec(I.t() * I);
 
   // Overlapping group from covariates =========================================
-  arma::mat G = arma::zeros<arma::mat>(2 * (1 + K), 1 + K);
-  const arma::mat diag_G = arma::eye(K + 1, K + 1);
+  arma::umat G = arma::zeros<arma::umat>(2 * (1 + K), 1 + K);
+  const arma::umat diag_G = arma::eye<arma::umat>(K + 1, K + 1);
   for (uint i = 0; i < K + 1; ++i) {
     G.row(i) = diag_G.row(i);
   }
