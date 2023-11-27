@@ -91,7 +91,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   // for response groups =======================================================
   const arma::ivec input = Rcpp::seq_len(D * C.n_rows);
   arma::mat I = arma::zeros<arma::mat>(C.n_rows * D, D);
-  const arma::ivec II = multiples_of(input, D, true);
+  arma::ivec II = multiples_of(input, D, true);
 
   // Updating I ================================================================
   I.rows(0, D - 1).diag() = arma::conv_to<arma::mat>::from(C.row(0) * CW(0));
