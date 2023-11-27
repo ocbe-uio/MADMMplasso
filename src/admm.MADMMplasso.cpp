@@ -147,6 +147,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     arma::mat new_y = y - (arma::ones(N) * beta0 + Z * theta0);
     arma::mat XtY = W_hat.t() * new_y;
     arma::cube main_beta(p, K + 1, D, arma::fill::zeros);
+    res_val = rho * (I.t() * E - (I.t() * H));
     arma::vec v_diff1(D, arma::fill::zeros);
     arma::vec q_diff1(D, arma::fill::zeros);
     arma::vec ee_diff1(D, arma::fill::zeros);
