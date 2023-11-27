@@ -134,6 +134,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   Rcpp::Function model_p = MADMMplasso["model_p"];
 
   bool converge = false;
+  // TODO: compare all elements created at this point with the R counterparts
   for (int i = 1; i < max_it + 1; i++) {
     arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
     arma::mat r_current = y - shared_model;
@@ -169,10 +170,11 @@ Rcpp::List admm_MADMMplasso_cpp(
       arma::mat new_group(p, K + 1, arma::fill::zeros);
       new_group.col(0) = group1;
       new_group.tail_cols(new_group.n_cols - 1) = group2;
+      // TODO: check if vectorization is performed correctly
       arma::vec my_beta_jj = XtY.col(jj) / N +\
         arma::vectorise(new_group) + res_val.row(jj).t() +\
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
-        arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
+        arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));  // FIXME: should be the same as R counterpart
       arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
       arma::mat part_z = DD3 * W_hat.t();
       arma::mat part_y = DD3 * my_beta_jj;
@@ -181,9 +183,11 @@ Rcpp::List admm_MADMMplasso_cpp(
       beta_hat_j = beta_hat_j * (svd_w_tv * part_y);
       beta_hat_j = part_z * beta_hat_j;
 
+      // TODO check if transformation from vector beta_hat_JJ to matrix beta_hat1 is correct
       arma::vec beta_hat_JJ = arma::vectorise(part_y - beta_hat_j);
       beta_hat.col(jj) = beta_hat_JJ;
       arma::mat beta_hat1 = arma::reshape(beta_hat_JJ, p, 1 + K);
+      // FIXME: beta_hat1 should always match exactly the R counterpart
       arma::mat b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
       Q.slice(jj).col(0) = b_hat.col(0) + P.slice(jj).col(0);
       arma::mat new_mat = b_hat.tail_cols(b_hat.n_cols - 1) + P.slice(jj).tail_cols(P.slice(jj).n_cols - 1);
@@ -273,6 +277,7 @@ Rcpp::List admm_MADMMplasso_cpp(
       int e2 = II2(0);
 
       for (arma::uword c_count2 = 1; c_count2 < y.n_cols; c_count2++) {
+        // FIXME: matrix is not filled correctly by reshape
         beta_transform.cols(e2, c_count2 * (K + 1) + K) = arma::reshape(new_mat_group.slice(c_count).col(c_count2), p, K + 1);
         e2 = II2(c_count2);
       }
