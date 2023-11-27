@@ -135,6 +135,9 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   bool converge = false;
   // TODO: compare all elements created at this point with the R counterparts
+  if (my_print) {
+    Rcpp::Rcout << "i\tres_dual\te_dual\tres_pri\te_primal" << std::endl;
+  }
   for (int i = 1; i < max_it + 1; i++) {
     arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
     arma::mat r_current = y - shared_model;
@@ -363,7 +366,7 @@ Rcpp::List admm_MADMMplasso_cpp(
       }
 
       if (my_print) {
-        Rcpp::Rcout << res_dual << " " << e_dual << " " << res_pri << " " << e_primal << std::endl;
+        Rcpp::Rcout << i << "\t" << res_dual << "\t" << e_dual << "\t" << res_pri << "\t" << e_primal << std::endl;
       }
 
       if (res_pri <= e_abs && res_dual <= e_rel) {
