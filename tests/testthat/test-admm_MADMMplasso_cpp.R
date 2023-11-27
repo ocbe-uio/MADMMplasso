@@ -159,11 +159,12 @@ new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 XtY <- crossprod((my_W_hat), (new_y))
 
 # Testing the R function =======================================================
+mprt <- FALSE
 my_values <- suppressMessages(admm.MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = FALSE, invmat = invmat, cv = FALSE, gg = gg
+  my_print = mprt, invmat = invmat, cv = FALSE, gg = gg
 ))
 beta <- my_values$beta
 theta <- my_values$theta
@@ -199,7 +200,7 @@ my_values_cpp <- admm_MADMMplasso_cpp(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd_w = svd.w, tree = TT,
-  my_print = FALSE, invmat = invmat, gg = gg
+  my_print = mprt, invmat = invmat, gg = gg
 )
 
 test_that("C++ function output structure", {
