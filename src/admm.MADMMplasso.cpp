@@ -297,7 +297,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     }
 
       E.rows(0, C.n_cols - 1) = N_E.slice(0);
-      c_count = 2; // TODO: check why this exists, since it gets rewritten
       e = II(0);
 
       for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
