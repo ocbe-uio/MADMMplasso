@@ -120,7 +120,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   double res_pri = 0.;
   double res_dual = 0.;
   const arma::mat SVD_D = arma::diagmat(Rcpp::as<arma::vec>(svd_w["d"]));
-  const arma::mat R_svd = (svd_w_tu * SVD_D) / N;
+  const arma::mat R_svd = (svd_w_tu.t() * SVD_D) / N;
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val = rho * (I.t() * E - (I.t() * H));
