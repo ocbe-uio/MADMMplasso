@@ -28,7 +28,8 @@ admm.MADMMplasso(
   my_print = T,
   invmat,
   cv = cv,
-  gg = 0.2
+  gg = 0.2,
+  legacy = FALSE
 )
 }
 \arguments{
@@ -82,6 +83,9 @@ variable, one can use either k or k-1  dummy variables.}
 \item{cv}{TODO: fill paramater description}
 
 \item{gg}{TODO: fill paramater description}
+
+\item{legacy}{If \code{TRUE}, use the R version of the algorithm. Defaults to
+C++.}
 }
 \value{
 predicted values for the ADMM part

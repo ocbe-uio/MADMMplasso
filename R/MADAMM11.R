@@ -26,14 +26,27 @@
 #' @param invmat TODO: fill paramater description
 #' @param cv TODO: fill paramater description
 #' @param gg TODO: fill paramater description
+#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
+#' C++.
 #' @return  predicted values for the ADMM part
 #' @description TODO: add description
 
 
 
 #' @export
-admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2){
-
+admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2, legacy = FALSE){
+  if (!legacy) {
+    out <- admm_MADMMplasso_cpp(
+      beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
+      N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, invmat, gg, my_print
+    )
+    return(out)
+  }
+  warning(
+    "Using legacy R code for MADMMplasso.",
+    "This functionality will be removed in a future release.",
+    "Please consider using legacy = FALSE instead."
+  )
   TT<-tree
 
   C<-TT$Tree
@@ -359,7 +372,6 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
     e3=II3[-length(II3)][1]
 
     for (c_count3 in 2:dim(y)[2]) {
-
       beta_transform1[,c_count3]<-as.vector(N_E1[,c((e3+1):((K+1)*c_count3) )])
 
 
@@ -582,7 +594,7 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
 
 
       # Update convergence message
-      print(c("Convergence reached after  iterations",(i)))
+      message("Convergence reached after ", i, " iterations")
       converge=T
       break
     }
@@ -1798,91 +1810,6 @@ compute_pliable<-function(X, Z, theta){
 
 }
 
-
-
-model_p<-function(beta0, theta0, beta, theta, X, Z){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-  D=dim(beta0)[2]
-  #The pliable lasso model described in the paper
-  #y ~ f(X)
-
-  #formulated as
-
-  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
-
-
-
-
-  #beta0<-array(0,c(1,1,D))
-
-  #print(D)
-
-  intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
-  #intercepts1<-matrix(0,N,D)
-  #intercepts1[,]<-intercepts
-  #print(intercepts)
-  shared_model = X%*%(beta)
-  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
- # pliable = matrix(0,N,D)
-  #for (e in 1:D) {
-  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-
-  #}
-
-
-
-  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
-
-  return(intercepts+  shared_model )
-}
-
-
-
-model_intercept<-function( beta0, theta0, beta, theta, X, Z){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-  D=dim(beta0)[2]
-  #The pliable lasso model described in the paper
-  #y ~ f(X)
-
-  #formulated as
-
-  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
-
-
-
-
-  #beta0<-array(0,c(1,1,D))
-
-  #print(D)
-
-  #intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
-  #intercepts1<-matrix(0,N,D)
-  #intercepts1[,]<-intercepts
-  #print(intercepts)
-  shared_model = X%*%(beta)
-  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
-  # pliable = matrix(0,N,D)
-  #for (e in 1:D) {
-  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-
-  #}
-
-
-
-  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
-
-  return(  shared_model )
-}
-
-#
-
-
-
-
 objective<-function(beta0,theta0,beta,theta,X,Z,y,alpha,lambda,p,N,IB,W,beta1){
   #print(length(y))
 
@@ -1960,45 +1887,6 @@ count_nonzero_a<-function(x){
   return (n)
 
 }
-
-
-
-
-
-
-reg<-function(r,Z){
-  K=ncol(Z)
-  N=nrow(Z)
-  #r=rowMeans(r)
-  #r=matrix(r,ncol = 1)
-  beta01<-matrix(0,1,ncol(r))
-  theta01<-matrix(0,ncol(Z),ncol(r))
-  for (e in 1:ncol(r)) {
-
-
-    #my_one<-matrix(1,nrow(Z))
-    #my_w=data.frame(Z)
-    #my_w<-as.matrix(my_w)
-    #my_inv<-pinv((t(my_w)%*%my_w)/N)
-    #my_res<-my_inv%*%( (t(my_w)%*%r[,e])/N )
-    #new<- lm(r[,e]~1,na.action=na.exclude,singular.ok = TRUE)
-
-
-    #beta01[e]<-matrix(my_res[(K+1)])
-    new1<- lm(r[,e]~Z,singular.ok = TRUE)
-    beta01[e]<-matrix(new1$coefficients[1])
-    theta01[,e]<- as.vector(new1$coefficients[-1] )
-    #theta01[,e]<- matrix(my_res[c(1:K )])
-
-  }
-  # print(beta0)
-  # print(theta0)
-  return(list(beta0=beta01,theta0=theta01))
-}
-
-
-
-
 
 quick.func<- function(xz = c(),xn){
   as.vector(xz[1:xn]%o%xz[-(1:xn)])

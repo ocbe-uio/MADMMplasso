@@ -93,9 +93,10 @@ theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 library(MASS)
 
 pliable = matrix(0,N,6)
-for (e in 1:6) {
+
+  for (e in 1:6) {
   pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-}
+   }
 
 esd<-diag(6)
 
@@ -170,6 +171,8 @@ plot(fit)
 
 
 gg1=fit$gg
+
+
 cv_admp <- cv.MADMMplasso(
   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,

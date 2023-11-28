@@ -1,6 +1,6 @@
 Package: MADMMplasso
 Title: Multi variate multi response 'ADMM' with interaction effects
-Version: 0.0.0.9005
+Version: 0.0.0.9006
 Authors@R:
     c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
 Description: This system allows one to model a multi response problem that has correlation among the
@@ -18,8 +18,12 @@ Imports:
     stats,
     spatstat.sparse,
     methods
-Suggests: testthat,
+LinkingTo: Rcpp, RcppArmadillo
+Suggests:
+    testthat (>= 3.0.0),
+    pracma
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Config/testthat/edition: 3
