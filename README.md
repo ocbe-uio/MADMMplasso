@@ -93,9 +93,10 @@ theta[11,1,6]<-2;theta[13,2,6]<-2;theta[14,3,6]<- -2;theta[15,4,6]<- -2
 library(MASS)
 
 pliable = matrix(0,N,6)
-for (e in 1:6) {
+
+  for (e in 1:6) {
   pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-}
+   }
 
 esd<-diag(6)
 
