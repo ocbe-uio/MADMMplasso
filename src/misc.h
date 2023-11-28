@@ -22,4 +22,5 @@ arma::mat model_p(
   const arma::mat,
   const arma::mat
 );
+Rcpp::List reg(const arma::mat, const arma::mat);
 #endif

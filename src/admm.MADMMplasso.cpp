@@ -124,13 +124,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val;  // declared here because it's also needed outside the loop
-
-  // Importing R functions (this adds compute overhead)
-  // Ideally, these functions should also be ported to C++ to reduce
-  // cross-language communication
-  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso");
-  Rcpp::Function reg = MADMMplasso["reg"];
-
   bool converge = false;
   if (my_print) {
     Rcpp::Rcout << "\ni\tres_dual\te_dual\t\tres_pri\t\te_primal" << std::endl;

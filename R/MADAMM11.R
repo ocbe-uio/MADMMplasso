@@ -1875,45 +1875,6 @@ count_nonzero_a<-function(x){
 
 }
 
-
-
-
-
-
-reg<-function(r,Z){
-  K=ncol(Z)
-  N=nrow(Z)
-  #r=rowMeans(r)
-  #r=matrix(r,ncol = 1)
-  beta01<-matrix(0,1,ncol(r))
-  theta01<-matrix(0,ncol(Z),ncol(r))
-  for (e in 1:ncol(r)) {
-
-
-    #my_one<-matrix(1,nrow(Z))
-    #my_w=data.frame(Z)
-    #my_w<-as.matrix(my_w)
-    #my_inv<-pinv((t(my_w)%*%my_w)/N)
-    #my_res<-my_inv%*%( (t(my_w)%*%r[,e])/N )
-    #new<- lm(r[,e]~1,na.action=na.exclude,singular.ok = TRUE)
-
-
-    #beta01[e]<-matrix(my_res[(K+1)])
-    new1<- lm(r[,e]~Z,singular.ok = TRUE)
-    beta01[e]<-matrix(new1$coefficients[1])
-    theta01[,e]<- as.vector(new1$coefficients[-1] )
-    #theta01[,e]<- matrix(my_res[c(1:K )])
-
-  }
-  # print(beta0)
-  # print(theta0)
-  return(list(beta0=beta01,theta0=theta01))
-}
-
-
-
-
-
 quick.func<- function(xz = c(),xn){
   as.vector(xz[1:xn]%o%xz[-(1:xn)])
 }
