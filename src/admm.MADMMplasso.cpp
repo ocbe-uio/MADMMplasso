@@ -353,12 +353,12 @@ Rcpp::List admm_MADMMplasso_cpp(
       }
 
       if (my_print) {
-        printf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
+        Rprintf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
       }
 
       if (res_pri <= e_primal && res_dual <= e_dual) {
         if (my_print) {
-          printf("Convergence reached after %u iterations", i);
+          Rprintf("Convergence reached after %u iterations", i);
         }
         converge = true;
         break;
