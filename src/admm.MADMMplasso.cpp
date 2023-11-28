@@ -129,7 +129,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   // Ideally, these functions should also be ported to C++ to reduce
   // cross-language communication
   Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso");
-  Rcpp::Function model_intercept = MADMMplasso["model_intercept"];
   Rcpp::Function reg = MADMMplasso["reg"];
   Rcpp::Function model_p = MADMMplasso["model_p"];
 
@@ -138,7 +137,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Rcout << "\ni\tres_dual\te_dual\t\tres_pri\t\te_primal" << std::endl;
   }
   for (int i = 1; i < max_it + 1; i++) {
-    arma::mat shared_model = Rcpp::as<arma::mat>(model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z));
+    arma::mat shared_model = model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
     arma::mat r_current = y - shared_model;
     Rcpp::List b = reg(r_current, Z);
     arma::mat beta0 = b["beta0"];

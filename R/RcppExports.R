@@ -5,6 +5,10 @@ admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, 
     .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg, my_print)
 }
 
+model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
+    .Call(`_MADMMplasso_model_intercept`, beta0, theta0, beta, theta, X, Z)
+}
+
 modulo <- function(x, n) {
     .Call(`_MADMMplasso_modulo`, x, n)
 }
