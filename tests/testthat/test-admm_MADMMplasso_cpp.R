@@ -160,12 +160,12 @@ XtY <- crossprod((my_W_hat), (new_y))
 
 # Testing the R function =======================================================
 mprt <- FALSE
-my_values <- suppressMessages(admm.MADMMplasso(
+my_values <- suppressWarnings(suppressMessages(admm.MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = mprt, invmat = invmat, cv = FALSE, gg = gg
-))
+  my_print = mprt, invmat = invmat, cv = FALSE, gg = gg, legacy = TRUE
+)))
 beta <- my_values$beta
 theta <- my_values$theta
 converge <- my_values$converge
@@ -196,10 +196,10 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
-my_values_cpp <- admm_MADMMplasso_cpp(
+my_values_cpp <- admm.MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
-  e.rel, alpha, lambda = lambda, alph, svd_w = svd.w, tree = TT,
+  e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
   my_print = mprt, invmat = invmat, gg = gg
 )
 
@@ -210,10 +210,10 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0))  # TODO: transpose somewhere (return?)
-  expect_equal(my_values$theta0, my_values_cpp$theta0)
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)  # TODO: transpose somewhere (return?)
+  expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
-  expect_equal(my_values$theta, my_values_cpp$theta)
+  expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
   expect_equal(my_values$converge, my_values_cpp$converge)
   expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
   expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)

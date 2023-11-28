@@ -26,14 +26,27 @@
 #' @param invmat TODO: fill paramater description
 #' @param cv TODO: fill paramater description
 #' @param gg TODO: fill paramater description
+#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
+#' C++.
 #' @return  predicted values for the ADMM part
 #' @description TODO: add description
 
 
 
 #' @export
-admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2){
-
+admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_hat,XtY,y,N,e.abs, e.rel,alpha,lambda,alph,svd.w,tree,my_print=T,invmat,cv=cv,gg=0.2, legacy = FALSE){
+  if (!legacy) {
+    out <- admm_MADMMplasso_cpp(
+      beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
+      N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, invmat, gg, my_print
+    )
+    return(out)
+  }
+  warning(
+    "Using legacy R code for MADMMplasso.",
+    "This functionality will be removed in a future release.",
+    "Please consider using legacy = FALSE instead."
+  )
   TT<-tree
 
   C<-TT$Tree
