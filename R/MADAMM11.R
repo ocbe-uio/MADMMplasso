@@ -1797,45 +1797,6 @@ compute_pliable<-function(X, Z, theta){
 
 }
 
-
-
-model_p<-function(beta0, theta0, beta, theta, X, Z){
-  p=ncol(X)
-  N=nrow(X)
-  K=ncol(Z)
-  D=dim(beta0)[2]
-  #The pliable lasso model described in the paper
-  #y ~ f(X)
-
-  #formulated as
-
-  #y ~ b_0 + Z theta_0 + X b + \sum( w_j theta_ji )
-
-
-
-
-  #beta0<-array(0,c(1,1,D))
-
-  #print(D)
-  intercepts = matrix(1,N)%*%beta0+Z%*%(theta0)
-  #intercepts1<-matrix(0,N,D)
-  #intercepts1[,]<-intercepts
-  #print(intercepts)
-  shared_model = X%*%(beta)
-  #shared_model1<-as.vector(t(X))%*%as.vector(t(beta))
- # pliable = matrix(0,N,D)
-  #for (e in 1:D) {
-  #  pliable[,e]<-	compute_pliable(X, Z, theta[,,e])
-
-  #}
-
-
-
-  #apply(theta,compute_pliable,X=X,Z=Z,theta=theta)
-
-  return(intercepts+  shared_model )
-}
-
 objective<-function(beta0,theta0,beta,theta,X,Z,y,alpha,lambda,p,N,IB,W,beta1){
   #print(length(y))
 

@@ -14,4 +14,12 @@ arma::mat model_intercept(
   const arma::mat,
   const arma::mat
 );
+arma::mat model_p(
+  const arma::vec,
+  const arma::mat,
+  const arma::mat,
+  const arma::cube,
+  const arma::mat,
+  const arma::mat
+);
 #endif

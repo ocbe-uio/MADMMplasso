@@ -60,6 +60,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// model_p
+arma::mat model_p(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, const arma::cube theta, const arma::mat X, const arma::mat Z);
+RcppExport SEXP _MADMMplasso_model_p(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP thetaSEXP, SEXP XSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type theta0(theta0SEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::cube >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat >::type Z(ZSEXP);
+    rcpp_result_gen = Rcpp::wrap(model_p(beta0, theta0, beta, theta, X, Z));
+    return rcpp_result_gen;
+END_RCPP
+}
 // modulo
 arma::uvec modulo(arma::uvec x, int n);
 RcppExport SEXP _MADMMplasso_modulo(SEXP xSEXP, SEXP nSEXP) {
@@ -112,6 +128,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_admm_MADMMplasso_cpp", (DL_FUNC) &_MADMMplasso_admm_MADMMplasso_cpp, 23},
     {"_MADMMplasso_model_intercept", (DL_FUNC) &_MADMMplasso_model_intercept, 6},
+    {"_MADMMplasso_model_p", (DL_FUNC) &_MADMMplasso_model_p, 6},
     {"_MADMMplasso_modulo", (DL_FUNC) &_MADMMplasso_modulo, 2},
     {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
     {"_MADMMplasso_scale_cpp", (DL_FUNC) &_MADMMplasso_scale_cpp, 2},

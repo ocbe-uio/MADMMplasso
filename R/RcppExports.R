@@ -9,6 +9,10 @@ model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
     .Call(`_MADMMplasso_model_intercept`, beta0, theta0, beta, theta, X, Z)
 }
 
+model_p <- function(beta0, theta0, beta, theta, X, Z) {
+    .Call(`_MADMMplasso_model_p`, beta0, theta0, beta, theta, X, Z)
+}
+
 modulo <- function(x, n) {
     .Call(`_MADMMplasso_modulo`, x, n)
 }

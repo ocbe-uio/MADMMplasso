@@ -130,7 +130,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   // cross-language communication
   Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso");
   Rcpp::Function reg = MADMMplasso["reg"];
-  Rcpp::Function model_p = MADMMplasso["model_p"];
 
   bool converge = false;
   if (my_print) {
@@ -400,7 +399,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     beta_hat.col(jj) = arma::join_vert(beta_hat1.col(0), arma::vectorise(theta.slice(jj)));
   }
 
-  arma::mat y_hat = Rcpp::as<arma::mat>(model_p(beta0.t(), theta0, beta_hat, theta, W_hat, Z));
+  arma::mat y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z);
 
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("beta0") = beta0,
