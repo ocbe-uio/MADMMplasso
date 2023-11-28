@@ -365,8 +365,10 @@ Rcpp::List admm_MADMMplasso_cpp(
         printf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
       }
 
-      if (res_pri <= e_abs && res_dual <= e_rel) {
-        Rcpp::Rcout << "Convergence reached after " << i << " iterations" << std::endl;
+      if (res_pri <= e_primal && res_dual <= e_dual) {
+        if (my_print) {
+          printf("Convergence reached after %u iterations", i);
+        }
         converge = true;
         break;
       }
