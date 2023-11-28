@@ -171,6 +171,8 @@ plot(fit)
 
 
 gg1=fit$gg
+
+
 cv_admp <- cv.MADMMplasso(
   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
