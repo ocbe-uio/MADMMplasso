@@ -1,5 +1,5 @@
 Package: MADMMplasso
-Title: Multi variate multi response 'ADMM' with interaction effects
+Title: Multi Variate Multi Response 'ADMM' with Interaction Effects
 Version: 0.0.0.9007
 Authors@R:
     c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
