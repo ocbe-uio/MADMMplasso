@@ -642,7 +642,6 @@ admm.MADMMplasso<-function(beta0,theta0,beta,beta_hat,theta,rho1,X,Z,max_it,W_ha
   y_hat<-model_p(beta0, theta0, beta=beta_hat, theta, X=W_hat, Z)
 
   out=list(beta0=beta0,theta0=theta0,beta=beta,theta=theta,converge=converge,obj=obj,beta_hat=beta_hat,y_hat=y_hat)
-  class(out)="admm.MADMMplasso"
 
   return(out)
 

@@ -404,6 +404,5 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Named("beta_hat") = beta_hat,
     Rcpp::Named("y_hat") = y_hat
   );
-  out.attr("class") = "admm.MADMMplasso";
   return out;
 }
