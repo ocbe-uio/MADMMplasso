@@ -175,24 +175,24 @@ beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
 test_that("final objects have correct dimensions", {
-	expect_equal(dim(beta0), c(1, 6))
-	expect_equal(dim(theta0), c(4, 6))
-	expect_equal(dim(beta), c(50, 6))
-	expect_equal(dim(theta), c(50, 4, 6))
-	expect_equal(length(converge), 1)
-	expect_equal(dim(beta_hat), c(250, 6))
-	expect_equal(dim(y_hat), c(100, 6))
+  expect_equal(dim(beta0), c(1, 6))
+  expect_equal(dim(theta0), c(4, 6))
+  expect_equal(dim(beta), c(50, 6))
+  expect_equal(dim(theta), c(50, 4, 6))
+  expect_equal(length(converge), 1)
+  expect_equal(dim(beta_hat), c(250, 6))
+  expect_equal(dim(y_hat), c(100, 6))
 })
 
 test_that("mean values of final objects are expected", {
   tole <- 1e-1
-	expect_equal(mean(beta0), 5.132656e-02, tolerance = tole)
-	expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
-	expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
-	expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
-	expect_equal(converge, TRUE)
-	expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
-	expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
+  expect_equal(mean(beta0), 5.132656e-02, tolerance = tole)
+  expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
+  expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
+  expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
+  expect_equal(converge, TRUE)
+  expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
+  expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
 })
 
 # Testing the C++ function =====================================================
@@ -210,7 +210,7 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)  # TODO: transpose somewhere (return?)
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl) # TODO: transpose somewhere (return?)
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
