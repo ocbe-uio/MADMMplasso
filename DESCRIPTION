@@ -2,8 +2,6 @@ Package: MADMMplasso
 Title: Multi Variate Multi Response 'ADMM' with Interaction Effects
 Version: 0.0.0.9007
 Authors@R:
-Description: This system allows one to model a multi response problem that has correlation among the
-	responses and also has main and interaction effects among the covariates.
     c(
         person(
             given = "Theophilus Quachie", family = "Asenso",
