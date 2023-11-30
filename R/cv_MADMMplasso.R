@@ -118,7 +118,7 @@
 #' )
 #' gg1=fit$gg
 #'
-#' cv_admp <- cv.MADMMplasso(
+#' cv_admp <- cv_MADMMplasso(
 #'   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
 #'   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
 #'   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
@@ -126,7 +126,7 @@
 #' plot(cv_admp)
 #' }
 #' @export
-cv.MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = F, alph = 1, foldid = NULL, parallel = T, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2) {
+cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = F, alph = 1, foldid = NULL, parallel = T, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2) {
   BIG <- 10e9
   no <- nrow(X)
   ni <- ncol(X)
@@ -181,7 +181,7 @@ cv.MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
 
   out <- list(lambda = fit$Lambdas, cvm = cvm, cvsd = cvsd, cvup = cvm +
     cvsd, cvlo = cvm - cvsd, nz = c(fit$path$nzero), lambda.min = fit$Lambdas[imin, 1], lambda.1se = fit$Lambdas[imin.1se, 1])
-  class(out) <- "cv.MADMMplasso"
+  class(out) <- "cv_MADMMplasso"
 
   return(out)
 }

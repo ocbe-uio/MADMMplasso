@@ -1,5 +1,5 @@
 #' @export
-plot.cv.MADMMplasso <- function(x, ...) {
+plot.cv_MADMMplasso <- function(x, ...) {
   cvobj <- x
   xlab <- "log(Lambda)"
   plot.args <- list(
