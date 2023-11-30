@@ -31,7 +31,7 @@
 #' @return  predicted values for the ADMM part
 #' @description TODO: add description
 #' @export
-admm.MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, cv = cv, gg = 0.2, legacy = FALSE) {
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, cv = cv, gg = 0.2, legacy = FALSE) {
   if (!legacy) {
     out <- admm_MADMMplasso_cpp(
       beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
@@ -477,7 +477,7 @@ admm.MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 #' y <- y_train
 #' # colnames(y)<-c(1:6)
 #' colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
-#' TT <- tree.parms(y)
+#' TT <- tree_parms(y)
 #' plot(TT$h_clust)
 #' gg1 <- matrix(0, 2, 2)
 #' gg1[1, ] <- c(0.02, 0.02)
@@ -581,7 +581,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   non_zero_theta <- c()
   my_obj <- list()
 
-  my_W_hat <- generate.my.w(X = X, Z = Z, quad = TRUE)
+  my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
 
   svd.w <- svd(my_W_hat)
   svd.w$tu <- t(svd.w$u)
@@ -654,7 +654,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
     foreach::getDoParRegistered()
 
     my_values <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
-      admm.MADMMplasso(
+      admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
         invmat, cv, gg[i, ]
@@ -665,7 +665,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {
-        admm.MADMMplasso(
+        admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
           XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
           invmat, cv, gg[g, ]
@@ -684,7 +684,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
 
     start_time <- Sys.time()
     if (pal == 1) {
-      my_values <- admm.MADMMplasso(
+      my_values <- admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
         cv, gg[hh, ]
@@ -773,7 +773,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   return(out)
 }
 
-convNd2T <- function(Nd, w, w_max) {
+conv_Nd2T <- function(Nd, w, w_max) {
   # Nd : node list
   # w : a vector of weights for internal nodes
   # Tree : VxK matrix
@@ -834,16 +834,16 @@ convNd2T <- function(Nd, w, w_max) {
   return(list(Tree = Tree, Tw = Tw))
 }
 
-convH2T <- function(H, w_max) {
+conv_H2T <- function(H, w_max) {
   K <- dim(H)[1] + 1
   Nd <- cbind(rep((K + 1):(2 * K - 1), each = 2), as.vector(t(H[, 1:2])))
   W_norm <- H[, 3] / max(H[, 3])
-  conv0 <- convNd2T(Nd, W_norm, w_max)
+  conv0 <- conv_Nd2T(Nd, W_norm, w_max)
 
   return(conv0)
 }
 
-fastCorr <- function(A) {
+fast_corr <- function(A) {
   C <- crossprod(scale(A)) / (dim(A)[1] - 1)
   return(C)
 }
@@ -859,9 +859,9 @@ fastCorr <- function(A) {
 #' @title Tree parameters # TODO: check
 #' @description Calculate tree parameters # TODO: add description!
 #' @param h h # TODO: add description!
-tree.parms <- function(y = y, h = .7) {
+tree_parms <- function(y = y, h = .7) {
   m <- dim(y)[2]
-  myDist0 <- 1 - abs(fastCorr(y))
+  myDist0 <- 1 - abs(fast_corr(y))
   myDist <- myDist0[lower.tri(myDist0)]
   a0 <- dist(t(y))
   a0[1:length(a0)] <- myDist
@@ -869,7 +869,7 @@ tree.parms <- function(y = y, h = .7) {
   myCluster_0 <- hclust(a0, method = "complete")
   myCluster <- cbind(ifelse(myCluster_0$merge < 0, -myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)
 
-  conv0 <- convH2T(myCluster, h)
+  conv0 <- conv_H2T(myCluster, h)
   Tree <- conv0$Tree
   if (is.null(dim(Tree))) {
     Tree <- matrix(Tree, nrow = 1)
@@ -1012,7 +1012,7 @@ sim2 <- function(p = 500, n = 100, m = 24, nz = 4, rho = .4, B.elem = 0.5) {
   return(out)
 }
 
-errfun.gaussian <- function(y, yhat, w = rep(1, length(y))) {
+errfun_gaussian <- function(y, yhat, w = rep(1, length(y))) {
   (w * (y - yhat)^2)
 }
 
@@ -1119,7 +1119,7 @@ errfun.gaussian <- function(y, yhat, w = rep(1, length(y))) {
 #' y=y_train
 #' #colnames(y)<-c(1:6)
 #' colnames(y)<- c( paste("y",1:(ncol(y)),sep = "") )
-#' TT=tree.parms(y)
+#' TT=tree_parms(y)
 #' plot(TT$h_clust)
 #' gg1=matrix(0,2,2)
 #' gg1[1,]<-c(0.02,0.02)
@@ -1204,7 +1204,7 @@ cv.MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
   return(out)
 }
 
-error.bars <- function(x, upper, lower, width = 0.02, ...) {
+error_bars <- function(x, upper, lower, width = 0.02, ...) {
   xlim <- range(x)
   barw <- diff(xlim) * width
   segments(x, upper, x, lower, ...)
@@ -1278,7 +1278,7 @@ count_nonzero_a <- function(x) {
   return(n)
 }
 
-quick.func <- function(xz = c(), xn) {
+quick_func <- function(xz = c(), xn) {
   as.vector(xz[1:xn] %o% xz[-(1:xn)])
 }
 
@@ -1287,7 +1287,7 @@ quick.func <- function(xz = c(), xn) {
 #' @param Z TODO: fill in description
 #' @param quad TODO: fill in description
 #' @export
-generate.my.w <- function(X = matrix(), Z = matrix(), quad = TRUE) {
+generate_my_w <- function(X = matrix(), Z = matrix(), quad = TRUE) {
   p1 <- ncol(X)
   p2 <- ncol(Z)
 
@@ -1305,7 +1305,7 @@ generate.my.w <- function(X = matrix(), Z = matrix(), quad = TRUE) {
   x <- X
   z <- cbind(1, Z)
 
-  W <- t(apply(cbind(x, z), 1, quick.func, xn = p1))
+  W <- t(apply(cbind(x, z), 1, quick_func, xn = p1))
   if (quad == FALSE) {
     W <- W[, -ind]
   }
@@ -1343,7 +1343,7 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   p <- ncol(X)
   K <- ncol(as.matrix(Z))
   D <- dim(y)[2]
-  my_W_hat <- generate.my.w(X = X, Z = Z, quad = TRUE)
+  my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
 
   yh <- array(0, c(N, D, length(isel)))
   DEV <- matrix(NA, length(isel))
@@ -1420,10 +1420,10 @@ plot.MADMMplasso <- function(x, ...) {
   D <- ncol(fit$theta0[[1]])
   nlambda <- length(fit$Lambdas[, 1])
 
-  plotCoeff(beta, theta, error = fit$path$OBJ_main, nz = fit$non_zero, p, K, D, nlambda, Lambda = fit$Lambdas)
+  plot_coeff(beta, theta, error = fit$path$OBJ_main, nz = fit$non_zero, p, K, D, nlambda, Lambda = fit$Lambdas)
 }
 
-plotCoeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
+plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
   gg <- nlambda
   my_beta1 <- array(NA, c(p, nlambda, D))
   for (r in 1:nlambda) {
@@ -1483,7 +1483,7 @@ plot.cv.MADMMplasso <- function(x, ...) {
     plot.args[names(new.args)] <- new.args
   }
   do.call("plot", plot.args)
-  error.bars(log(cvobj$lambda[, 1]), cvobj$cvup, cvobj$cvlo,
+  error_bars(log(cvobj$lambda[, 1]), cvobj$cvup, cvobj$cvlo,
     width = 0.01, col = "darkgrey"
   )
   points(log(as.matrix(cvobj$lambda[, 1])), as.matrix(cvobj$cvm),

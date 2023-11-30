@@ -93,7 +93,7 @@ y_train <- X %*% Beta + pliable + e
 y <- y_train
 colnames(y) <- c(1:6)
 colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
-TT <- tree.parms(y)
+TT <- tree_parms(y)
 C <- TT$Tree
 CW <- TT$Tw
 N <- nrow(X)
@@ -110,7 +110,7 @@ alph <- 1
 rho <- 5
 gg <- c(0.02, 0.02)
 max_it <- 5000
-my_W_hat <- generate.my.w(X = X, Z = Z, quad = TRUE)
+my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
 svd.w <- svd(my_W_hat)
 svd.w$tu <- t(svd.w$u)
 svd.w$tv <- t(svd.w$v)
@@ -160,7 +160,7 @@ XtY <- crossprod((my_W_hat), (new_y))
 
 # Testing the R function =======================================================
 mprt <- FALSE
-my_values <- suppressWarnings(suppressMessages(admm.MADMMplasso(
+my_values <- suppressWarnings(suppressMessages(admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
@@ -196,7 +196,7 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
-my_values_cpp <- admm.MADMMplasso(
+my_values_cpp <- admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,

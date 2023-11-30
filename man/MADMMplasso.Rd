@@ -153,7 +153,7 @@ y_train <- X \%*\% Beta + pliable + e
 y <- y_train
 # colnames(y)<-c(1:6)
 colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
-TT <- tree.parms(y)
+TT <- tree_parms(y)
 plot(TT$h_clust)
 gg1 <- matrix(0, 2, 2)
 gg1[1, ] <- c(0.02, 0.02)
