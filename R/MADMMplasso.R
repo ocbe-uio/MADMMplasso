@@ -26,7 +26,7 @@
 #' @return  predicted values for the MADMMplasso fit
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, cv = F, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, cv = F, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4,legacy=F) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -187,7 +187,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, cv, gg[i, ]
+        invmat, cv, gg[i, ],legacy=legacy
       )
     }
     parallel::stopCluster(cl)
@@ -198,7 +198,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
           XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, cv, gg[g, ]
+          invmat, cv, gg[g, ],legacy=legacy
         )
       }
     )
@@ -217,7 +217,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       my_values <- admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
-        cv, gg[hh, ]
+        cv, gg[hh, ],legacy=legacy
       )
 
       beta <- my_values$beta
