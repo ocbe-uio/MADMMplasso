@@ -86,7 +86,7 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   
 
     n_i <- (model_p(beta0, theta0, beta = beta_hat, theta, X = my_W_hat, Z))
-    Dev <- (sum(as.vector((y - as.matrix(n_i))^2))) / (D * N)
+    Dev <- (sum(as.vector((as.matrix(y) - (n_i))^2))) / (D * N)
     DEV[ii] <- (Dev)
     yh[, , ii] <- as.matrix(n_i)
   }
