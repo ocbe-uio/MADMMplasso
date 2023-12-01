@@ -72,9 +72,9 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
       function(j) (matrix(0, nrow = N))
     )
     beta0 <- object$beta0[[z]]
-    beta <- object$beta[[z]]
-    beta_hat <- object$BETA_hat[[z]]
-    theta <- object$theta[[z]]
+    beta <- as.matrix(object$beta[[z]])
+    beta_hat <- as.matrix(object$BETA_hat[[z]])
+    theta <- as.array(object$theta[[z]])
 
     theta0 <- object$theta0[[z]]
 
@@ -86,7 +86,7 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   
 
     n_i <- (model_p(beta0, theta0, beta = beta_hat, theta, X = my_W_hat, Z))
-    Dev <- (sum(as.vector((as.matrix(y) - (n_i))^2))) / (D * N)
+    Dev <- (sum(as.vector((y - (n_i))^2))) / (D * N)
     DEV[ii] <- (Dev)
     yh[, , ii] <- as.matrix(n_i)
   }
