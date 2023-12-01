@@ -110,7 +110,7 @@ y=y_train
 
 colnames(y)<- c( paste("y",1:(ncol(y)),sep = "") )
 
-TT=tree.parms(y)
+TT=tree_parms(y)
 
 plot(TT$h_clust)
 
@@ -173,7 +173,7 @@ plot(fit)
 gg1=fit$gg
 
 
-cv_admp <- cv.MADMMplasso(
+cv_admp <- cv_MADMMplasso(
   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
   foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol

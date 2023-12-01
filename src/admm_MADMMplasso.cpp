@@ -75,7 +75,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]).t();
   const int D = y.n_cols;
   const int p = X.n_cols;
-  const uint K = Z.n_cols;
+  const unsigned int K = Z.n_cols;
 
   arma::cube V(p, 2 * (1 + K), D, arma::fill::zeros);
   arma::cube O(p, 2 * (1 + K), D, arma::fill::zeros);
@@ -106,10 +106,10 @@ Rcpp::List admm_MADMMplasso_cpp(
   // Overlapping group from covariates =========================================
   arma::umat G = arma::zeros<arma::umat>(2 * (1 + K), 1 + K);
   const arma::umat diag_G = arma::eye<arma::umat>(K + 1, K + 1);
-  for (uint i = 0; i < K + 1; ++i) {
+  for (unsigned int i = 0; i < K + 1; ++i) {
     G.row(i) = diag_G.row(i);
   }
-  for (uint i = K + 2; i < 2 * (K + 1); ++i) {
+  for (unsigned int i = K + 2; i < 2 * (K + 1); ++i) {
     G.row(i) = diag_G.row(i - (K + 1));
   }
 
@@ -404,6 +404,5 @@ Rcpp::List admm_MADMMplasso_cpp(
     Rcpp::Named("beta_hat") = beta_hat,
     Rcpp::Named("y_hat") = y_hat
   );
-  out.attr("class") = "admm.MADMMplasso";
   return out;
 }

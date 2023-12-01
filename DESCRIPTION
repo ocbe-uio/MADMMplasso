@@ -1,10 +1,35 @@
 Package: MADMMplasso
-Title: Multi variate multi response 'ADMM' with interaction effects
-Version: 0.0.0.9006
+Title: Multi Variate Multi Response 'ADMM' with Interaction Effects
+Version: 0.0.0.9007
 Authors@R:
-    c(person("Theophilus Quachie", "Asenso", , "t.q.asenso@medisin.uio.no", role = c("aut", "cre")),person("Manuela", "Zucknick", , "Manuela.zucknick@medisin.uio.no", role = c("aut")) )
-Description: This system allows one to model a multi response problem that has correlation among the
-	responses and also has main and interaction effects among the covariates.
+    c(
+        person(
+            given = "Theophilus Quachie", family = "Asenso",
+            email = "t.q.asenso@medisin.uio.no",
+            role = "aut"
+        ),
+        person(
+            given = "Manuela", family = "Zucknick",
+            email = "Manuela.zucknick@medisin.uio.no",
+            role = "aut"
+        ),
+        person(
+            given = "Waldir", family = "Leoncio",
+            email = "w.l.netto@medisin.uio.no",
+            role = c("aut", "cre"),
+            comment = c(ORCID = "0000-0002-6719-6162")
+        ),
+        person(
+            given = "Chi", family = "Zhang",
+            email = "andreachizhang@yahoo.com",
+            role = "aut"
+        )
+    )
+Description: This system allows one to model a multi response problem
+    that has correlation among the responses and also has main and interaction
+    effects among the covariates. The implementation is based on the methodology
+    presented on Quachie Asenso, T., & Zucknick, M. (2023)
+    <doi:10.48550/arXiv.2303.11155>.
 Imports:
     Matrix,
     MASS,

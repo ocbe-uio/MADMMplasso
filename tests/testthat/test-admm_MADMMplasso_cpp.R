@@ -93,7 +93,7 @@ y_train <- X %*% Beta + pliable + e
 y <- y_train
 colnames(y) <- c(1:6)
 colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
-TT <- tree.parms(y)
+TT <- tree_parms(y)
 C <- TT$Tree
 CW <- TT$Tw
 N <- nrow(X)
@@ -110,7 +110,7 @@ alph <- 1
 rho <- 5
 gg <- c(0.02, 0.02)
 max_it <- 5000
-my_W_hat <- generate.my.w(X = X, Z = Z, quad = TRUE)
+my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
 svd.w <- svd(my_W_hat)
 svd.w$tu <- t(svd.w$u)
 svd.w$tv <- t(svd.w$v)
@@ -160,7 +160,7 @@ XtY <- crossprod((my_W_hat), (new_y))
 
 # Testing the R function =======================================================
 mprt <- FALSE
-my_values <- suppressWarnings(suppressMessages(admm.MADMMplasso(
+my_values <- suppressWarnings(suppressMessages(admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
@@ -175,28 +175,28 @@ beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
 test_that("final objects have correct dimensions", {
-	expect_equal(dim(beta0), c(1, 6))
-	expect_equal(dim(theta0), c(4, 6))
-	expect_equal(dim(beta), c(50, 6))
-	expect_equal(dim(theta), c(50, 4, 6))
-	expect_equal(length(converge), 1)
-	expect_equal(dim(beta_hat), c(250, 6))
-	expect_equal(dim(y_hat), c(100, 6))
+  expect_equal(dim(beta0), c(1, 6))
+  expect_equal(dim(theta0), c(4, 6))
+  expect_equal(dim(beta), c(50, 6))
+  expect_equal(dim(theta), c(50, 4, 6))
+  expect_equal(length(converge), 1)
+  expect_equal(dim(beta_hat), c(250, 6))
+  expect_equal(dim(y_hat), c(100, 6))
 })
 
 test_that("mean values of final objects are expected", {
   tole <- 1e-1
-	expect_equal(mean(beta0), 5.132656e-02, tolerance = tole)
-	expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
-	expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
-	expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
-	expect_equal(converge, TRUE)
-	expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
-	expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
+  expect_equal(mean(beta0), 5.132656e-02, tolerance = tole)
+  expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
+  expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
+  expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
+  expect_equal(converge, TRUE)
+  expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
+  expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
 })
 
 # Testing the C++ function =====================================================
-my_values_cpp <- admm.MADMMplasso(
+my_values_cpp <- admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
@@ -210,7 +210,7 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)  # TODO: transpose somewhere (return?)
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl) # TODO: transpose somewhere (return?)
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
