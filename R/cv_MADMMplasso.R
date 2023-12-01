@@ -52,7 +52,7 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
     oo <- foldid == ii
 
     ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = F], Z = Z[!oo, , drop = F], y = y[!oo, , drop = F], alpha = alpha, my_lambda = lambda, lambda_min = .01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, cv = T, parallel = parallel, pal = pal, gg = gg, tol = tol, cl = cl)
-
+plot(ggg[[ii]] )
     cv_p <- predict.MADMMplasso(ggg[[ii]], X = X[oo, , drop = F], Z = Z[oo, ], y = y[oo, ])
     ggg[[ii]] <- 0
     yhat[oo, , seq(nlambda)] <- cv_p$y_hat[, , seq(nlambda)]
