@@ -27,7 +27,7 @@ MADMMplasso(
   gg = NULL,
   tol = 1e-04,
   cl = 4,
-  legacy = F
+  legacy = FALSE
 )
 }
 \arguments{

@@ -28,7 +28,7 @@
 #' @return  predicted values for the MADMMplasso fit
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, cv = F, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4,legacy=F) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, cv = F, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
