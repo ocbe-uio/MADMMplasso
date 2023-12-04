@@ -189,7 +189,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, cv, gg[i, ],legacy=legacy
+        invmat, cv, gg[i, ],legacy
       )
     }
     parallel::stopCluster(cl)
@@ -200,7 +200,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
           XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, cv, gg[g, ],legacy=legacy
+          invmat, cv, gg[g, ],legacy
         )
       }
     )
@@ -219,7 +219,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       my_values <- admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
-        cv, gg[hh, ],legacy=legacy
+        cv, gg[hh, ],legacy
       )
 
       beta <- my_values$beta
