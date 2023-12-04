@@ -23,6 +23,8 @@
 #' @param pal TODO: fill in
 #' @param tol TODO: fill in
 #' @param cl TODO: fill in
+#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
+#' C++.
 #' @return  predicted values for the MADMMplasso fit
 #' @example inst/examples/MADMMplasso_example.R
 #' @export

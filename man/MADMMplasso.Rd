@@ -26,7 +26,8 @@ MADMMplasso(
   pal = 0,
   gg = NULL,
   tol = 1e-04,
-  cl = 4
+  cl = 4,
+  legacy = F
 )
 }
 \arguments{
@@ -72,6 +73,9 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 \item{tol}{TODO: fill in}
 
 \item{cl}{TODO: fill in}
+
+\item{legacy}{If \code{TRUE}, use the R version of the algorithm. Defaults to
+C++.}
 }
 \value{
 predicted values for the MADMMplasso fit
