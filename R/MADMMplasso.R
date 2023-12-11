@@ -4,7 +4,7 @@
 #' @param X  N by p matrix of predictors
 #' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
-#' @param y N by D matrix  of responses. The X and Z variables are centered in the function. We recommmend that X and Z also be standardized before the call
+#' @param y N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call
 #' @param maxgrid  number of lambda_3 values desired (default 50)
 #' @param nlambda  number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid. 
 #' @param alpha mixing parameter- default 0.5. When the goal is to include more interactions, alpha should be very small and vice versa. 
