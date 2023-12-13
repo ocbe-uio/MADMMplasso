@@ -1,13 +1,16 @@
-#' Compute predicted values from a fitted pliable  object
-#'  Make predictions from a fitted pliable lasso model
-#' @param object object returned from a call to pliable
+#' @title Compute predicted values from a fitted MADMMplasso  object.
+#'  Make predictions from a fitted MADMMplasso model
+#' @description Compute predicted values from a MADMMplasso  object.
+#'  Make predictions from a fitted MADMMplasso model
+#' @param object object returned from a call to MADMMplasso
 #' @param X  N by p matrix of predictors
-#' @param Z  n by nz matrix of modifying variables. These may be observed or
+#' @param Z  N by nz matrix of modifying variables. These may be observed or
 #' the predictions from a supervised learning algorithm that predicts z from
 #' test features x  and possibly other features.
 #' @param y N by D matrix  of responses.
-#' @param lambda  TODO: fill in description
+#' @param lambda  values of lambda at which predictions are desired. If NULL (default), the path of lambda values from the fitted model. are used. If lambda is not NULL, the predictions are made at the closest values to lambda in the lambda path from the fitted model
 #' @param ... additional arguments to the generic \code{predict()} method
+
 #'  @return  predicted values
 #' @export
 predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
