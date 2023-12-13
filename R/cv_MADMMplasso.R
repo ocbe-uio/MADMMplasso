@@ -1,30 +1,31 @@
-#' Carries out cross-validation for  a  pliable lasso model over a path of regularization values
-#' @param fit  object returned by the pliable function
+#' @title Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
+#'  @description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
+#' @param fit  object returned by the MADMMplasso function
 #' @param X  N by p matrix of predictors
 #' @param Z N by K matrix of modifying variables. The elements of Z  may
 #' represent quantitative or categorical variables, or a mixture of the two.
-#'  Categorical varables should be coded by 0-1 dummy variables: for a k-level
+#'  Categorical variables should be coded by 0-1 dummy variables: for a k-level
 #' variable, one can use either k or k-1  dummy variables.
 #' @param y N by D-matrix of responses. The X and Z variables are centered in
-#' the function. We recommmend that x and z also be standardized before the call
+#' the function. We recommend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
 #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
-#' @param alpha TODO: add parameter description
-#' @param lambda TODO: add parameter description
-#' @param max_it TODO: add parameter description
-#' @param e.abs TODO: add parameter description
-#' @param e.rel TODO: add parameter description
-#' @param nlambda TODO: add parameter description
-#' @param rho TODO: add parameter description
-#' @param my_print TODO: add parameter description
-#' @param alph TODO: add parameter description
-#' @param foldid TODO: add parameter description
-#' @param parallel TODO: add parameter description
-#' @param pal TODO: add parameter description
-#' @param gg TODO: add parameter description
-#' @param TT TODO: add parameter description
-#' @param tol TODO: add parameter description
-#' @param cl TODO: add parameter description
+#' @param alpha mixing parameter- default 0.5. This value should be same as the one used for the MADMMplasso call. 
+#' @param lambda  user specified lambda_3 values. Default fit$Lambdas.  
+#' @param max_it maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
+#' @param e.abs absolute error for the admm. default is 1E-3
+#' @param e.rel relative error for the admm-default is 1E-3
+#' @param nlambda number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid. 
+#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition. 
+#' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
+#' @param alph an overelaxation parameter in [1,1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
+#' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set 0.
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0. 
+#' @param gg penalty term for the tree structure obtained from the fit. 
+#' @param TT The results from the hierarchical clustering of the response matrix. 
+#' This should same as the parameter tree used during the MADMMplasso call. 
+#' @param tol threshold for the non-zero coefficients. Default 1E-4 
+#' @param cl The number of cpu to be used for parallel processing. default 2
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
 #' @export
