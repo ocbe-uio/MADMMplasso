@@ -1,16 +1,18 @@
-#'  Simulate data for the model
+#' @title Simulate data for the model. This is the second simulation data used in the paper
+#' @description Simulate data for the model
 #' @param p column for X which is the main effect
 #' @param n number of observations
 #' @param m number of responses
-#' @param nz TODO: fill in (number of modifiers?)
-#' @param rho  TODO: fill in (correlation between the main effect and modifiers?)
-#' @param B.elem  TODO: fill in (the proportion of non-zero elements in beta?)
+#' @param nz  number of modifiers
+#' @param rho  values to be used in the covariance matrix when generating  X
+#' @param B.elem  the value of the non-zero elements in beta?
 #' @return  The simulated data with the following components:
-#'  Beta: matrix of actual beta coefficients  p by D
-#'  Theta: a D by p by K array of actual theta coefficients
-#'  Y: a N by D matrix of response variables
+#'  Beta: matrix of actual beta coefficients  p by m
+#'  Theta: a m by p by K array of actual theta coefficients
+#'  Y: a N by m matrix of response variables
 #'  X: a N by p matrix of covariates
 #'  Z: a N by K matrix of modifiers
+
 #' @export
 sim2 <- function(p = 500, n = 100, m = 24, nz = 4, rho = .4, B.elem = 0.5) {
   b <- 10
