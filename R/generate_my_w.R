@@ -1,7 +1,14 @@
-#' Generate the matrix W as used in Appendix I for use in the function.
-#' @param X TODO: fill in description
-#' @param Z TODO: fill in description
+
+#' @title Generate the matrix W as seen in equation 8  for use in the function.
+#' @description Generate the matrix W as seen in equation 8  for use in the function.
+#' @param X N by p matrix of predictors
+#' @param Z N by nz matrix of modifying variables. The elements of z
+#' may represent quantitative or categorical variables, or a mixture of the two.
+#' Categorical variables should be coded by 0-1 dummy variables: for a k-level
+#' variable, one can use either k or k-1  dummy variables.
 #' @param quad TODO: fill in description
+#' 
+#' @return  Generated W matrix nrow(X) by (ncol(X)+ncol(X) by ncol(Z))
 #' @export
 generate_my_w <- function(X = matrix(), Z = matrix(), quad = TRUE) {
   p1 <- ncol(X)
