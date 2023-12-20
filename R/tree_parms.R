@@ -1,13 +1,14 @@
-#' Fit the hierarchical tree structure
-#' @param y  N by D matrix of response variables
+#' @title Fit the hierarchical tree structure
+#' @description Fit the hierarchical tree structure
+#' @param y  N by D matrix of response variables 
 #'  @param h is the tree cut off
-#' @return  A trained the tree with the following components:
-#' Tree: the tree matrix stored in 1's and 0's
-#'  Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
+#' @return  A trained  tree with the following components:
+#' Tree: the tree matrix stored in 1's and 0's 
+#'  Tw: tree weights associated with the tree matrix. Each weight corresponds to a row in the tree matrix. 
+#'  h_clust: Summary of the hclust call
+#'  y.colnames: names of the response 
+
 #' @export
-#' @title Tree parameters # TODO: check
-#' @description Calculate tree parameters # TODO: add description!
-#' @param h h # TODO: add description!
 tree_parms <- function(y = y, h = .7) {
   m <- dim(y)[2]
   myDist0 <- 1 - abs(fast_corr(y))
