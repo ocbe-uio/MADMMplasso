@@ -210,7 +210,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       )
     }
     parallel::stopCluster(cl)
-  } else if (parallel == F & pal == 0) {
+  } else if (parallel == F && pal == 0) {
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {
@@ -245,7 +245,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     }
     cost_time <- Sys.time() - start_time
     print(cost_time)
-    if (parallel == T & pal == 0) {
+    if (parallel == T && pal == 0) {
       beta <- my_values[hh, ]$beta
       theta <- my_values[hh, ]$theta
       my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -253,7 +253,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       theta0 <- my_values[hh, ]$theta0 ### iteration
       beta_hat <- my_values[hh, ]$beta_hat
       y_hat <- my_values[hh, ]$y_hat
-    } else if (parallel == F & pal == 0) {
+    } else if (parallel == F && pal == 0) {
       beta <- my_values[[hh]]$beta
       theta <- my_values[[hh]]$theta
       my_obj[[hh]] <- list(my_values[[hh]]$obj)
