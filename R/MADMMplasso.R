@@ -130,9 +130,9 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   theta_0_list <- list()
   beta_list <- list()
   theta_list <- list()
-  obj <- c()
-  n_main_terms <- c()
-  non_zero_theta <- c()
+  obj <- NULL
+  n_main_terms <- NULL
+  non_zero_theta <- NULL
   my_obj <- list()
 
   my_W_hat <- generate_my_w(X = X, Z = Z)
@@ -152,7 +152,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
 
   II <- input[multiple_of_D]
-  diag(I[c(1:dim(y)[2]), ]) <- C[1, ] * (CW[1])
+  diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
@@ -161,10 +161,10 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   }
   new_I <- diag(t(I) %*% I)
   new_G <- matrix(0, (p + p * K))
-  new_G[c(1:p)] <- 1
-  new_G[-c(1:p)] <- 2
-  new_G[c(1:p)] <- rho * (1 + new_G[c(1:p)])
-  new_G[-c(1:p)] <- rho * (1 + new_G[-c(1:p)])
+  new_G[1:p] <- 1
+  new_G[-1:-p] <- 2
+  new_G[1:p] <- rho * (1 + new_G[1:p])
+  new_G[-1:-p] <- rho * (1 + new_G[-1:-p])
 
   invmat <- list() # denominator of the beta estimates
   for (rr in 1:D) {

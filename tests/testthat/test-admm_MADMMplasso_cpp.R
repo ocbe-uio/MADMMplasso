@@ -22,7 +22,7 @@ reg_temp <- function(r, Z) {
     my_inv <- pracma::pinv(t(my_w) %*% my_w)
     my_res <- my_inv %*% (t(my_w) %*% r[, e])
     beta01[e] <- matrix(my_res[(K + 1)])
-    theta01[, e] <- matrix(my_res[c(1:(K))])
+    theta01[, e] <- matrix(my_res[1:K])
   }
   return(list(beta0 = beta01, theta0 = theta01))
 }
@@ -57,7 +57,7 @@ beta_4[6:10] <- c(2, 2, 2, -2, -2)
 beta_5[11:15] <- c(-2, -2, -2, -2, -2)
 beta_6[11:15] <- c(-2, -2, -2, -2, -2)
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
-colnames(Beta) <- c(1:6)
+colnames(Beta) <- 1:6
 theta <- array(0, c(p, K, 6))
 theta[1, 1, 1] <- 2
 theta[3, 2, 1] <- 2
@@ -91,7 +91,7 @@ esd <- diag(6)
 e <- mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-colnames(y) <- c(1:6)
+colnames(y) <- 1:6
 colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
 TT <- tree_parms(y)
 C <- TT$Tree
@@ -118,7 +118,7 @@ input <- 1:(dim(y)[2] * nrow(C))
 multiple_of_D <- (input %% dim(y)[2]) == 0
 I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
 II <- input[multiple_of_D]
-diag(I[c(1:dim(y)[2]), ]) <- C[1, ] * (CW[1])
+diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
 c_count <- 2
 for (e in II[-length(II)]) {
   diag(I[c((e + 1):(c_count * dim(y)[2])), ]) <- C[c_count, ] * (CW[c_count])
@@ -126,10 +126,10 @@ for (e in II[-length(II)]) {
 }
 new_I <- diag(t(I) %*% I)
 new_G <- matrix(0, (p + p * K))
-new_G[c(1:p)] <- 1
-new_G[-c(1:p)] <- 2
-new_G[c(1:p)] <- rho * (1 + new_G[c(1:p)])
-new_G[-c(1:p)] <- rho * (1 + new_G[-c(1:p)])
+new_G[1:p] <- 1
+new_G[-1:-p] <- 2
+new_G[1:p] <- rho * (1 + new_G[1:p])
+new_G[-1:-p] <- rho * (1 + new_G[-1:-p])
 invmat <- list() # denominator of the beta estimates
 for (rr in 1:D) {
   DD1 <- rho * (new_I[rr] + 1)

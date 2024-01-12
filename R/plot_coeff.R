@@ -15,7 +15,7 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     n <- dim(my_beta)[2]
     matplot(b, t(my_beta), type = "n", col = "red", ylim = range(my_beta), xlab = "Log Lambda", ylab = (paste("coefficient", ii)))
     axis(
-      side = 3, at = (as.matrix(b)), labels = paste(as.matrix(nz[c(1:gg)])),
+      side = 3, at = (as.matrix(b)), labels = paste(as.matrix(nz[1:gg])),
       tick = FALSE, line = 0
     )
 

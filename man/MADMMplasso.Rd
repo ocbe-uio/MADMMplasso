@@ -133,7 +133,7 @@ beta_5[11:15] <- c(-2, -2, -2, -2, -2)
 beta_6[11:15] <- c(-2, -2, -2, -2, -2)
 
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
-colnames(Beta) <- c(1:6)
+colnames(Beta) <- 1:6
 
 theta <- array(0, c(p, K, 6))
 theta[1, 1, 1] <- 2
