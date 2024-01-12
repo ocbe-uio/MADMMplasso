@@ -134,7 +134,7 @@ invmat <- list() # denominator of the beta estimates
 for (rr in 1:D) {
   DD1 <- rho * (new_I[rr] + 1)
   DD2 <- new_G + DD1
-  invmat[[rr]] <- DD2 # Matrix::chol2inv( Matrix::chol(new_sparse) )
+  invmat[[rr]] <- DD2
 }
 beta0 <- matrix(0, 1, D) # estimates$Beta0
 theta0 <- matrix(0, K, D)
@@ -151,7 +151,7 @@ Q <- (array(0, c(p, (1 + K), D)))
 P <- (array(0, c(p, (1 + K), D)))
 H <- (matrix(0, dim(y)[2] * nrow(C), (p + p * K))) # response multiplier
 HH <- (array(0, c(p, (1 + K), D)))
-r_current <- y #-model(beta0,theta0,beta=beta_hat, theta, X=W_hat, Z)
+r_current <- y
 b <- reg_temp(r_current, Z) # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
 beta0 <- b$beta0
 theta0 <- b$theta0
