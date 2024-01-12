@@ -1,4 +1,5 @@
-\dontrun{ # nolint
+ # nolint start: indentation_linter
+\dontrun{
   # Train the model
   # generate some data
   set.seed(1235)
@@ -93,3 +94,4 @@
   )
   plot(cv_admp)
 }
+# nolint end: indentation_linter

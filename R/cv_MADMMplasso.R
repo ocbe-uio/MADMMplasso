@@ -75,8 +75,11 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
   imin <- which.min(cvm.nz)
   imin.1se <- which(cvm < cvm[imin] + cvsd[imin])[1]
 
-  out <- list(lambda = fit$Lambdas, cvm = cvm, cvsd = cvsd, cvup = cvm +
-    cvsd, cvlo = cvm - cvsd, nz = c(fit$path$nzero), lambda.min = fit$Lambdas[imin, 1], lambda.1se = fit$Lambdas[imin.1se, 1])
+  out <- list(
+    lambda = fit$Lambdas, cvm = cvm, cvsd = cvsd, cvup = cvm + cvsd,
+    cvlo = cvm - cvsd, nz = c(fit$path$nzero),
+    lambda.min = fit$Lambdas[imin, 1], lambda.1se = fit$Lambdas[imin.1se, 1]
+  )
   class(out) <- "cv_MADMMplasso"
 
   return(out)
