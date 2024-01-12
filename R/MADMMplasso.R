@@ -50,7 +50,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -210,7 +210,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       )
     }
     parallel::stopCluster(cl)
-  } else if (parallel == F && pal == 0) {
+  } else if (parallel == FALSE && pal == 0) {
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {
@@ -245,7 +245,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     }
     cost_time <- Sys.time() - start_time
     print(cost_time)
-    if (parallel == T && pal == 0) {
+    if (parallel == TRUE && pal == 0) {
       beta <- my_values[hh, ]$beta
       theta <- my_values[hh, ]$theta
       my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -253,7 +253,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       theta0 <- my_values[hh, ]$theta0 ### iteration
       beta_hat <- my_values[hh, ]$beta_hat
       y_hat <- my_values[hh, ]$y_hat
-    } else if (parallel == F && pal == 0) {
+    } else if (parallel == FALSE && pal == 0) {
       beta <- my_values[[hh]]$beta
       theta <- my_values[[hh]]$theta
       my_obj[[hh]] <- list(my_values[[hh]]$obj)

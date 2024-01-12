@@ -48,7 +48,7 @@
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, gg = 0.2, legacy = FALSE) {
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = TRUE, invmat, gg = 0.2, legacy = FALSE) {
   if (!legacy) {
     out <- admm_MADMMplasso_cpp(
       beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
@@ -187,7 +187,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       Q[, -1, jj] <- sign(new.mat) * pmax(abs(new.mat) - ((alpha * lambda[jj]) / (rho)), 0)
       b_hat <- alph * beta_hat1 + (1 - alph) * EE[, , jj]
       new.mat <- b_hat + HH[, , jj]
-      row.norm1 <- sqrt(apply(new.mat^2, 1, sum, na.rm = T))
+      row.norm1 <- sqrt(apply(new.mat^2, 1, sum, na.rm = TRUE))
       coef.term1 <- pmax(1 - (gg[2]) / rho / (row.norm1), 0)
       ee1 <- scale(t(as.matrix(new.mat)), center = FALSE, scale = 1 / coef.term1)
       EE[, , jj] <- t(ee1)
@@ -200,8 +200,8 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       new.mat <- Big_beta1 + O[, , jj]
       new.mat1 <- new.mat[, 1:(K + 1)]
       new.mat2 <- new.mat[, -1:-(K + 1)]
-      row.norm1 <- sqrt(apply(new.mat1^2, 1, sum, na.rm = T))
-      row.norm2 <- sqrt(apply(new.mat2^2, 1, sum, na.rm = T))
+      row.norm1 <- sqrt(apply(new.mat1^2, 1, sum, na.rm = TRUE))
+      row.norm2 <- sqrt(apply(new.mat2^2, 1, sum, na.rm = TRUE))
 
       coef.term1 <- pmax(1 - ((1 - alpha) * lambda[jj]) / (rho) / (row.norm1), 0)
       coef.term2 <- pmax(1 - ((1 - alpha) * lambda[jj]) / (rho) / (row.norm2), 0)
@@ -350,7 +350,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       rho <- rho / 2
     }
 
-    if (my_print == T) {
+    if (my_print) {
       print(c(res_dual, e.dual, res_pri, e.primal))
     }
     if (res_pri <= e.primal && res_dual <= e.dual) {
@@ -358,10 +358,10 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
       # Update convergence message
       message("Convergence reached after ", i, " iterations")
-      converge <- T
+      converge <- TRUE
       break
     }
-    converge <- F
+    converge <- FALSE
   } ### iteration
 
   res_val <- t(I) %*% (E)
