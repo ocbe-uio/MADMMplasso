@@ -2,24 +2,22 @@
 % Please edit documentation in R/tree_parms.R
 \name{tree_parms}
 \alias{tree_parms}
-\title{Tree parameters # TODO: check}
+\title{Fit the hierarchical tree structure}
 \usage{
 tree_parms(y = y, h = 0.7)
 }
 \arguments{
-\item{y}{N by D matrix of response variables
-@param h is the tree cut off}
+\item{y}{N by D matrix of response variables}
 
-\item{h}{h # TODO: add description!}
+\item{h}{is the tree cut off}
 }
 \value{
-A trained the tree with the following components:
+A trained  tree with the following components:
 Tree: the tree matrix stored in 1's and 0's
-Tw: tree weights assocuated with the tree matrix. Each weight corresponds to a row in the tree matrix.
+Tw: tree weights associated with the tree matrix. Each weight corresponds to a row in the tree matrix.
+h_clust: Summary of the hclust call
+y.colnames: names of the response
 }
 \description{
-Calculate tree parameters # TODO: add description!
-}
-\details{
 Fit the hierarchical tree structure
 }

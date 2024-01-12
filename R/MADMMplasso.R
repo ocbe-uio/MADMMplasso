@@ -6,46 +6,46 @@
 #' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call
 #' @param maxgrid  number of lambda_3 values desired (default 50)
-#' @param nlambda  number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid. 
-#' @param alpha mixing parameter- default 0.5. When the goal is to include more interactions, alpha should be very small and vice versa. 
+#' @param nlambda  number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.
+#' @param alpha mixing parameter- default 0.5. When the goal is to include more interactions, alpha should be very small and vice versa.
 #' @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
-#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition. 
+#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
 #' @param e.abs absolute error for the admm. default is 1E-3
 #' @param e.rel relative error for the admm-default is 1E-3
-#' @param gg penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit. 
+#' @param gg penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.
 #' @param my_lambda user specified lambda_3 values. Default NULL
 #' @param lambda_min the smallest value for lambda_3 , as a fraction of max(lambda_3), the (data derived (lammax)) entry value (i.e. the smallest value for which all coefficients are zero). Default is 0.001 if N>p, and 0.01 if N< p.
 #' @param max_it 	maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
 #' @param alph an overrelaxation parameter in [1,1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
-#' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure. 
+#' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.
 #' @param parallel should parallel processing be used or not? Default True. If set to true, pal should be set 0.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0. 
-#' @param tol threshold for the non-zero coefficients. Default 1E-4 
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.
+#' @param tol threshold for the non-zero coefficients. Default 1E-4
 #' @param cl The number of cpu to be used for parallel processing. default 4
 #' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
 #' C++.
 #' @return   predicted values for the MADMMplasso object with the following components:
 #' path: a table containing the summary of the model for each lambda_3.
-#'  
-#' beta0: a list (length=nlambda) of estimated beta_0 coefficients each having a size of 1 by ncol(y) 
-#' 
-#' beta: a list (length=nlambda) of estimated beta coefficients each having a matrix   ncol(X) by ncol(y) 
-#' 
-#' BETA_hat: a list (length=nlambda) of estimated beta and theta coefficients each having a matrix   (ncol(X)+ncol(X) by ncol(Z)) by ncol(y) 
-#' 
-#'  theta0: a list (length=nlambda) of estimated theta_0 coefficients each having a matrix   ncol(Z) by ncol(y) 
-#'  
-#'  theta: a list (length=nlambda) of estimated theta coefficients each having a an array   ncol(X) by ncol(Z) by ncol(y) 
-#'  
+#'
+#' beta0: a list (length=nlambda) of estimated beta_0 coefficients each having a size of 1 by ncol(y)
+#'
+#' beta: a list (length=nlambda) of estimated beta coefficients each having a matrix   ncol(X) by ncol(y)
+#'
+#' BETA_hat: a list (length=nlambda) of estimated beta and theta coefficients each having a matrix   (ncol(X)+ncol(X) by ncol(Z)) by ncol(y)
+#'
+#'  theta0: a list (length=nlambda) of estimated theta_0 coefficients each having a matrix   ncol(Z) by ncol(y)
+#'
+#'  theta: a list (length=nlambda) of estimated theta coefficients each having a an array   ncol(X) by ncol(Z) by ncol(y)
+#'
 #'  Lambdas: values of lambda_3 used
-#'  
+#'
 #'  non_zero: number of nonzero betas for each model in path
-#'  
+#'
 #'  LOSS: sum of squared of the error for each model in path
-#'  
-#'   Y_HAT: a list (length=nlambda) of predicted response nrow(X) by ncol(y) 
-#'  
+#'
+#'   Y_HAT: a list (length=nlambda) of predicted response nrow(X) by ncol(y)
+#'
 #'  gg: penalty term for the tree structure (lambda_1 and lambda_2) for each lambda_3 nlambda by 2
 
 #' @example inst/examples/MADMMplasso_example.R
