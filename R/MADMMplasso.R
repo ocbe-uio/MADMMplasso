@@ -135,7 +135,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   non_zero_theta <- c()
   my_obj <- list()
 
-  my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
+  my_W_hat <- generate_my_w(X = X, Z = Z)
 
   svd.w <- svd(my_W_hat)
   svd.w$tu <- t(svd.w$u)

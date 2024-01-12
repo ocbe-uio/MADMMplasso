@@ -110,7 +110,7 @@ alph <- 1
 rho <- 5
 gg <- c(0.02, 0.02)
 max_it <- 5000
-my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
+my_W_hat <- generate_my_w(X = X, Z = Z)
 svd.w <- svd(my_W_hat)
 svd.w$tu <- t(svd.w$u)
 svd.w$tv <- t(svd.w$v)
