@@ -92,7 +92,7 @@ e <- mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
 colnames(y) <- 1:6
-colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
+colnames(y) <- c(paste0("y", 1:(ncol(y))))
 TT <- tree_parms(y)
 C <- TT$Tree
 CW <- TT$Tw
