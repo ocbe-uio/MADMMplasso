@@ -2,20 +2,21 @@
 % Please edit documentation in R/compute_pliable.R
 \name{compute_pliable}
 \alias{compute_pliable}
-\title{TODO: fill this field}
+\title{Compute the interaction part of the model.}
 \usage{
 compute_pliable(X, Z, theta)
 }
 \arguments{
-\item{X}{TODO: fill this field}
+\item{X}{N by p matrix of predictors}
 
-\item{Z}{TODO: fill this field}
+\item{Z}{N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
+Categorical variables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
 
-\item{theta}{TODO: fill this field}
+\item{theta}{theta coefficients for a single response ncol(X) by ncol(Z)}
 }
 \value{
-TODO: fill this field
+a vector of length N of the calculated interaction term for a single response
 }
 \description{
-TODO: fill this field
+Compute the interaction part of the model.
 }

@@ -2,17 +2,21 @@
 % Please edit documentation in R/generate_my_w.R
 \name{generate_my_w}
 \alias{generate_my_w}
-\title{Generate the matrix W as used in Appendix I for use in the function.}
+\title{Generate the matrix W as seen in equation 8  for use in the function.}
 \usage{
-generate_my_w(X = matrix(), Z = matrix(), quad = TRUE)
+generate_my_w(X = matrix(), Z = matrix())
 }
 \arguments{
-\item{X}{TODO: fill in description}
+\item{X}{N by p matrix of predictors}
 
-\item{Z}{TODO: fill in description}
-
-\item{quad}{TODO: fill in description}
+\item{Z}{N by nz matrix of modifying variables. The elements of z
+may represent quantitative or categorical variables, or a mixture of the two.
+Categorical variables should be coded by 0-1 dummy variables: for a k-level
+variable, one can use either k or k-1  dummy variables.}
+}
+\value{
+Generated W matrix nrow(X) by (ncol(X)+ncol(X) by ncol(Z))
 }
 \description{
-Generate the matrix W as used in Appendix I for use in the function.
+Generate the matrix W as seen in equation 8  for use in the function.
 }

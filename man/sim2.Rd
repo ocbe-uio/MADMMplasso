@@ -2,7 +2,7 @@
 % Please edit documentation in R/sim2.R
 \name{sim2}
 \alias{sim2}
-\title{Simulate data for the model}
+\title{Simulate data for the model. This is the second simulation data used in the paper}
 \usage{
 sim2(p = 500, n = 100, m = 24, nz = 4, rho = 0.4, B.elem = 0.5)
 }
@@ -13,17 +13,17 @@ sim2(p = 500, n = 100, m = 24, nz = 4, rho = 0.4, B.elem = 0.5)
 
 \item{m}{number of responses}
 
-\item{nz}{TODO: fill in (number of modifiers?)}
+\item{nz}{number of modifiers}
 
-\item{rho}{TODO: fill in (correlation between the main effect and modifiers?)}
+\item{rho}{values to be used in the covariance matrix when generating  X}
 
-\item{B.elem}{TODO: fill in (the proportion of non-zero elements in beta?)}
+\item{B.elem}{the value of the non-zero elements in beta?}
 }
 \value{
 The simulated data with the following components:
-Beta: matrix of actual beta coefficients  p by D
-Theta: a D by p by K array of actual theta coefficients
-Y: a N by D matrix of response variables
+Beta: matrix of actual beta coefficients  p by m
+Theta: a m by p by K array of actual theta coefficients
+Y: a N by m matrix of response variables
 X: a N by p matrix of covariates
 Z: a N by K matrix of modifiers
 }

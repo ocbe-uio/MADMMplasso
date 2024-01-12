@@ -10,21 +10,21 @@
 #' the function. We recommend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
 #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
-#' @param alpha mixing parameter- default 0.5. This value should be same as the one used for the MADMMplasso call. 
-#' @param lambda  user specified lambda_3 values. Default fit$Lambdas.  
+#' @param alpha mixing parameter- default 0.5. This value should be same as the one used for the MADMMplasso call.
+#' @param lambda  user specified lambda_3 values. Default fit$Lambdas.
 #' @param max_it maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
 #' @param e.abs absolute error for the admm. default is 1E-3
 #' @param e.rel relative error for the admm-default is 1E-3
-#' @param nlambda number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid. 
-#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition. 
+#' @param nlambda number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.
+#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
-#' @param alph an overelaxation parameter in [1,1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
+#' @param alph an overelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set 0.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0. 
-#' @param gg penalty term for the tree structure obtained from the fit. 
-#' @param TT The results from the hierarchical clustering of the response matrix. 
-#' This should same as the parameter tree used during the MADMMplasso call. 
-#' @param tol threshold for the non-zero coefficients. Default 1E-4 
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.
+#' @param gg penalty term for the tree structure obtained from the fit.
+#' @param TT The results from the hierarchical clustering of the response matrix.
+#' This should same as the parameter tree used during the MADMMplasso call.
+#' @param tol threshold for the non-zero coefficients. Default 1E-4
 #' @param cl The number of cpu to be used for parallel processing. default 2
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
@@ -52,7 +52,7 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
     print(c("fold,", ii))
     oo <- foldid == ii
 
-    ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = F], Z = Z[!oo, , drop = F], y = y[!oo, , drop = F], alpha = alpha, my_lambda = lambda, lambda_min = .01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, cv = T, parallel = parallel, pal = pal, gg = gg, tol = tol, cl = cl)
+    ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = F], Z = Z[!oo, , drop = F], y = y[!oo, , drop = F], alpha = alpha, my_lambda = lambda, lambda_min = .01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, parallel = parallel, pal = pal, gg = gg, tol = tol, cl = cl)
 
     cv_p <- predict.MADMMplasso(ggg[[ii]], X = X[oo, , drop = F], Z = Z[oo, ], y = y[oo, ])
     ggg[[ii]] <- 0

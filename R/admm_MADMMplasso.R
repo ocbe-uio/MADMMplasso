@@ -7,49 +7,48 @@
 #' variable, one can use either k or k-1  dummy variables.
 #' @param y  N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call
 #' @param beta0 a vector of length ncol(y) of estimated beta_0 coefficients
-#' @param theta0  matrix of the initial theta_0 coefficients  ncol(Z) by ncol(y) 
-#' @param beta  a matrix of the initial beta coefficients    ncol(X) by ncol(y) 
-#' @param beta_hat  a matrix of the initial beta and theta coefficients    (ncol(X)+ncol(X) by ncol(Z)) by ncol(y) 
-#' @param theta an array of initial theta coefficients    ncol(X) by ncol(Z) by ncol(y) 
-#' @param rho1 the Lagrange variable for the ADMM which is usually included as rho in the MADMMplasso call. 
+#' @param theta0  matrix of the initial theta_0 coefficients  ncol(Z) by ncol(y)
+#' @param beta  a matrix of the initial beta coefficients    ncol(X) by ncol(y)
+#' @param beta_hat  a matrix of the initial beta and theta coefficients    (ncol(X)+ncol(X) by ncol(Z)) by ncol(y)
+#' @param theta an array of initial theta coefficients    ncol(X) by ncol(Z) by ncol(y)
+#' @param rho1 the Lagrange variable for the ADMM which is usually included as rho in the MADMMplasso call.
 #' @param max_it maximum number of iterations in loop for one lambda during the ADMM optimization. This is usually included  in the MADMMplasso call
-#' @param W_hat N by (p+(p by nz)) of the main and interaction predictors. This generated internally  when MADMMplasso is called or by using the function generate_my_w. 
+#' @param W_hat N by (p+(p by nz)) of the main and interaction predictors. This generated internally  when MADMMplasso is called or by using the function generate_my_w.
 #' @param XtY a matrix formed by multiplying the transpose of X by y.
 #' @param N nrow(X)
 #' @param e.abs absolute error for the admm. This is included int the call of MADMMplasso.
 #' @param e.rel relative error for the admm. This is included int the call of MADMMplasso.
 #' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
-#' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses. 
-#' @param alph an overrelaxation parameter in [1,1.8], usually obtained from the MADMMplasso call.
+#' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
+#' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
 #' @param svd.w singular value decomposition of W
-#' @param tree The results from the hierarchical clustering of the response matrix. 
-#' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. 
-#' However, user decide on a specific structure and then input a tree that follows such structure. 
+#' @param tree The results from the hierarchical clustering of the response matrix.
+#' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
+#' However, user decide on a specific structure and then input a tree that follows such structure.
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
 #' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
-#' @param cv TODO: fill paramater description
 #' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 #' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
 #' C++.
 #' @return  predicted values for the ADMM part
 
-#' beta0:  estimated beta_0 coefficients  having a size of 1 by ncol(y) 
-#' 
-#' beta: estimated beta coefficients  having a matrix   ncol(X) by ncol(y) 
-#' 
-#' BETA_hat:  estimated beta and theta coefficients  having a matrix   (ncol(X)+ncol(X) by ncol(Z)) by ncol(y) 
-#' 
-#'  theta0:  estimated theta_0 coefficients  having a matrix   ncol(Z) by ncol(y) 
-#'  
-#'  theta:  estimated theta coefficients  having a an array   ncol(X) by ncol(Z) by ncol(y) 
+#' beta0:  estimated beta_0 coefficients  having a size of 1 by ncol(y)
+#'
+#' beta: estimated beta coefficients  having a matrix   ncol(X) by ncol(y)
+#'
+#' BETA_hat:  estimated beta and theta coefficients  having a matrix   (ncol(X)+ncol(X) by ncol(Z)) by ncol(y)
+#'
+#'  theta0:  estimated theta_0 coefficients  having a matrix   ncol(Z) by ncol(y)
+#'
+#'  theta:  estimated theta coefficients  having a an array   ncol(X) by ncol(Z) by ncol(y)
 #'  converge: did the algorithm converge?
-#'  
-#'  Y_HAT:  predicted response nrow(X) by ncol(y) 
+#'
+#'  Y_HAT:  predicted response nrow(X) by ncol(y)
 
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, cv = cv, gg = 0.2, legacy = FALSE) {
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, gg = 0.2, legacy = FALSE) {
   if (!legacy) {
     out <- admm_MADMMplasso_cpp(
       beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,

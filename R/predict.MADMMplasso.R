@@ -29,7 +29,7 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   p <- ncol(X)
   K <- ncol(as.matrix(Z))
   D <- dim(y)[2]
-  my_W_hat <- generate_my_w(X = X, Z = Z, quad = TRUE)
+  my_W_hat <- generate_my_w(X = X, Z = Z)
 
   yh <- array(0, c(N, D, length(isel)))
   DEV <- matrix(NA, length(isel))
@@ -86,7 +86,7 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
     pBETA_hat[[ii]] <- beta_hat
     pTHETA[[ii]] <- theta
     pTHETA0[[ii]] <- theta0
-  
+
 
     n_i <- (model_p(beta0, theta0, beta = beta_hat, theta, X = my_W_hat, Z))
     Dev <- (sum(as.vector((y - (n_i))^2))) / (D * N)
