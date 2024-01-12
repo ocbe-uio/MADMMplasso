@@ -25,7 +25,7 @@ admm_MADMMplasso(
   alph,
   svd.w,
   tree,
-  my_print = T,
+  my_print = TRUE,
   invmat,
   gg = 0.2,
   legacy = FALSE
