@@ -175,13 +175,13 @@ beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
 test_that("final objects have correct dimensions", {
-  expect_equal(dim(beta0), c(1, 6))
-  expect_equal(dim(theta0), c(4, 6))
-  expect_equal(dim(beta), c(50, 6))
-  expect_equal(dim(theta), c(50, 4, 6))
-  expect_equal(length(converge), 1)
-  expect_equal(dim(beta_hat), c(250, 6))
-  expect_equal(dim(y_hat), c(100, 6))
+  expect_identical(dim(beta0), c(1L, 6L))
+  expect_identical(dim(theta0), c(4L, 6L))
+  expect_identical(dim(beta), c(50L, 6L))
+  expect_identical(dim(theta), c(50L, 4L, 6L))
+  expect_identical(length(converge), 1L)
+  expect_identical(dim(beta_hat), c(250L, 6L))
+  expect_identical(dim(y_hat), c(100L, 6L))
 })
 
 test_that("mean values of final objects are expected", {
@@ -190,7 +190,7 @@ test_that("mean values of final objects are expected", {
   expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
   expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
   expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
-  expect_equal(converge, TRUE)
+  expect_identical(converge, TRUE)
   expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
   expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
 })
@@ -204,8 +204,8 @@ my_values_cpp <- admm_MADMMplasso(
 )
 
 test_that("C++ function output structure", {
-  expect_equal(length(my_values_cpp), length(my_values))
-  expect_equal(names(my_values_cpp), names(my_values))
+  expect_identical(length(my_values_cpp), length(my_values))
+  expect_identical(names(my_values_cpp), names(my_values))
 })
 
 test_that("Values are the same", {
@@ -214,7 +214,7 @@ test_that("Values are the same", {
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
-  expect_equal(my_values$converge, my_values_cpp$converge)
+  expect_identical(my_values$converge, my_values_cpp$converge)
   expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
   expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)
 })
