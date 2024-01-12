@@ -14,7 +14,7 @@
 #'  Z: a N by K matrix of modifiers
 
 #' @export
-sim2 <- function(p = 500, n = 100, m = 24, nz = 4, rho = .4, B.elem = 0.5) {
+sim2 <- function(p = 500, n = 100, m = 24, nz = 4, rho = 0.4, B.elem = 0.5) {
   b <- 10
   if (!is.na(p)) {
     # generate covariance matrix

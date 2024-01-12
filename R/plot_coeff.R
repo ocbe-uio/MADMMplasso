@@ -22,7 +22,7 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     for (i in 1:(p)) {
       lines(b, (my_beta[i, ]), col = i + 1, lty = 1)
 
-      text((min(b - .1)), my_beta[i, n], labels = i, cex = .7)
+      text((min(b - 0.1)), my_beta[i, n], labels = i, cex = 0.7)
     }
 
     my_beta <- (my_beta)
@@ -37,7 +37,7 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     sbeta <- (my_beta)
     for (j in act) {
       for (i in 1:length(index)) {
-        if (ntheta[j, i] > 0) text(index[i], sbeta[j, i], label = "x", cex = .7)
+        if (ntheta[j, i] > 0) text(index[i], sbeta[j, i], label = "x", cex = 0.7)
       }
     }
   }

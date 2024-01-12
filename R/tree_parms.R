@@ -9,7 +9,7 @@
 #'  y.colnames: names of the response
 
 #' @export
-tree_parms <- function(y = y, h = .7) {
+tree_parms <- function(y = y, h = 0.7) {
   m <- dim(y)[2]
   myDist0 <- 1 - abs(fast_corr(y))
   myDist <- myDist0[lower.tri(myDist0)]

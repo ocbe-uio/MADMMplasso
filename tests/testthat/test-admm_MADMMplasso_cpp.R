@@ -104,7 +104,7 @@ lambda <- rep(0.5, 6)
 alpha <- 0.5
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- .2
+alpha <- 0.2
 tol <- 1E-3
 alph <- 1
 rho <- 5

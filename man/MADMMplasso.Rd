@@ -181,7 +181,7 @@ gg1[2, ] <- c(0.02, 0.02)
 nlambda <- 1
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- .2
+alpha <- 0.2
 tol <- 1E-3
 fit <- MADMMplasso(
   X, Z, y,
