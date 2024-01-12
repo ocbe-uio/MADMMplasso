@@ -21,7 +21,6 @@ MADMMplasso(
   my_print = F,
   alph = 1.8,
   tree,
-  cv = F,
   parallel = T,
   pal = 0,
   gg = NULL,

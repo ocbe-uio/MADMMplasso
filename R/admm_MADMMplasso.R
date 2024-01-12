@@ -27,7 +27,6 @@
 #' However, user decide on a specific structure and then input a tree that follows such structure. 
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
 #' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
-#' @param cv TODO: fill paramater description
 #' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 #' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
 #' C++.
@@ -49,7 +48,7 @@
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, cv = cv, gg = 0.2, legacy = FALSE) {
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, gg = 0.2, legacy = FALSE) {
   if (!legacy) {
     out <- admm_MADMMplasso_cpp(
       beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,

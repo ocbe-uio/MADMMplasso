@@ -50,7 +50,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, cv = F, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -211,7 +211,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, cv, gg[i, ],legacy
+        invmat, gg[i, ],legacy
       )
     }
     parallel::stopCluster(cl)
@@ -222,7 +222,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
           XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, cv, gg[g, ],legacy
+          invmat, gg[g, ],legacy
         )
       }
     )
@@ -241,7 +241,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       my_values <- admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
-        cv, gg[hh, ],legacy
+        gg[hh, ],legacy
       )
 
       beta <- my_values$beta
@@ -297,18 +297,10 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
     Y_HAT[[hh]] <- y_hat
     THETA[[hh]] <- as.sparse3Darray(theta1)
 
-    if (cv == F) {
-      if (hh == 1) {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
-      } else {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
-      }
+    if (hh == 1) {
+      print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
     } else {
-      if (hh == 1) {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
-      } else {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
-      }
+      print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
     }
 
     hh <- hh + 1
