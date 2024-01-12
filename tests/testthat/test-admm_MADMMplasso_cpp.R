@@ -179,7 +179,7 @@ test_that("final objects have correct dimensions", {
   expect_identical(dim(theta0), c(4L, 6L))
   expect_identical(dim(beta), c(50L, 6L))
   expect_identical(dim(theta), c(50L, 4L, 6L))
-  expect_identical(length(converge), 1L)
+  expect_length(converge, 1L)
   expect_identical(dim(beta_hat), c(250L, 6L))
   expect_identical(dim(y_hat), c(100L, 6L))
 })
