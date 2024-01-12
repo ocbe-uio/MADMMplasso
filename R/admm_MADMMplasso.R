@@ -139,8 +139,6 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
     XtY <- crossprod((W_hat), (new_y))
 
-    main_beta <- array(0, c(p, K + 1, D))
-
     res_val <- rho * (t(I) %*% (E) - (t(I) %*% (H)))
 
     v.diff1 <- matrix(0, D)
@@ -306,8 +304,6 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
       e <- II[c_count]
     }
-
-    N_beta.group <- apply(beta.group, 3, twonorm)
 
     E[1:dim(C)[2], ] <- N_E[[1]]
 

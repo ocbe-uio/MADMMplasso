@@ -1,13 +1,9 @@
 # Auxiliary funcions ===========================================================
 # TODO: ask why these are not in the package?
 model <- function(beta0, theta0, beta, theta, X, Z) {
-  p <- ncol(X)
   N <- nrow(X)
-  K <- ncol(Z)
-  D <- dim(beta0)[2]
   intercepts <- (matrix(1, N)) %*% beta0 + Z %*% ((theta0))
   shared_model <- X %*% (beta)
-  pliable <- matrix(0, N, D)
   return(intercepts + shared_model)
 }
 

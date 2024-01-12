@@ -93,7 +93,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   rat <- lambda_min
 
   if (is.null(my_lambda)) {
-    lamda_new <- matrix(0, dim(y)[2])
     r <- y
 
     lammax <- lapply(
@@ -126,10 +125,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   }
 
   lam_list <- list()
-  beta_0_list <- list()
-  theta_0_list <- list()
-  beta_list <- list()
-  theta_list <- list()
   obj <- NULL
   n_main_terms <- NULL
   non_zero_theta <- NULL
@@ -228,12 +223,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     )
   }
 
-  repeat_loop <- 0
   hh <- 1
   while (hh <= nlambda) {
-    res_dual <- 0 # dual residual
-    res_pri <- 0 # primal residual
-
     lambda <- lam[hh, ]
 
     start_time <- Sys.time()
@@ -246,7 +237,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
       beta <- my_values$beta
       theta <- my_values$theta
-      converge <- my_values$converge
       my_obj[[hh]] <- list(my_values$obj)
       beta0 <- my_values$beta0
       theta0 <- my_values$theta0 ### iteration
@@ -258,7 +248,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     if (parallel == T & pal == 0) {
       beta <- my_values[hh, ]$beta
       theta <- my_values[hh, ]$theta
-      converge <- my_values[hh, ]$converge
       my_obj[[hh]] <- list(my_values[hh, ]$obj)
       beta0 <- my_values[hh, ]$beta0
       theta0 <- my_values[hh, ]$theta0 ### iteration
@@ -267,7 +256,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     } else if (parallel == F & pal == 0) {
       beta <- my_values[[hh]]$beta
       theta <- my_values[[hh]]$theta
-      converge <- my_values[[hh]]$converge
       my_obj[[hh]] <- list(my_values[[hh]]$obj)
       beta0 <- my_values[[hh]]$beta0
       theta0 <- my_values[[hh]]$theta0 ### iteration

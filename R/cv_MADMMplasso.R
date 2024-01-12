@@ -32,21 +32,15 @@
 cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = F, alph = 1, foldid = NULL, parallel = T, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2) {
   BIG <- 10e9
   no <- nrow(X)
-  ni <- ncol(X)
-  nz <- ncol(Z)
   ggg <- vector("list", nfolds)
 
   yhat <- array(NA, c(no, dim(y)[2], length(lambda[, 1])))
-
-  my_nzero <- matrix(0, nfolds, length(lambda[, 1]))
 
   if (is.null(foldid)) {
     foldid <- sample(rep(1:nfolds, ceiling(no / nfolds)), no, replace = FALSE)
   }
 
   nfolds <- length(table(foldid))
-
-  status.in <- NULL
 
   for (ii in 1:nfolds) {
     print(c("fold,", ii))
@@ -64,7 +58,6 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
 
   mat <- err
   outmat <- matrix(NA, nfolds, ncol(mat))
-  good <- matrix(0, nfolds, ncol(mat))
   mat[is.infinite(mat)] <- NA
   for (i in seq(nfolds)) {
     mati <- mat[foldid == i, , drop = FALSE]
