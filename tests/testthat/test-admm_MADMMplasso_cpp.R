@@ -190,7 +190,7 @@ test_that("mean values of final objects are expected", {
   expect_equal(mean(theta0), 5.123034e-02, tolerance = tole)
   expect_equal(mean(beta), 2.104393e-02, tolerance = tole)
   expect_equal(mean(theta), 2.841666e-04, tolerance = tole)
-  expect_identical(converge, TRUE)
+  expect_true(converge)
   expect_equal(mean(beta_hat), 4.436118e-03, tolerance = tole)
   expect_equal(mean(y_hat), -8.380419e-02, tolerance = tole)
 })
