@@ -20,7 +20,7 @@
 #' @param e.rel relative error for the admm. This is included int the call of MADMMplasso.
 #' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
 #' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
-#' @param alph an overrelaxation parameter in [1,1.8], usually obtained from the MADMMplasso call.
+#' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
 #' @param svd.w singular value decomposition of W
 #' @param tree The results from the hierarchical clustering of the response matrix.
 #' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.

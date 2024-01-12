@@ -57,7 +57,7 @@ Categorical varables should be coded by 0-1 dummy variables: for a k-level varia
 
 \item{my_print}{Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals}
 
-\item{alph}{an overrelaxation parameter in \link{1,1.8}. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
+\item{alph}{an overrelaxation parameter in [1, 1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
 
 \item{tree}{The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.}
 

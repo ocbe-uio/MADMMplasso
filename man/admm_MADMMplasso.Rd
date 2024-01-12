@@ -69,7 +69,7 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{lambda}{a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.}
 
-\item{alph}{an overrelaxation parameter in \link{1,1.8}, usually obtained from the MADMMplasso call.}
+\item{alph}{an overrelaxation parameter in [1, 1.8], usually obtained from the MADMMplasso call.}
 
 \item{svd.w}{singular value decomposition of W}
 

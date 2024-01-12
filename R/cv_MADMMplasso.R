@@ -18,7 +18,7 @@
 #' @param nlambda number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.
 #' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
-#' @param alph an overelaxation parameter in [1,1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
+#' @param alph an overelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set 0.
 #' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.
 #' @param gg penalty term for the tree structure obtained from the fit.

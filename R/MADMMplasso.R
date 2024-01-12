@@ -17,7 +17,7 @@
 #' @param lambda_min the smallest value for lambda_3 , as a fraction of max(lambda_3), the (data derived (lammax)) entry value (i.e. the smallest value for which all coefficients are zero). Default is 0.001 if N>p, and 0.01 if N< p.
 #' @param max_it 	maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
-#' @param alph an overrelaxation parameter in [1,1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
+#' @param alph an overrelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.
 #' @param parallel should parallel processing be used or not? Default True. If set to true, pal should be set 0.
 #' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.

@@ -60,7 +60,7 @@ the function. We recommend that x and z also be standardized before the call}
 
 \item{my_print}{Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals}
 
-\item{alph}{an overelaxation parameter in \link{1,1.8}. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
+\item{alph}{an overelaxation parameter in [1, 1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
 
 \item{foldid}{vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
 
