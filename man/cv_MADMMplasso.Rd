@@ -85,7 +85,7 @@ Carries out cross-validation for  a  MADMMplasso model over a path of regulariza
 @description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
 }
 \examples{
-\dontrun{
+\dontrun{ # nolint
   # Train the model
   # generate some data
   set.seed(1235)

@@ -1,4 +1,4 @@
-\dontrun{
+\dontrun{ # nolint
   # Train the model
   # generate some data
   set.seed(1235)
