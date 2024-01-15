@@ -33,7 +33,6 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
 
   yh <- array(0, c(N, D, length(isel)))
   DEV <- matrix(NA, length(isel))
-  my_theta <- array(0, c(ncol(X), ncol(Z), length(isel)))
   pBETA0 <- lapply(
     seq_len(length(isel)),
     function(j) (matrix(0, nrow = (D)))
@@ -57,20 +56,11 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
     function(j) (array(0, c(p, K, (D))))
   )
 
-  pY_HAT <- lapply(
-    seq_len(length(isel)),
-    function(j) (matrix(0, nrow = N, ncol = (D)))
-  )
-
   ii <- 0
   for (m in isel) {
     ii <- ii + 1
     z <- m
     n_i <- lapply(
-      seq_len(max(1)),
-      function(j) (matrix(0, nrow = N))
-    )
-    pr <- lapply(
       seq_len(max(1)),
       function(j) (matrix(0, nrow = N))
     )

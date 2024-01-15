@@ -15,14 +15,14 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     n <- dim(my_beta)[2]
     matplot(b, t(my_beta), type = "n", col = "red", ylim = range(my_beta), xlab = "Log Lambda", ylab = (paste("coefficient", ii)))
     axis(
-      side = 3, at = (as.matrix(b)), labels = paste(as.matrix(nz[c(1:gg)])),
+      side = 3, at = (as.matrix(b)), labels = paste(as.matrix(nz[1:gg])),
       tick = FALSE, line = 0
     )
 
     for (i in 1:(p)) {
       lines(b, (my_beta[i, ]), col = i + 1, lty = 1)
 
-      text((min(b - .1)), my_beta[i, n], labels = i, cex = .7)
+      text((min(b - 0.1)), my_beta[i, n], labels = i, cex = 0.7)
     }
 
     my_beta <- (my_beta)
@@ -37,7 +37,7 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     sbeta <- (my_beta)
     for (j in act) {
       for (i in 1:length(index)) {
-        if (ntheta[j, i] > 0) text(index[i], sbeta[j, i], label = "x", cex = .7)
+        if (ntheta[j, i] > 0) text(index[i], sbeta[j, i], label = "x", cex = 0.7)
       }
     }
   }

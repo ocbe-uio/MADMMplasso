@@ -11,11 +11,9 @@
 #' @export
 generate_my_w <- function(X = matrix(), Z = matrix()) {
   p1 <- ncol(X)
-  p2 <- ncol(Z)
 
   # Just in case we have only one oberservation? Not sure why I did this
   if (is.vector(X)) p1 <- length(X)
-  if (is.vector(Z)) p2 <- length(Z)
 
   # Add the intercept
   x <- X

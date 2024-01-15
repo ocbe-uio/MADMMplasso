@@ -50,7 +50,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = F, alph = 1.8, tree, parallel = T, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -93,7 +93,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   rat <- lambda_min
 
   if (is.null(my_lambda)) {
-    lamda_new <- matrix(0, dim(y)[2])
     r <- y
 
     lammax <- lapply(
@@ -126,13 +125,9 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   }
 
   lam_list <- list()
-  beta_0_list <- list()
-  theta_0_list <- list()
-  beta_list <- list()
-  theta_list <- list()
-  obj <- c()
-  n_main_terms <- c()
-  non_zero_theta <- c()
+  obj <- NULL
+  n_main_terms <- NULL
+  non_zero_theta <- NULL
   my_obj <- list()
 
   my_W_hat <- generate_my_w(X = X, Z = Z)
@@ -152,7 +147,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
 
   II <- input[multiple_of_D]
-  diag(I[c(1:dim(y)[2]), ]) <- C[1, ] * (CW[1])
+  diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
@@ -161,10 +156,10 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
   }
   new_I <- diag(t(I) %*% I)
   new_G <- matrix(0, (p + p * K))
-  new_G[c(1:p)] <- 1
-  new_G[-c(1:p)] <- 2
-  new_G[c(1:p)] <- rho * (1 + new_G[c(1:p)])
-  new_G[-c(1:p)] <- rho * (1 + new_G[-c(1:p)])
+  new_G[1:p] <- 1
+  new_G[-1:-p] <- 2
+  new_G[1:p] <- rho * (1 + new_G[1:p])
+  new_G[-1:-p] <- rho * (1 + new_G[-1:-p])
 
   invmat <- list() # denominator of the beta estimates
   for (rr in 1:D) {
@@ -211,29 +206,25 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, gg[i, ],legacy
+        invmat, gg[i, ], legacy
       )
     }
     parallel::stopCluster(cl)
-  } else if (parallel == F & pal == 0) {
+  } else if (parallel && pal == 0) {
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
           XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, gg[g, ],legacy
+          invmat, gg[g, ], legacy
         )
       }
     )
   }
 
-  repeat_loop <- 0
   hh <- 1
   while (hh <= nlambda) {
-    res_dual <- 0 # dual residual
-    res_pri <- 0 # primal residual
-
     lambda <- lam[hh, ]
 
     start_time <- Sys.time()
@@ -241,12 +232,11 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
       my_values <- admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
-        gg[hh, ],legacy
+        gg[hh, ], legacy
       )
 
       beta <- my_values$beta
       theta <- my_values$theta
-      converge <- my_values$converge
       my_obj[[hh]] <- list(my_values$obj)
       beta0 <- my_values$beta0
       theta0 <- my_values$theta0 ### iteration
@@ -255,19 +245,17 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = .001, max
     }
     cost_time <- Sys.time() - start_time
     print(cost_time)
-    if (parallel == T & pal == 0) {
+    if (parallel && pal == 0) {
       beta <- my_values[hh, ]$beta
       theta <- my_values[hh, ]$theta
-      converge <- my_values[hh, ]$converge
       my_obj[[hh]] <- list(my_values[hh, ]$obj)
       beta0 <- my_values[hh, ]$beta0
       theta0 <- my_values[hh, ]$theta0 ### iteration
       beta_hat <- my_values[hh, ]$beta_hat
       y_hat <- my_values[hh, ]$y_hat
-    } else if (parallel == F & pal == 0) {
+    } else if (parallel && pal == 0) {
       beta <- my_values[[hh]]$beta
       theta <- my_values[[hh]]$theta
-      converge <- my_values[[hh]]$converge
       my_obj[[hh]] <- list(my_values[[hh]]$obj)
       beta0 <- my_values[[hh]]$beta0
       theta0 <- my_values[[hh]]$theta0 ### iteration

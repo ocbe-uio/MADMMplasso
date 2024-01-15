@@ -29,7 +29,7 @@ beta_5[11:15] <- c(-2, -2, -2, -2, -2)
 beta_6[11:15] <- c(-2, -2, -2, -2, -2)
 
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
-colnames(Beta) <- c(1:6)
+colnames(Beta) <- 1:6
 
 theta <- array(0, c(p, K, 6))
 theta[1, 1, 1] <- 2
@@ -57,7 +57,6 @@ theta[13, 2, 6] <- 2
 theta[14, 3, 6] <- -2
 theta[15, 4, 6] <- -2
 
-library(MASS)
 pliable <- matrix(0, N, 6)
 for (e in 1:6) {
   pliable[, e] <- compute_pliable(X, Z, theta[, , e])
@@ -68,7 +67,7 @@ e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
 
-colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
+colnames(y) <- c(paste0("y", 1:(ncol(y))))
 TT <- tree_parms(y)
 plot(TT$h_clust)
 gg1 <- matrix(0, 2, 2)
@@ -78,7 +77,7 @@ gg1[2, ] <- c(0.02, 0.02)
 nlambda <- 1
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- .2
+alpha <- 0.2
 tol <- 1E-3
 fit <- MADMMplasso(
   X, Z, y,

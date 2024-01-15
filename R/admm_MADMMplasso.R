@@ -48,7 +48,7 @@
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = T, invmat, gg = 0.2, legacy = FALSE) {
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print = TRUE, invmat, gg = 0.2, legacy = FALSE) {
   if (!legacy) {
     out <- admm_MADMMplasso_cpp(
       beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
@@ -88,7 +88,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
   I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
   II <- input[multiple_of_D]
-  diag(I[c(1:dim(y)[2]), ]) <- C[1, ] * (CW[1])
+  diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
@@ -122,7 +122,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
   EE_old <- EE
   res_pri <- 0
   res_dual <- 0
-  obj <- c()
+  obj <- NULL
 
   SVD_D <- Diagonal(x = svd.w$d)
   R_svd <- (svd.w$u %*% SVD_D) / N
@@ -139,8 +139,6 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
     XtY <- crossprod((W_hat), (new_y))
 
-    main_beta <- array(0, c(p, K + 1, D))
-
     res_val <- rho * (t(I) %*% (E) - (t(I) %*% (H)))
 
     v.diff1 <- matrix(0, D)
@@ -148,12 +146,12 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     ee.diff1 <- matrix(0, D)
 
     new_G <- matrix(0, (p + p * K))
-    new_G[c(1:p)] <- 1
-    new_G[-c(1:p)] <- 2
-    new_G[c(1:p)] <- rho * (1 + new_G[c(1:p)])
-    new_G[-c(1:p)] <- rho * (1 + new_G[-c(1:p)])
+    new_G[1:p] <- 1
+    new_G[-1:-p] <- 2
+    new_G[1:p] <- rho * (1 + new_G[1:p])
+    new_G[-1:-p] <- rho * (1 + new_G[-1:-p])
 
-    invmat <- lapply(seq_len(D), function(j) {(new_G + rho * (new_I[j] + 1))})
+    invmat <- lapply(seq_len(D), function(j) return(new_G + rho * (new_I[j] + 1)))
 
     for (jj in 1:D) {
       group <- (rho) * (t(G) %*% t(V[, , jj]) - t(G) %*% t(O[, , jj]))
@@ -189,7 +187,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       Q[, -1, jj] <- sign(new.mat) * pmax(abs(new.mat) - ((alpha * lambda[jj]) / (rho)), 0)
       b_hat <- alph * beta_hat1 + (1 - alph) * EE[, , jj]
       new.mat <- b_hat + HH[, , jj]
-      row.norm1 <- sqrt(apply(new.mat^2, 1, sum, na.rm = T))
+      row.norm1 <- sqrt(apply(new.mat^2, 1, sum, na.rm = TRUE))
       coef.term1 <- pmax(1 - (gg[2]) / rho / (row.norm1), 0)
       ee1 <- scale(t(as.matrix(new.mat)), center = FALSE, scale = 1 / coef.term1)
       EE[, , jj] <- t(ee1)
@@ -200,10 +198,10 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
       # Now we have the main part.
       new.mat <- Big_beta1 + O[, , jj]
-      new.mat1 <- new.mat[, c(1:(K + 1))]
-      new.mat2 <- new.mat[, -c(1:(K + 1))]
-      row.norm1 <- sqrt(apply(new.mat1^2, 1, sum, na.rm = T))
-      row.norm2 <- sqrt(apply(new.mat2^2, 1, sum, na.rm = T))
+      new.mat1 <- new.mat[, 1:(K + 1)]
+      new.mat2 <- new.mat[, -1:-(K + 1)]
+      row.norm1 <- sqrt(apply(new.mat1^2, 1, sum, na.rm = TRUE))
+      row.norm2 <- sqrt(apply(new.mat2^2, 1, sum, na.rm = TRUE))
 
       coef.term1 <- pmax(1 - ((1 - alpha) * lambda[jj]) / (rho) / (row.norm1), 0)
       coef.term2 <- pmax(1 - ((1 - alpha) * lambda[jj]) / (rho) / (row.norm2), 0)
@@ -230,11 +228,11 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     beta.group <- (array(NA, c(p + p * K, dim(y)[2], dim(C)[1])))
     N_E <- list()
     II <- input[multiple_of_D]
-    new.mat_group[, , 1] <- t((new.mat[c(1:dim(y)[2]), ]))
-    beta.group[, , 1] <- t((Big_beta_respone[c(1:dim(y)[2]), ]))
+    new.mat_group[, , 1] <- t((new.mat[1:dim(y)[2], ]))
+    beta.group[, , 1] <- t((Big_beta_respone[1:dim(y)[2], ]))
 
     beta_transform <- matrix(0, p, (K + 1) * dim(y)[2])
-    beta_transform[, c(1:(1 + K))] <- matrix(new.mat_group[, 1, 1], ncol = (K + 1), nrow = p)
+    beta_transform[, 1:(1 + K)] <- matrix(new.mat_group[, 1, 1], ncol = (K + 1), nrow = p)
     input2 <- 1:(dim(y)[2] * (1 + K))
     multiple_of_K <- (input2 %% (K + 1)) == 0
     II2 <- input2[multiple_of_K]
@@ -245,14 +243,14 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       e2 <- II2[c_count2]
     }
 
-    norm_res <- ((apply(beta_transform, c(1), twonorm)))
+    norm_res <- ((apply(beta_transform, 1, twonorm)))
     coef.term1 <- pmax(1 - (gg[1]) / rho / (norm_res), 0)
 
     N_E1 <- scale(t(beta_transform), center = FALSE, scale = 1 / coef.term1)
 
     N_E1 <- t(N_E1)
     beta_transform1 <- matrix(0, p + p * K, dim(y)[2])
-    beta_transform1[, 1] <- as.vector(N_E1[, c(1:(K + 1))])
+    beta_transform1[, 1] <- as.vector(N_E1[, 1:(K + 1)])
 
     input3 <- 1:(dim(y)[2] * (1 + K))
     multiple_of_K <- (input3 %% (K + 1)) == 0
@@ -272,7 +270,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       beta.group[, , c_count] <- t(Big_beta_respone[c((e + 1):(c_count * dim(y)[2])), ])
 
       beta_transform <- matrix(0, p, (K + 1) * dim(y)[2])
-      beta_transform[, c(1:(1 + K))] <- matrix(new.mat_group[, 1, c_count], ncol = (K + 1), nrow = p)
+      beta_transform[, 1:(1 + K)] <- matrix(new.mat_group[, 1, c_count], ncol = (K + 1), nrow = p)
       input2 <- 1:(dim(y)[2] * (1 + K))
       multiple_of_K <- (input2 %% (K + 1)) == 0
       II2 <- input2[multiple_of_K]
@@ -283,14 +281,14 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
         e2 <- II2[c_count2]
       }
 
-      norm_res <- ((apply(beta_transform, c(1), twonorm)))
+      norm_res <- ((apply(beta_transform, 1, twonorm)))
       coef.term1 <- pmax(1 - (gg[1]) / rho / (norm_res), 0)
 
       N_E1 <- scale(t(beta_transform), center = FALSE, scale = 1 / coef.term1)
 
       N_E1 <- t(N_E1)
       beta_transform1 <- matrix(0, p + p * K, dim(y)[2])
-      beta_transform1[, 1] <- as.vector(N_E1[, c(1:(K + 1))])
+      beta_transform1[, 1] <- as.vector(N_E1[, 1:(K + 1)])
 
       input3 <- 1:(dim(y)[2] * (1 + K))
       multiple_of_K <- (input3 %% (K + 1)) == 0
@@ -307,9 +305,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       e <- II[c_count]
     }
 
-    N_beta.group <- apply(beta.group, 3, twonorm)
-
-    E[c(1:dim(C)[2]), ] <- N_E[[1]]
+    E[1:dim(C)[2], ] <- N_E[[1]]
 
     c_count <- 2
     e <- II[-length(II)][1]
@@ -354,7 +350,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       rho <- rho / 2
     }
 
-    if (my_print == T) {
+    if (my_print) {
       print(c(res_dual, e.dual, res_pri, e.primal))
     }
     if (res_pri <= e.primal && res_dual <= e.dual) {
@@ -362,10 +358,10 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
       # Update convergence message
       message("Convergence reached after ", i, " iterations")
-      converge <- T
+      converge <- TRUE
       break
     }
-    converge <- F
+    converge <- FALSE
   } ### iteration
 
   res_val <- t(I) %*% (E)
@@ -379,8 +375,8 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     new_group[, -1] <- group2
     new_g_theta <- as.vector(new_group)
 
-    finB1 <- as.vector(beta_hat[c(1:p), jj]) * (new_g_theta[c(1:p)] != 0) * (as.vector((Q[, 1, jj])) != 0)
-    finB2 <- as.vector(beta_hat[-c(1:p), jj]) * (new_g_theta[-c(1:p)] != 0) * (as.vector((Q[, -1, jj])) != 0)
+    finB1 <- as.vector(beta_hat[1:p, jj]) * (new_g_theta[1:p] != 0) * (as.vector((Q[, 1, jj])) != 0)
+    finB2 <- as.vector(beta_hat[-1:-p, jj]) * (new_g_theta[-1:-p] != 0) * (as.vector((Q[, -1, jj])) != 0)
 
     beta_hat1 <- matrix(c(finB1, finB2), ncol = (K + 1), nrow = p)
     beta[, jj] <- beta_hat1[, 1]

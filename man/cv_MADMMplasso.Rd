@@ -18,10 +18,10 @@ cv_MADMMplasso(
   e.rel = 0.001,
   nlambda,
   rho = 5,
-  my_print = F,
+  my_print = FALSE,
   alph = 1,
   foldid = NULL,
-  parallel = T,
+  parallel = TRUE,
   pal = 0,
   gg = c(7, 0.5),
   TT,
@@ -85,6 +85,7 @@ Carries out cross-validation for  a  MADMMplasso model over a path of regulariza
 @description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
 }
 \examples{
+ # nolint start: indentation_linter
 \dontrun{
   # Train the model
   # generate some data
@@ -180,4 +181,5 @@ Carries out cross-validation for  a  MADMMplasso model over a path of regulariza
   )
   plot(cv_admp)
 }
+# nolint end: indentation_linter
 }
