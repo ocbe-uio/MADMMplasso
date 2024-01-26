@@ -2,7 +2,7 @@ hh_nlambda_loop <- function(
   lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
   my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
   invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
-  BETA_hat, Y_HAT, THETA, D, legacy = TRUE
+  BETA_hat, Y_HAT, THETA, D, my_values, legacy = TRUE
 ) {
   if (legacy) {
     obj <- NULL

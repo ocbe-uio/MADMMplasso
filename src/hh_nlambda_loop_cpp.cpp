@@ -35,7 +35,8 @@ Rcpp::List hh_nlambda_loop_cpp(
   Rcpp::List BETA_hat,
   Rcpp::List Y_HAT,
   Rcpp::List THETA,
-  const unsigned int D
+  const unsigned int D,
+  Rcpp::List my_values
 ) {
   arma::vec obj;
   arma::vec non_zero_theta;
