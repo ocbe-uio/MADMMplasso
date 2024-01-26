@@ -44,7 +44,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::vec n_main_terms;
   Rcpp::List lam_list;
   arma::mat y_hat = y;
-  unsigned int hh = 1;
+  unsigned int hh = 0;
   while (hh <= nlambda) {
     arma::vec lambda = lam.row(hh);
 
@@ -104,7 +104,7 @@ Rcpp::List hh_nlambda_loop_cpp(
     // Y_HAT[[hh]] <- y_hat
     // THETA[[hh]] <- as.sparse3Darray(theta1)
 
-    if (hh == 1) {
+    if (hh == 0) {
       Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj1 << std::endl;
     } else {
       Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj(hh - 1) << obj1 << std::endl;
