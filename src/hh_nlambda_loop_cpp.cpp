@@ -48,7 +48,7 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::vec lambda = lam.row(hh);
 
     // start_time <- Sys.time()
-    // if (pal == 1) {
+    if (pal) {
       // my_values <- admm_MADMMplasso(
       //   beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
       //   y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, my_print, invmat,
@@ -62,8 +62,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // theta0 <- my_values$theta0 ### iteration
       // beta_hat <- my_values$beta_hat
       // y_hat <- my_values$y_hat
-    }
-    if (parallel && pal == 0) {
+    } else if (parallel) {
       // beta <- my_values[hh, ]$beta
       // theta <- my_values[hh, ]$theta
       // my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -71,7 +70,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // theta0 <- my_values[hh, ]$theta0 ### iteration
       // beta_hat <- my_values[hh, ]$beta_hat
       // y_hat <- my_values[hh, ]$y_hat
-    } else if (parallel && pal == 0) {
+    } else {
       // beta <- my_values[[hh]]$beta
       // theta <- my_values[[hh]]$theta
       // my_obj[[hh]] <- list(my_values[[hh]]$obj)
