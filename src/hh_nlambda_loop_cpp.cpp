@@ -2,10 +2,10 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 Rcpp::List hh_nlambda_loop_cpp(
-  arma::mat lam,
-  unsigned int nlambda,
-  const arma::vec beta0,
-  const arma::mat theta0,
+  const arma::mat lam,
+  const unsigned int nlambda,
+  arma::vec beta0,
+  arma::mat theta0,
   arma::mat beta,
   arma::mat beta_hat,
   arma::cube theta,
