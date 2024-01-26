@@ -1,4 +1,5 @@
-#include <RcppArmadillo.h>
+#include "MADMMplasso.h"
+
 // [[Rcpp::depends(RcppArmadillo)]]
 Rcpp::List hh_nlambda_loop_cpp(
   arma::mat lam,
