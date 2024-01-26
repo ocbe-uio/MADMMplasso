@@ -43,6 +43,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   Rcpp::List my_obj;
   arma::vec n_main_terms;
   Rcpp::List lam_list;
+  arma::mat y_hat = y;
   unsigned int hh = 1;
   while (hh <= nlambda) {
     arma::vec lambda = lam.row(hh);
@@ -63,6 +64,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // beta_hat <- my_values$beta_hat
       // y_hat <- my_values$y_hat
     } else if (parallel) {
+      // This is the default case.
       // beta <- my_values[hh, ]$beta
       // theta <- my_values[hh, ]$theta
       // my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -88,8 +90,7 @@ Rcpp::List hh_nlambda_loop_cpp(
 
     // n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
 
-    // obj1 <- (sum(as.vector((y - y_hat)^2))) / (D * N)
-    double obj1 = 0; // TEMP
+    double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
     // obj <- c(obj, obj1)
 
     // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
