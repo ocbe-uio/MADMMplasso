@@ -124,12 +124,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     gg <- gg1
   }
 
-  lam_list <- list()
-  obj <- NULL
-  n_main_terms <- NULL
-  non_zero_theta <- NULL
-  my_obj <- list()
-
   my_W_hat <- generate_my_w(X = X, Z = Z)
 
   svd.w <- svd(my_W_hat)
@@ -223,85 +217,38 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     )
   }
 
-  hh <- 1
-  while (hh <= nlambda) {
-    lambda <- lam[hh, ]
-
-    start_time <- Sys.time()
-    if (pal == 1) {
-      my_values <- admm_MADMMplasso(
-        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
-        gg[hh, ], legacy
-      )
-
-      beta <- my_values$beta
-      theta <- my_values$theta
-      my_obj[[hh]] <- list(my_values$obj)
-      beta0 <- my_values$beta0
-      theta0 <- my_values$theta0 ### iteration
-      beta_hat <- my_values$beta_hat
-      y_hat <- my_values$y_hat
-    }
-    cost_time <- Sys.time() - start_time
-    print(cost_time)
-    if (parallel && pal == 0) {
-      beta <- my_values[hh, ]$beta
-      theta <- my_values[hh, ]$theta
-      my_obj[[hh]] <- list(my_values[hh, ]$obj)
-      beta0 <- my_values[hh, ]$beta0
-      theta0 <- my_values[hh, ]$theta0 ### iteration
-      beta_hat <- my_values[hh, ]$beta_hat
-      y_hat <- my_values[hh, ]$y_hat
-    } else if (!parallel && pal == 0) {
-      beta <- my_values[[hh]]$beta
-      theta <- my_values[[hh]]$theta
-      my_obj[[hh]] <- list(my_values[[hh]]$obj)
-      beta0 <- my_values[[hh]]$beta0
-      theta0 <- my_values[[hh]]$theta0 ### iteration
-      beta_hat <- my_values[[hh]]$beta_hat
-      y_hat <- my_values[[hh]]$y_hat
-    }
-
-    beta1 <- as(beta * (abs(beta) > tol), "sparseMatrix")
-    theta1 <- as.sparse3Darray(theta * (abs(theta) > tol))
-    beta_hat1 <- as(beta_hat * (abs(beta_hat) > tol), "sparseMatrix")
-
-    n_interaction_terms <- count_nonzero_a((theta1))
-
-    n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
-
-    obj1 <- (sum(as.vector((y - y_hat)^2))) / (D * N)
-    obj <- c(obj, obj1)
-
-    non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
-    lam_list <- (c(lam_list, lambda))
-
-    BETA0[[hh]] <- beta0
-    THETA0[[hh]] <- theta0
-    BETA[[hh]] <- as(beta1, "sparseMatrix")
-    BETA_hat[[hh]] <- as(beta_hat1, "sparseMatrix")
-
-    Y_HAT[[hh]] <- y_hat
-    THETA[[hh]] <- as.sparse3Darray(theta1)
-
-    if (hh == 1) {
-      print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
-    } else {
-      print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
-    }
-
-    hh <- hh + 1
-  } ### lambda
+  loop_output <- hh_nlambda_loop(
+    lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
+    my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
+    invmat, gg, legacy, tol, parallel, pal, BETA0, THETA0, BETA,
+    BETA_hat, Y_HAT, THETA, D
+  )
 
   remove(invmat)
   remove(my_values)
   remove(my_W_hat)
 
-  obj[1] <- obj[2]
+  loop_output$obj[1] <- loop_output$obj[2]
 
-  pred <- data.frame(Lambda = lam, nzero = n_main_terms, nzero_inter = non_zero_theta, OBJ_main = obj)
-  out <- list(beta0 = BETA0, beta = BETA, BETA_hat = BETA_hat, theta0 = THETA0, theta = THETA, path = pred, Lambdas = lam, non_zero = n_main_terms, LOSS = obj, Y_HAT = Y_HAT, gg = gg)
+  pred <- data.frame(
+    Lambda = lam,
+    nzero = loop_output$n_main_terms,
+    nzero_inter = loop_output$non_zero_theta,
+    OBJ_main = loop_output$obj
+  )
+  out <- list(
+    beta0 = loop_output$BETA0,
+    beta = loop_output$BETA,
+    BETA_hat = loop_output$BETA_hat,
+    theta0 = loop_output$THETA0,
+    theta = loop_output$THETA,
+    path = pred,
+    Lambdas = lam,
+    non_zero = loop_output$n_main_terms,
+    LOSS = loop_output$obj,
+    Y_HAT = loop_output$Y_HAT,
+    gg = gg
+  )
   class(out) <- "MADMMplasso"
   # Return results
   return(out)
