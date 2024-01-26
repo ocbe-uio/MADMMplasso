@@ -25,7 +25,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   const Rcpp::List tree,
   const bool my_print,
   const Rcpp::List invmat,
-  const arma::vec gg,
+  const arma::mat gg,
   const double tol,
   const bool parallel,
   const bool pal,
@@ -44,7 +44,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   Rcpp::List lam_list;
   unsigned int hh = 1;
   while (hh <= nlambda) {
-    // lambda <- lam[hh, ]
+    arma::vec lambda = lam.row(hh);
 
     // start_time <- Sys.time()
     // if (pal == 1) {
@@ -61,10 +61,8 @@ Rcpp::List hh_nlambda_loop_cpp(
       // theta0 <- my_values$theta0 ### iteration
       // beta_hat <- my_values$beta_hat
       // y_hat <- my_values$y_hat
-    // }
-    // cost_time <- Sys.time() - start_time
-    // print(cost_time)
-    // if (parallel && pal == 0) {
+    }
+    if (parallel && pal == 0) {
       // beta <- my_values[hh, ]$beta
       // theta <- my_values[hh, ]$theta
       // my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -72,7 +70,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // theta0 <- my_values[hh, ]$theta0 ### iteration
       // beta_hat <- my_values[hh, ]$beta_hat
       // y_hat <- my_values[hh, ]$y_hat
-    // } else if (parallel && pal == 0) {
+    } else if (parallel && pal == 0) {
       // beta <- my_values[[hh]]$beta
       // theta <- my_values[[hh]]$theta
       // my_obj[[hh]] <- list(my_values[[hh]]$obj)
@@ -80,7 +78,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // theta0 <- my_values[[hh]]$theta0 ### iteration
       // beta_hat <- my_values[[hh]]$beta_hat
       // y_hat <- my_values[[hh]]$y_hat
-    // }
+    }
 
     // beta1 <- as(beta * (abs(beta) > tol), "sparseMatrix")
     // theta1 <- as.sparse3Darray(theta * (abs(theta) > tol))
@@ -91,6 +89,7 @@ Rcpp::List hh_nlambda_loop_cpp(
     // n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
 
     // obj1 <- (sum(as.vector((y - y_hat)^2))) / (D * N)
+    double obj1 = 0; // TEMP
     // obj <- c(obj, obj1)
 
     // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
@@ -104,11 +103,11 @@ Rcpp::List hh_nlambda_loop_cpp(
     // Y_HAT[[hh]] <- y_hat
     // THETA[[hh]] <- as.sparse3Darray(theta1)
 
-    // if (hh == 1) {
-      // print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
-    // } else {
-      // print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
-    // }
+    if (hh == 1) {
+      Rcpp::Rcout << hh << n_main_terms[hh] << non_zero_theta[hh] << obj1 << std::endl;
+    } else {
+      Rcpp::Rcout << hh << n_main_terms[hh] << non_zero_theta[hh] << obj[hh - 1] << obj1 << std::endl;
+    }
     hh += 1;
   }
   Rcpp::List out = Rcpp::List::create(
