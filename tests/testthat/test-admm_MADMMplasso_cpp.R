@@ -214,3 +214,5 @@ test_that("Values are the same", {
   expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
   expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)
 })
+
+# TODO: add tests for all combos of "parallel" and "par" args, and nlambda [1, 2].
