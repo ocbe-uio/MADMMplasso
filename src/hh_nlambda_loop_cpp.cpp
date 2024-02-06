@@ -48,39 +48,26 @@ Rcpp::List hh_nlambda_loop_cpp(
   while (hh <= nlambda) {
     arma::vec lambda = lam.row(hh);
 
-    // start_time <- Sys.time()
-    if (pal) {
-      // my_values <- admm_MADMMplasso(
-      //   beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-      //   y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, my_print, invmat,
-      //   gg[hh, ], legacy
-      // )
-
-      // beta <- my_values$beta
-      // theta <- my_values$theta
-      // my_obj[[hh]] <- list(my_values$obj)
-      // beta0 <- my_values$beta0
-      // theta0 <- my_values$theta0 ### iteration
-      // beta_hat <- my_values$beta_hat
-      // y_hat <- my_values$y_hat
-    } else if (parallel) {
-      // This is the default case.
-      // beta <- my_values[hh, ]$beta
-      // theta <- my_values[hh, ]$theta
-      // my_obj[[hh]] <- list(my_values[hh, ]$obj)
-      // beta0 <- my_values[hh, ]$beta0
-      // theta0 <- my_values[hh, ]$theta0 ### iteration
-      // beta_hat <- my_values[hh, ]$beta_hat
-      // y_hat <- my_values[hh, ]$y_hat
-    } else {
-      // beta <- my_values[[hh]]$beta
-      // theta <- my_values[[hh]]$theta
-      // my_obj[[hh]] <- list(my_values[[hh]]$obj)
-      // beta0 <- my_values[[hh]]$beta0
-      // theta0 <- my_values[[hh]]$theta0 ### iteration
-      // beta_hat <- my_values[[hh]]$beta_hat
-      // y_hat <- my_values[[hh]]$y_hat
+    Rcpp::List my_values_hh;
+    if (parallel) {
+      // my_values is already a list of length hh
+      my_values_hh = my_values[hh];
+    } else if (pal) {
+      // In this case, my_values is an empty list to be created now
+      my_values_hh = admm_MADMMplasso_cpp(
+        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg.row(hh),
+        my_print
+      );
     }
+
+    beta = Rcpp::as<arma::mat>(my_values_hh["beta"]);
+    theta = Rcpp::as<arma::cube>(my_values_hh["theta"]);
+    my_obj[hh] = my_values_hh["obj"];
+    beta0 = Rcpp::as<arma::vec>(my_values_hh["beta0"]);
+    theta0 = Rcpp::as<arma::mat>(my_values_hh["theta0"]);
+    beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
+    y_hat = Rcpp::as<arma::mat>(my_values_hh["y_hat"]);
 
     // beta1 <- as(beta * (abs(beta) > tol), "sparseMatrix")
     // theta1 <- as.sparse3Darray(theta * (abs(theta) > tol))
