@@ -196,7 +196,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
 
-    my_values <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+    my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
       admm_MADMMplasso(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
@@ -204,7 +204,12 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       )
     }
     parallel::stopCluster(cl)
-  } else if (!parallel && pal == 0) {
+
+    # Converting to list so hh_nlambda_loop_cpp can handle it
+    for (hh in seq_len(nrow(my_values_matrix))) {
+      my_values[[hh]] <- my_values_matrix[hh, ]
+    }
+  } else if (pal == 0) {
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {
@@ -215,6 +220,9 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
         )
       }
     )
+  } else {
+    # This is triggered when parallel is FALSE and pal is 1
+    my_values <- list()
   }
 
   loop_output <- hh_nlambda_loop(
