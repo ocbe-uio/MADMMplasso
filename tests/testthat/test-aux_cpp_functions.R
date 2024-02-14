@@ -47,3 +47,15 @@ test_that("modulo() works", {
     expect_equal(x %% i, modulo(x, i), ignore_attr = TRUE)
   }
 })
+
+test_that("count_nonzero_a() works", {
+  dims <- rpois(5L, 10L)
+  x <- matrix(rpois(prod(dims[1:2]), 1), dims[1], dims[2])
+  y <- matrix(rpois(prod(dims[1:2]), 1), dims[1], dims[2])
+  z <- array(rpois(prod(dims[3:5]), 1), dims[3:5])
+  w <- array(rpois(prod(dims[3:5]), 1), dims[3:5])
+  expect_equal(count_nonzero_a(x), count_nonzero_a_cpp(x), ignore_attr = TRUE)
+  expect_equal(count_nonzero_a(y), count_nonzero_a_cpp(y), ignore_attr = TRUE)
+  expect_equal(count_nonzero_a(z), count_nonzero_a_cpp(z), ignore_attr = TRUE)
+  expect_equal(count_nonzero_a(w), count_nonzero_a_cpp(w), ignore_attr = TRUE)
+})

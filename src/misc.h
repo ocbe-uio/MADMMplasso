@@ -23,4 +23,5 @@ arma::mat model_p(
   const arma::mat
 );
 Rcpp::List reg(const arma::mat, const arma::mat);
+int count_nonzero_a_cpp(arma::cube);
 #endif

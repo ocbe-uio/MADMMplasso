@@ -44,6 +44,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// count_nonzero_a_cpp
+int count_nonzero_a_cpp(SEXP x);
+RcppExport SEXP _MADMMplasso_count_nonzero_a_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(count_nonzero_a_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // hh_nlambda_loop_cpp
 Rcpp::List hh_nlambda_loop_cpp(const arma::mat lam, const unsigned int nlambda, arma::vec beta0, arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat my_W_hat, const arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const bool my_print, const Rcpp::List invmat, const arma::mat gg, const double tol, const bool parallel, const bool pal, Rcpp::List BETA0, Rcpp::List THETA0, Rcpp::List BETA, Rcpp::List BETA_hat, Rcpp::List Y_HAT, Rcpp::List THETA, const unsigned int D, Rcpp::List my_values);
 RcppExport SEXP _MADMMplasso_hh_nlambda_loop_cpp(SEXP lamSEXP, SEXP nlambdaSEXP, SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP beta_hatSEXP, SEXP thetaSEXP, SEXP rho1SEXP, SEXP XSEXP, SEXP ZSEXP, SEXP max_itSEXP, SEXP my_W_hatSEXP, SEXP XtYSEXP, SEXP ySEXP, SEXP NSEXP, SEXP e_absSEXP, SEXP e_relSEXP, SEXP alphaSEXP, SEXP alphSEXP, SEXP svd_wSEXP, SEXP treeSEXP, SEXP my_printSEXP, SEXP invmatSEXP, SEXP ggSEXP, SEXP tolSEXP, SEXP parallelSEXP, SEXP palSEXP, SEXP BETA0SEXP, SEXP THETA0SEXP, SEXP BETASEXP, SEXP BETA_hatSEXP, SEXP Y_HATSEXP, SEXP THETASEXP, SEXP DSEXP, SEXP my_valuesSEXP) {
@@ -184,6 +195,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_admm_MADMMplasso_cpp", (DL_FUNC) &_MADMMplasso_admm_MADMMplasso_cpp, 23},
+    {"_MADMMplasso_count_nonzero_a_cpp", (DL_FUNC) &_MADMMplasso_count_nonzero_a_cpp, 1},
     {"_MADMMplasso_hh_nlambda_loop_cpp", (DL_FUNC) &_MADMMplasso_hh_nlambda_loop_cpp, 35},
     {"_MADMMplasso_model_intercept", (DL_FUNC) &_MADMMplasso_model_intercept, 6},
     {"_MADMMplasso_model_p", (DL_FUNC) &_MADMMplasso_model_p, 6},
