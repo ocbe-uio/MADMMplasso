@@ -37,6 +37,10 @@ admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, 
     .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg, my_print)
 }
 
+hh_nlambda_loop_cpp <- function(lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values) {
+    .Call(`_MADMMplasso_hh_nlambda_loop_cpp`, lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values)
+}
+
 model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
     .Call(`_MADMMplasso_model_intercept`, beta0, theta0, beta, theta, X, Z)
 }

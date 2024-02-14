@@ -1,6 +1,7 @@
 #include "MADMMplasso.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::export]]
 Rcpp::List hh_nlambda_loop_cpp(
   const arma::mat lam,
   const unsigned int nlambda,
