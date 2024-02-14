@@ -1,6 +1,3 @@
-#ifndef MISC_H
-#define MISC_H
-
 #include <RcppArmadillo.h>
 Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec beta0,
@@ -27,4 +24,3 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec gg,
   const bool my_print = true
 );
-#endif
