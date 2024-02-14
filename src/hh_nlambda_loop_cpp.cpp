@@ -67,7 +67,6 @@ Rcpp::List hh_nlambda_loop_cpp(
 
     beta = Rcpp::as<arma::mat>(my_values_hh["beta"]);
     theta = Rcpp::as<arma::cube>(my_values_hh["theta"]);
-    //my_obj[hh] = my_values_hh["obj"];  // TODO: keep? is null in admm_MADMMplasso_cpp() anyway, and it's not used
     beta0 = Rcpp::as<arma::vec>(my_values_hh["beta0"]);
     theta0 = Rcpp::as<arma::mat>(my_values_hh["theta0"]);
     beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
@@ -77,19 +76,13 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::cube theta1(theta % (abs(theta) > tol)); // should be sparse, but Arma doesn't have sp_cube
     arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
-    // n_interaction_terms <- count_nonzero_a((theta1))  TODO: translate count_nonzero_a()
     arma::vec n_interaction_terms = Rcpp::as<arma::vec>(count_nonzero_a(theta1));
-
-    // n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
     n_main_terms = arma::join_vert(n_main_terms, Rcpp::as<arma::vec>(count_nonzero_a(beta1)));
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
     obj.resize(obj.n_elem + 1);
     obj(obj.n_elem - 1) = obj1;
-
-    // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
     non_zero_theta = arma::join_vert(non_zero_theta, n_interaction_terms);
-
     lam_list = arma::join_vert(lam_list, lambda);
 
     BETA0[hh] = beta0;
