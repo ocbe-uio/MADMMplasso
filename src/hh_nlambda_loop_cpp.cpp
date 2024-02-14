@@ -46,8 +46,11 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::vec lam_list;
   arma::mat y_hat = y;
   unsigned int hh = 0;
-  while (hh <= nlambda) {
-    arma::vec lambda = lam.row(hh);
+
+  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TEMP
+  Rcpp::Function count_nonzero_a = MADMMplasso["count_nonzero_a"]; // TEMP
+  while (hh <= nlambda - 1) {
+    arma::vec lambda = lam.row(hh).t();
 
     Rcpp::List my_values_hh;
     if (parallel) {
@@ -57,14 +60,14 @@ Rcpp::List hh_nlambda_loop_cpp(
       // In this case, my_values is an empty list to be created now
       my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg.row(hh),
-        my_print
+        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat,
+        gg.row(hh).t(), my_print
       );
     }
 
     beta = Rcpp::as<arma::mat>(my_values_hh["beta"]);
     theta = Rcpp::as<arma::cube>(my_values_hh["theta"]);
-    my_obj[hh] = my_values_hh["obj"];
+    //my_obj[hh] = my_values_hh["obj"];  // TODO: keep? is null in admm_MADMMplasso_cpp() anyway, and it's not used
     beta0 = Rcpp::as<arma::vec>(my_values_hh["beta0"]);
     theta0 = Rcpp::as<arma::mat>(my_values_hh["theta0"]);
     beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
@@ -75,14 +78,17 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
     // n_interaction_terms <- count_nonzero_a((theta1))  TODO: translate count_nonzero_a()
+    arma::vec n_interaction_terms = Rcpp::as<arma::vec>(count_nonzero_a(theta1));
 
     // n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
+    n_main_terms = arma::join_vert(n_main_terms, Rcpp::as<arma::vec>(count_nonzero_a(beta1)));
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
     obj.resize(obj.n_elem + 1);
     obj(obj.n_elem - 1) = obj1;
 
     // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
+    non_zero_theta = arma::join_vert(non_zero_theta, n_interaction_terms);
 
     lam_list = arma::join_vert(lam_list, lambda);
 
