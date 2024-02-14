@@ -75,8 +75,12 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::cube theta1(theta % (abs(theta) > tol)); // should be sparse, but Arma doesn't have sp_cube
     arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
-    arma::vec n_interaction_terms = Rcpp::as<arma::vec>(count_nonzero_a_cpp(theta1));
-    n_main_terms = arma::join_vert(n_main_terms, Rcpp::as<arma::vec>(count_nonzero_a_cpp(beta1)));
+    // TODO: messy! Simplify!
+    arma::vec n_interaction_terms(1);
+    n_interaction_terms = count_nonzero_a_cube(theta1);
+    arma::vec n_beta_terms(1);
+    n_beta_terms = count_nonzero_a_sp_mat(beta1);
+    n_main_terms = arma::join_vert(n_main_terms, n_beta_terms);
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
     obj.resize(obj.n_elem + 1);
