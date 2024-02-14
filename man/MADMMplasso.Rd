@@ -2,8 +2,9 @@
 % Please edit documentation in R/MADMMplasso-package.R, R/MADMMplasso.R
 \docType{package}
 \name{MADMMplasso}
+\alias{MADMMplasso-package}
 \alias{MADMMplasso}
-\title{Fit a multi-response pliable lasso model over a path of regularization values}
+\title{MADMMplasso: Multi Variate Multi Response 'ADMM' with Interaction Effects}
 \usage{
 MADMMplasso(
   X,
@@ -99,6 +100,8 @@ Y_HAT: a list (length=nlambda) of predicted response nrow(X) by ncol(y)
 gg: penalty term for the tree structure (lambda_1 and lambda_2) for each lambda_3 nlambda by 2
 }
 \description{
+This system allows one to model a multi response problem that has correlation among the responses and also has main and interaction effects among the covariates. The implementation is based on the methodology presented on Quachie Asenso, T., & Zucknick, M. (2023) \doi{10.48550/arXiv.2303.11155}.
+
 This function fits a multi-response pliable lasso model over a path of regularization values.
 }
 \examples{
@@ -190,4 +193,15 @@ fit <- MADMMplasso(
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
   pal = 1, gg = gg1, tol = tol, cl = 6
 )
+}
+\author{
+\strong{Maintainer}: Waldir Leoncio \email{w.l.netto@medisin.uio.no} (\href{https://orcid.org/0000-0002-6719-6162}{ORCID})
+
+Authors:
+\itemize{
+  \item Theophilus Quachie Asenso \email{t.q.asenso@medisin.uio.no}
+  \item Manuela Zucknick \email{Manuela.zucknick@medisin.uio.no}
+  \item Chi Zhang \email{andreachizhang@yahoo.com}
+}
+
 }

@@ -42,7 +42,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::vec non_zero_theta;
   Rcpp::List my_obj;
   arma::vec n_main_terms;
-  Rcpp::List lam_list;
+  arma::vec lam_list;
   arma::mat y_hat = y;
   unsigned int hh = 0;
   while (hh <= nlambda) {
@@ -69,27 +69,28 @@ Rcpp::List hh_nlambda_loop_cpp(
     beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
     y_hat = Rcpp::as<arma::mat>(my_values_hh["y_hat"]);
 
-    // beta1 <- as(beta * (abs(beta) > tol), "sparseMatrix")
-    // theta1 <- as.sparse3Darray(theta * (abs(theta) > tol))
-    // beta_hat1 <- as(beta_hat * (abs(beta_hat) > tol), "sparseMatrix")
+    arma::sp_mat beta1(beta % (abs(beta) > tol));
+    arma::cube theta1(theta % (abs(theta) > tol)); // should be sparse, but Arma doesn't have sp_cube
+    arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
-    // n_interaction_terms <- count_nonzero_a((theta1))
+    // n_interaction_terms <- count_nonzero_a((theta1))  TODO: translate count_nonzero_a()
 
     // n_main_terms <- (c(n_main_terms, count_nonzero_a((beta1))))
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
-    // obj <- c(obj, obj1)
+    obj.resize(obj.n_elem + 1);
+    obj(obj.n_elem - 1) = obj1;
 
     // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
-    // lam_list <- (c(lam_list, lambda))
 
-    // BETA0[[hh]] <- beta0
-    // THETA0[[hh]] <- theta0
-    // BETA[[hh]] <- as(beta1, "sparseMatrix")
-    // BETA_hat[[hh]] <- as(beta_hat1, "sparseMatrix")
+    arma::join_vert(lam_list, lambda);
 
-    // Y_HAT[[hh]] <- y_hat
-    // THETA[[hh]] <- as.sparse3Darray(theta1)
+    BETA0[hh] = beta0;
+    THETA0[hh] = theta0;
+    BETA[hh] = arma::conv_to<arma::sp_mat>::from(beta1);
+    BETA_hat[hh] = arma::conv_to<arma::sp_mat>::from(beta_hat1);
+    Y_HAT[hh] = y_hat;
+    THETA[hh] = theta1;
 
     if (hh == 0) {
       Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj1 << std::endl;
