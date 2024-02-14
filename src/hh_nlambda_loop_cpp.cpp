@@ -84,7 +84,7 @@ Rcpp::List hh_nlambda_loop_cpp(
 
     // non_zero_theta <- (c(non_zero_theta, n_interaction_terms))
 
-    arma::join_vert(lam_list, lambda);
+    lam_list = arma::join_vert(lam_list, lambda);
 
     BETA0[hh] = beta0;
     THETA0[hh] = theta0;
