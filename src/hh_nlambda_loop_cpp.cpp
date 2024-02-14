@@ -1,4 +1,5 @@
 #include "MADMMplasso.h"
+#include "misc.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
@@ -47,8 +48,6 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::mat y_hat = y;
   unsigned int hh = 0;
 
-  Rcpp::Environment MADMMplasso = Rcpp::Environment::namespace_env("MADMMplasso"); // TEMP
-  Rcpp::Function count_nonzero_a = MADMMplasso["count_nonzero_a"]; // TEMP
   while (hh <= nlambda - 1) {
     arma::vec lambda = lam.row(hh).t();
 
@@ -76,8 +75,8 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::cube theta1(theta % (abs(theta) > tol)); // should be sparse, but Arma doesn't have sp_cube
     arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
-    arma::vec n_interaction_terms = Rcpp::as<arma::vec>(count_nonzero_a(theta1));
-    n_main_terms = arma::join_vert(n_main_terms, Rcpp::as<arma::vec>(count_nonzero_a(beta1)));
+    arma::vec n_interaction_terms = Rcpp::as<arma::vec>(count_nonzero_a_cpp(theta1));
+    n_main_terms = arma::join_vert(n_main_terms, Rcpp::as<arma::vec>(count_nonzero_a_cpp(beta1)));
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
     obj.resize(obj.n_elem + 1);
