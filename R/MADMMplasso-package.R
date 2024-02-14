@@ -1,5 +1,4 @@
 #' @name MADMMplasso
-#' @docType package
 #' @importFrom graphics abline axis lines matplot points segments text
 #' @importFrom methods as
 #' @importFrom stats dist hclust lm rbinom var
@@ -12,4 +11,4 @@
 #' @importFrom MASS mvrnorm
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib MADMMplasso, .registration = TRUE
-NULL
+"_PACKAGE"
