@@ -26,6 +26,7 @@ int count_nonzero_a_cpp(SEXP x) { // FIXME: doesn't work with arma types
   }
 }
 
+// [[Rcpp::export]]
 int count_nonzero_a_sp_mat(arma::sp_mat x) {
   // This function counts the maximum count of of non-zero elements in
   // the columns of a matrix or the slices of a cube
@@ -37,6 +38,7 @@ int count_nonzero_a_sp_mat(arma::sp_mat x) {
   return arma::max(count1);
 }
 
+// [[Rcpp::export]]
 int count_nonzero_a_cube(arma::cube x) {
   arma::vec count1(x.n_slices, arma::fill::zeros);
   for (unsigned int ww = 0; ww < x.n_slices; ++ww) {

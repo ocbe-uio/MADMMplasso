@@ -41,6 +41,14 @@ count_nonzero_a_cpp <- function(x) {
     .Call(`_MADMMplasso_count_nonzero_a_cpp`, x)
 }
 
+count_nonzero_a_sp_mat <- function(x) {
+    .Call(`_MADMMplasso_count_nonzero_a_sp_mat`, x)
+}
+
+count_nonzero_a_cube <- function(x) {
+    .Call(`_MADMMplasso_count_nonzero_a_cube`, x)
+}
+
 hh_nlambda_loop_cpp <- function(lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values) {
     .Call(`_MADMMplasso_hh_nlambda_loop_cpp`, lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values)
 }
