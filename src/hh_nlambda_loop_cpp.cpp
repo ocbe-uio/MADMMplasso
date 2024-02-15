@@ -52,7 +52,7 @@ Rcpp::List hh_nlambda_loop_cpp(
     arma::vec lambda = lam.row(hh).t();
 
     Rcpp::List my_values_hh;
-    if (parallel) {
+    if (parallel) { // TODO: recheck all conditions (all parallel-pal combinations)
       // my_values is already a list of length hh
       my_values_hh = my_values[hh];
     } else if (pal) {
