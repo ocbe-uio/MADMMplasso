@@ -50,7 +50,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = 0, gg = NULL, tol = 1E-4, cl = 4,legacy=TRUE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = 0, gg = NULL, tol = 1E-4, cl = 4,legacy=FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -194,7 +194,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
   XtY <- crossprod((my_W_hat), (new_y))
-  print(legacy)
+  
   
   cl1 <- cl
   if (parallel) {
