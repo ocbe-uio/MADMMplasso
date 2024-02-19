@@ -194,7 +194,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
   XtY <- crossprod((my_W_hat), (new_y))
-print(legacy)
+  print(legacy)
   
   cl1 <- cl
   if (parallel) {
