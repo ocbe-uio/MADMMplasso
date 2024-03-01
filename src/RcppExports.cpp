@@ -101,6 +101,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lm_arma
+arma::vec lm_arma(const arma::vec& R, const arma::mat& Z);
+RcppExport SEXP _MADMMplasso_lm_arma(SEXP RSEXP, SEXP ZSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    rcpp_result_gen = Rcpp::wrap(lm_arma(R, Z));
+    return rcpp_result_gen;
+END_RCPP
+}
 // reg
 Rcpp::List reg(const arma::mat r, const arma::mat Z);
 RcppExport SEXP _MADMMplasso_reg(SEXP rSEXP, SEXP ZSEXP) {
@@ -143,6 +155,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_model_p", (DL_FUNC) &_MADMMplasso_model_p, 6},
     {"_MADMMplasso_modulo", (DL_FUNC) &_MADMMplasso_modulo, 2},
     {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
+    {"_MADMMplasso_lm_arma", (DL_FUNC) &_MADMMplasso_lm_arma, 2},
     {"_MADMMplasso_reg", (DL_FUNC) &_MADMMplasso_reg, 2},
     {"_MADMMplasso_scale_cpp", (DL_FUNC) &_MADMMplasso_scale_cpp, 2},
     {"_MADMMplasso_sqrt_sum_squared_rows", (DL_FUNC) &_MADMMplasso_sqrt_sum_squared_rows, 1},

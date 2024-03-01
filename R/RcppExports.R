@@ -53,6 +53,10 @@ multiples_of <- function(x, divisor, subset_out = FALSE) {
     .Call(`_MADMMplasso_multiples_of`, x, divisor, subset_out)
 }
 
+lm_arma <- function(R, Z) {
+    .Call(`_MADMMplasso_lm_arma`, R, Z)
+}
+
 reg <- function(r, Z) {
     .Call(`_MADMMplasso_reg`, r, Z)
 }
