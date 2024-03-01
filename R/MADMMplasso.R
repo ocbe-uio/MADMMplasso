@@ -188,7 +188,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
   XtY <- crossprod((my_W_hat), (new_y))
-
+  
+  
   cl1 <- cl
   if (parallel) {
     cl <- makeCluster(cl1, type = "FORK")
