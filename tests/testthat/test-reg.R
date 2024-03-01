@@ -4,7 +4,7 @@ reg_R <- function(r, Z) {
   N <- nrow(Z)
   beta01 <- matrix(0, 1, ncol(r))
   theta01 <- matrix(0, ncol(Z), ncol(r))
-  for (e in 1:ncol(r)) {
+  for (e in seq_len(ncol(r))) {
     new1 <- lm(r[, e] ~ Z, singular.ok = TRUE)
     beta01[e] <- matrix(new1$coefficients[1])
     theta01[, e] <- as.vector(new1$coefficients[-1])
