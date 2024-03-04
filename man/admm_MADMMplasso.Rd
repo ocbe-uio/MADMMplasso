@@ -28,7 +28,7 @@ admm_MADMMplasso(
   my_print,
   invmat,
   gg = 0.2,
-  legacy
+  legacy = FALSE
 )
 }
 \arguments{
