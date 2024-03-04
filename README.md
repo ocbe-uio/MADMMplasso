@@ -1,11 +1,11 @@
 # MADMMplasso
 
-Multi variate multi-response 'ADMM' with interaction effects combines the usual squared error loss for the mult-response problem with some penalty terms  to encourage responses that correlate to form groups and also allow for modeling main and interaction effects that exit within the covariates. 
+Multi variate multi-response 'ADMM' with interaction effects combines the usual squared error loss for the mult-response problem with some penalty terms  to encourage responses that correlate to form groups and also allow for modeling main and interaction effects that exit within the covariates.
 
 The method can be powperful in situations where one assumes that;
-1.	certain factors influence the main covariate seperatly and aims to include these fatcors as modifying varibles to the main covariate. 
-2.	There exists some form of grouping within the responses and want to include this information. We assume that the responses form overlapping groups that follows a certain hierarchy. 
-A typical example is when one wants to model drug response for multiple drugs and assumes that some of the drugs share certain properties in common, for example drug target and chemical compounds and aims to include this information to improve prediction and also aim to predict which drug could be suitable for which patient (given a particular disease). The various diseases under study could be the modifying variable. 
+1.	certain factors influence the main covariate seperatly and aims to include these fatcors as modifying varibles to the main covariate.
+2.	There exists some form of grouping within the responses and want to include this information. We assume that the responses form overlapping groups that follows a certain hierarchy.
+A typical example is when one wants to model drug response for multiple drugs and assumes that some of the drugs share certain properties in common, for example drug target and chemical compounds and aims to include this information to improve prediction and also aim to predict which drug could be suitable for which patient (given a particular disease). The various diseases under study could be the modifying variable.
 
 
 
@@ -141,7 +141,7 @@ fit <- MADMMplasso(
   X, Z, y, alpha=alpha, my_lambda=NULL,
   lambda_min=0.001, max_it=5000, e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda,
   nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
-  pal=1, gg=gg1, tol=tol
+  pal=TRUE, gg=gg1, tol=tol
 )
 
 
@@ -176,7 +176,7 @@ gg1=fit$gg
 cv_admp <- cv_MADMMplasso(
   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
-  foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
+  foldid=NULL, parallel=FALSE, pal=TRUE, gg=gg1, TT=TT, tol=tol
 )
 
 
@@ -213,6 +213,3 @@ fit$beta[[s_ad]]
 
 
 ![Screenshot 2023-09-11 at 16 25 59](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/f762b9e1-9212-43c7-a21c-b83a9a48662f)
-
-
-

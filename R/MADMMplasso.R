@@ -19,8 +19,8 @@
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
 #' @param alph an overrelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.
-#' @param parallel should parallel processing be used or not? Default True. If set to true, pal should be set 0.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.
+#' @param parallel should parallel processing be used or not? Defaults to `TRUE`. If set to `TRUE`, pal should be set to `FALSE`.
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available? Default is `FALSE`.
 #' @param tol threshold for the non-zero coefficients. Default 1E-4
 #' @param cl The number of cpu to be used for parallel processing. default 4
 #' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
@@ -50,7 +50,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = 0, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = FALSE, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
   N <- nrow(X)
 
   p <- ncol(X)
@@ -188,8 +188,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
   XtY <- crossprod((my_W_hat), (new_y))
-  
-  
+
+
   cl1 <- cl
   if (parallel) {
     cl <- makeCluster(cl1, type = "FORK")
@@ -210,7 +210,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     for (hh in seq_len(nrow(my_values_matrix))) {
       my_values[[hh]] <- my_values_matrix[hh, ]
     }
-  } else if (pal == 0) {
+  } else if (!parallel && !pal) {
     my_values <- lapply(
       seq_len(nlambda),
       function(g) {

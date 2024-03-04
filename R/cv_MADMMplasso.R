@@ -19,8 +19,8 @@
 #' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
 #' @param alph an overelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
-#' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set 0.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.
+#' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set `FALSE`.
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is `FALSE`.
 #' @param gg penalty term for the tree structure obtained from the fit.
 #' @param TT The results from the hierarchical clustering of the response matrix.
 #' This should same as the parameter tree used during the MADMMplasso call.
@@ -31,7 +31,7 @@
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
 #' @export
-cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, parallel = TRUE, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2, legacy = FALSE) {
+cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, parallel = TRUE, pal = FALSE, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2, legacy = FALSE) {
   BIG <- 10e9
   no <- nrow(X)
   ggg <- vector("list", nfolds)
