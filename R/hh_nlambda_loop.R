@@ -31,7 +31,9 @@ hh_nlambda_loop <- function(
         y_hat <- my_values$y_hat
       }
       cost_time <- Sys.time() - start_time
-      print(cost_time)
+      if (my_print) {
+        print(cost_time)
+      }
       if (parallel && pal == 0) {
         beta <- my_values[hh, ]$beta
         theta <- my_values[hh, ]$theta
