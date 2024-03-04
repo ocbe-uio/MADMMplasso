@@ -26,10 +26,12 @@
 #' This should same as the parameter tree used during the MADMMplasso call.
 #' @param tol threshold for the non-zero coefficients. Default 1E-4
 #' @param cl The number of cpu to be used for parallel processing. default 2
+#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
+#' C++.
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
 #' @export
-cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, parallel = TRUE, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2) {
+cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, parallel = TRUE, pal = 0, gg = c(7, 0.5), TT, tol = 1E-4, cl = 2, legacy = FALSE) {
   BIG <- 10e9
   no <- nrow(X)
   ggg <- vector("list", nfolds)
@@ -46,7 +48,7 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
     print(c("fold,", ii))
     oo <- foldid == ii
 
-    ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = FALSE], Z = Z[!oo, , drop = FALSE], y = y[!oo, , drop = FALSE], alpha = alpha, my_lambda = lambda, lambda_min = 0.01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, parallel = parallel, pal = pal, gg = gg, tol = tol, cl = cl)
+    ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = FALSE], Z = Z[!oo, , drop = FALSE], y = y[!oo, , drop = FALSE], alpha = alpha, my_lambda = lambda, lambda_min = 0.01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, parallel = parallel, pal = pal, gg = gg, tol = tol, cl = cl, legacy)
 
     cv_p <- predict.MADMMplasso(ggg[[ii]], X = X[oo, , drop = FALSE], Z = Z[oo, ], y = y[oo, ])
     ggg[[ii]] <- 0
