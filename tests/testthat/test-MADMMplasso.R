@@ -87,7 +87,7 @@ fit_C <- MADMMplasso(
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
   pal = TRUE, gg = gg1, tol = tol, cl = 6
-) # FIXME: fails if (parallel = FALSE && pal = FALSE) or (parallel = TRUE)
+)
 set.seed(9356219)
 fit_R <- suppressWarnings(
   suppressMessages(
@@ -99,7 +99,7 @@ fit_R <- suppressWarnings(
       pal = TRUE, gg = gg1, tol = tol, cl = 6, legacy = TRUE
     )
   )
-) # FIXME: fails if (parallel = TRUE)
+)
 
 test_that("C++ and R versions basically output the same thing", {
   expect_named(fit_C$beta, names(fit_R$beta))

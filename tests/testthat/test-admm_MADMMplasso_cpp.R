@@ -206,7 +206,7 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl) # TODO: transpose somewhere (return?)
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
@@ -214,5 +214,3 @@ test_that("Values are the same", {
   expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
   expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)
 })
-
-# TODO: add tests for all combos of "parallel" and "par" args, and nlambda [1, 2].
