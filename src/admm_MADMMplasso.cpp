@@ -349,9 +349,7 @@ Rcpp::List admm_MADMMplasso_cpp(
       }
 
       if (res_pri <= e_primal && res_dual <= e_dual) {
-        if (my_print) {
-          Rprintf("Convergence reached after %u iterations", i);
-        }
+        Rprintf("Convergence reached after %u iterations\n", i);
         converge = true;
         break;
       }

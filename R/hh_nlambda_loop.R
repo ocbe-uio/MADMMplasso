@@ -75,10 +75,12 @@ hh_nlambda_loop <- function(
       Y_HAT[[hh]] <- y_hat
       THETA[[hh]] <- as.sparse3Darray(theta1)
 
-      if (hh == 1) {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
-      } else {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
+      if (my_print) {
+        if (hh == 1) {
+          print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
+        } else {
+          print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
+        }
       }
 
       hh <- hh + 1

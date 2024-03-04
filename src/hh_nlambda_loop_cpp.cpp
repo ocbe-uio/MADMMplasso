@@ -95,10 +95,12 @@ Rcpp::List hh_nlambda_loop_cpp(
     Y_HAT[hh] = y_hat;
     THETA[hh] = theta1;
 
-    if (hh == 0) {
-      Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj1 << std::endl;
-    } else {
-      Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj(hh - 1) << obj1 << std::endl;
+    if (my_print) {
+      if (hh == 0) {
+        Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj1 << std::endl;
+      } else {
+        Rcpp::Rcout << hh << n_main_terms(hh) << non_zero_theta(hh) << obj(hh - 1) << obj1 << std::endl;
+      }
     }
     hh += 1;
   }
