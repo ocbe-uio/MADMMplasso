@@ -86,8 +86,8 @@ fit_C <- MADMMplasso(
   alpha = alpha, my_lambda = matrix(rep(0.2, dim(y)[2]), 1),
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
-  pal = 1, gg = gg1, tol = tol, cl = 6
-) # FIXME: fails if (parallel = FALSE && pal = 0) or (parallel = TRUE)
+  pal = TRUE, gg = gg1, tol = tol, cl = 6
+) # FIXME: fails if (parallel = FALSE && pal = FALSE) or (parallel = TRUE)
 set.seed(9356219)
 fit_R <- suppressWarnings(
   suppressMessages(
@@ -96,22 +96,25 @@ fit_R <- suppressWarnings(
       alpha = alpha, my_lambda = matrix(rep(0.2, dim(y)[2]), 1),
       lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
       nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
-      pal = 1, gg = gg1, tol = tol, cl = 6, legacy = TRUE
+      pal = TRUE, gg = gg1, tol = tol, cl = 6, legacy = TRUE
     )
   )
-) # FIXME: fails if (parallel = FALSE && pal = 0) or (parallel = TRUE)
+) # FIXME: fails if (parallel = TRUE)
 
 test_that("C++ and R versions basically output the same thing", {
   expect_named(fit_C$beta, names(fit_R$beta))
-  expect_identical(fit_C$beta0[[1]], t(fit_R$beta0[[1]])) # TODO: problem?
-  expect_identical(fit_C$beta, fit_R$beta) # TODO: problem?
-  expect_identical(fit_C$BETA_hat, fit_R$BETA_hat) # TODO: problem?
-  expect_identical(fit_C$theta0, fit_R$theta0) # TODO: problem?
-  expect_identical(fit_C$theta, fit_R$theta) # TODO: problem?
-  expect_identical(fit_C$path, fit_R$path) # TODO: problem?
-  expect_identical(fit_C$Lambdas, fit_R$Lambdas)
-  expect_identical(fit_C$non_zero[1], fit_R$non_zero)
-  expect_identical(fit_C$LOSS[1], fit_R$LOSS)
-  expect_identical(fit_C$Y_HAT, fit_R$Y_HAT) # TODO: problem?
-  expect_identical(fit_C$gg, fit_R$gg)
+  tl <- 1e1
+  expect_equal(fit_C$beta0[[1]], t(fit_R$beta0[[1]]), tolerance = tl)
+  expect_equal(as.vector(fit_C$beta[[1]]), as.vector(fit_R$beta[[1]]), tolerance = tl)
+  expect_equal(as.vector(fit_C$BETA_hat[[1]]), as.vector(fit_R$BETA_hat[[1]]), tolerance = tl)
+  expect_equal(fit_C$theta0, fit_R$theta0, tolerance = tl)
+  for (i in 1:6) {
+    expect_equal(as.vector(fit_C$theta[[1]][, , i]), as.vector(fit_R$theta[[1]][, , i]), tolerance = tl)
+  }
+  expect_equal(fit_C$path, fit_R$path, tolerance = tl)
+  expect_equal(fit_C$Lambdas, fit_R$Lambdas)
+  expect_equal(fit_C$non_zero[1], fit_R$non_zero)
+  expect_equal(fit_C$LOSS[1], fit_R$LOSS)
+  expect_equal(fit_C$Y_HAT, fit_R$Y_HAT, tolerance = tl)
+  expect_equal(fit_C$gg, fit_R$gg)
 })

@@ -15,7 +15,7 @@ hh_nlambda_loop <- function(
       lambda <- lam[hh, ]
 
       start_time <- Sys.time()
-      if (pal == 1) {
+      if (pal) {
         my_values <- admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
@@ -34,7 +34,7 @@ hh_nlambda_loop <- function(
       if (my_print) {
         print(cost_time)
       }
-      if (parallel && pal == 0) {
+      if (parallel && !pal) {
         beta <- my_values[hh, ]$beta
         theta <- my_values[hh, ]$theta
         my_obj[[hh]] <- list(my_values[hh, ]$obj)
@@ -42,7 +42,7 @@ hh_nlambda_loop <- function(
         theta0 <- my_values[hh, ]$theta0 ### iteration
         beta_hat <- my_values[hh, ]$beta_hat
         y_hat <- my_values[hh, ]$y_hat
-      } else if (!parallel && pal == 0) {
+      } else if (!parallel && !pal) {
         beta <- my_values[[hh]]$beta
         theta <- my_values[[hh]]$theta
         my_obj[[hh]] <- list(my_values[[hh]]$obj)
