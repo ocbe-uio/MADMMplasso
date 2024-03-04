@@ -112,9 +112,9 @@ test_that("C++ and R versions basically output the same thing", {
     expect_equal(as.vector(fit_C$theta[[1]][, , i]), as.vector(fit_R$theta[[1]][, , i]), tolerance = tl)
   }
   expect_equal(fit_C$path, fit_R$path, tolerance = tl)
-  expect_equal(fit_C$Lambdas, fit_R$Lambdas)
-  expect_equal(fit_C$non_zero[1], fit_R$non_zero)
-  expect_equal(fit_C$LOSS[1], fit_R$LOSS)
+  expect_identical(fit_C$Lambdas, fit_R$Lambdas)
+  expect_identical(fit_C$non_zero[1], fit_R$non_zero)
+  expect_identical(fit_C$LOSS[1], fit_R$LOSS)
   expect_equal(fit_C$Y_HAT, fit_R$Y_HAT, tolerance = tl)
-  expect_equal(fit_C$gg, fit_R$gg)
+  expect_identical(fit_C$gg, fit_R$gg)
 })
