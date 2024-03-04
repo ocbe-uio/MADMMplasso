@@ -26,7 +26,8 @@ cv_MADMMplasso(
   gg = c(7, 0.5),
   TT,
   tol = 1e-04,
-  cl = 2
+  cl = 2,
+  legacy = FALSE
 )
 }
 \arguments{
@@ -76,6 +77,9 @@ This should same as the parameter tree used during the MADMMplasso call.}
 \item{tol}{threshold for the non-zero coefficients. Default 1E-4}
 
 \item{cl}{The number of cpu to be used for parallel processing. default 2}
+
+\item{legacy}{If \code{TRUE}, use the R version of the algorithm. Defaults to
+C++.}
 }
 \value{
 results containing the CV values
