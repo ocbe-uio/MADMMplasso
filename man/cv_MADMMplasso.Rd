@@ -22,7 +22,7 @@ cv_MADMMplasso(
   alph = 1,
   foldid = NULL,
   parallel = TRUE,
-  pal = 0,
+  pal = FALSE,
   gg = c(7, 0.5),
   TT,
   tol = 1e-04,
@@ -65,9 +65,9 @@ the function. We recommend that x and z also be standardized before the call}
 
 \item{foldid}{vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
 
-\item{parallel}{should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set 0.}
+\item{parallel}{should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set \code{FALSE}.}
 
-\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is 0.}
+\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is \code{FALSE}.}
 
 \item{gg}{penalty term for the tree structure obtained from the fit.}
 
@@ -174,14 +174,14 @@ Carries out cross-validation for  a  MADMMplasso model over a path of regulariza
   fit <- MADMMplasso(
     X, Z, y, alpha=alpha, my_lambda=NULL, lambda_min=0.001, max_it=5000,
     e.abs=e.abs, e.rel=e.rel, maxgrid=50, nlambda=nlambda, rho=5,tree=TT,
-    my_print=FALSE, alph=1, parallel=FALSE, pal=1, gg=gg1, tol=tol, cl=6
+    my_print=FALSE, alph=1, parallel=FALSE, pal=TRUE, gg=gg1, tol=tol, cl=6
   )
   gg1=fit$gg
 
   cv_admp <- cv_MADMMplasso(
     fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
     e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
-    foldid=NULL, parallel=FALSE, pal=1, gg=gg1, TT=TT, tol=tol
+    foldid=NULL, parallel=FALSE, pal=TRUE, gg=gg1, TT=TT, tol=tol
   )
   plot(cv_admp)
 }
