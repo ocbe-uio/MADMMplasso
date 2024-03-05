@@ -2,8 +2,7 @@
 % Please edit documentation in R/cv_MADMMplasso.R
 \name{cv_MADMMplasso}
 \alias{cv_MADMMplasso}
-\title{Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
-@description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values}
+\title{Carries out cross-validation for a MADMMplasso model over a path of regularization values}
 \usage{
 cv_MADMMplasso(
   fit,
@@ -37,56 +36,51 @@ cv_MADMMplasso(
 
 \item{X}{N by p matrix of predictors}
 
-\item{Z}{N by K matrix of modifying variables. The elements of Z  may
-represent quantitative or categorical variables, or a mixture of the two.
-Categorical variables should be coded by 0-1 dummy variables: for a k-level
-variable, one can use either k or k-1  dummy variables.}
+\item{Z}{N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
+Categorical variables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
 
-\item{y}{N by D-matrix of responses. The X and Z variables are centered in
-the function. We recommend that x and z also be standardized before the call}
+\item{y}{N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call}
 
-\item{alpha}{mixing parameter- default 0.5. This value should be same as the one used for the MADMMplasso call.}
+\item{alpha}{mixing parameter. When the goal is to include more interactions, alpha should be very small and vice versa.}
 
-\item{lambda}{user specified lambda_3 values. Default fit$Lambdas.}
+\item{lambda}{user specified lambda_3 values.}
 
-\item{max_it}{maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000}
+\item{max_it}{maximum number of iterations in loop for one lambda during the ADMM optimization}
 
-\item{e.abs}{absolute error for the admm. default is 1E-3}
+\item{e.abs}{absolute error for the ADMM}
 
-\item{e.rel}{relative error for the admm-default is 1E-3}
+\item{e.rel}{relative error for the ADMM}
 
-\item{nlambda}{number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.}
+\item{nlambda}{number of lambda_3 values desired. Similar to maxgrid but can have a value less than or equal to maxgrid.}
 
-\item{rho}{the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.}
+\item{rho}{the Lagrange variable for the ADMM. This value is updated during the ADMM call based on a certain condition.}
 
-\item{my_print}{Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals}
+\item{my_print}{Should information form each ADMM iteration be printed along the way? This prints the dual and primal residuals}
 
-\item{alph}{an overelaxation parameter in [1, 1.8]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
+\item{alph}{an overrelaxation parameter in [1, 1.8]. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
 
 \item{foldid}{vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
 
-\item{parallel}{should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set \code{FALSE}.}
+\item{parallel}{should parallel processing be used or not? If set to \code{TRUE}, pal should be set to \code{FALSE}.}
 
-\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is \code{FALSE}.}
+\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available?}
 
-\item{gg}{penalty term for the tree structure obtained from the fit.}
+\item{gg}{penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
 
 \item{TT}{The results from the hierarchical clustering of the response matrix.
 This should same as the parameter tree used during the MADMMplasso call.}
 
-\item{tol}{threshold for the non-zero coefficients. Default 1E-4}
+\item{tol}{threshold for the non-zero coefficients}
 
-\item{cl}{The number of cpu to be used for parallel processing. default 2}
+\item{cl}{The number of CPUs to be used for parallel processing}
 
-\item{legacy}{If \code{TRUE}, use the R version of the algorithm. Defaults to
-C++.}
+\item{legacy}{If \code{TRUE}, use the R version of the algorithm}
 }
 \value{
 results containing the CV values
 }
 \description{
-Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
-@description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
+Carries out cross-validation for a MADMMplasso model over a path of regularization values
 }
 \examples{
  # nolint start: indentation_linter

@@ -25,7 +25,7 @@ admm_MADMMplasso(
   alph,
   svd.w,
   tree,
-  my_print = TRUE,
+  my_print,
   invmat,
   gg = 0.2,
   legacy = FALSE
@@ -46,12 +46,10 @@ admm_MADMMplasso(
 
 \item{X}{N by p matrix of predictors}
 
-\item{Z}{N by nz matrix of modifying variables. The elements of z
-may represent quantitative or categorical variables, or a mixture of the two.
-Categorical varables should be coded by 0-1 dummy variables: for a k-level
-variable, one can use either k or k-1  dummy variables.}
+\item{Z}{N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
+Categorical variables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.}
 
-\item{max_it}{maximum number of iterations in loop for one lambda during the ADMM optimization. This is usually included  in the MADMMplasso call}
+\item{max_it}{maximum number of iterations in loop for one lambda during the ADMM optimization}
 
 \item{W_hat}{N by (p+(p by nz)) of the main and interaction predictors. This generated internally  when MADMMplasso is called or by using the function generate_my_w.}
 
@@ -61,30 +59,27 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{N}{nrow(X)}
 
-\item{e.abs}{absolute error for the admm. This is included int the call of MADMMplasso.}
+\item{e.abs}{absolute error for the ADMM}
 
-\item{e.rel}{relative error for the admm. This is included int the call of MADMMplasso.}
+\item{e.rel}{relative error for the ADMM}
 
-\item{alpha}{mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.}
+\item{alpha}{mixing parameter. When the goal is to include more interactions, alpha should be very small and vice versa.}
 
-\item{lambda}{a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.}
+\item{lambda}{user specified lambda_3 values.}
 
-\item{alph}{an overrelaxation parameter in [1, 1.8], usually obtained from the MADMMplasso call.}
+\item{alph}{an overrelaxation parameter in [1, 1.8]. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}}
 
 \item{svd.w}{singular value decomposition of W}
 
-\item{tree}{The results from the hierarchical clustering of the response matrix.
-The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
-However, user decide on a specific structure and then input a tree that follows such structure.}
+\item{tree}{The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.}
 
-\item{my_print}{Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals}
+\item{my_print}{Should information form each ADMM iteration be printed along the way? This prints the dual and primal residuals}
 
 \item{invmat}{A list of length ncol(y), each containing the C_d part of equation 32 in the paper}
 
 \item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.}
 
-\item{legacy}{If \code{TRUE}, use the R version of the algorithm. Defaults to
-C++.}
+\item{legacy}{If \code{TRUE}, use the R version of the algorithm}
 }
 \value{
 predicted values for the ADMM part

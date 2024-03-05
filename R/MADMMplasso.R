@@ -3,28 +3,27 @@
 #' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 #' @param X  N by p matrix of predictors
 #' @param Z N by K matrix of modifying variables. The elements of Z  may represent quantitative or categorical variables, or a mixture of the two.
-#' Categorical varables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
+#' Categorical variables should be coded by 0-1 dummy variables: for a k-level variable, one can use either k or k-1  dummy variables.
 #' @param y N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call
-#' @param maxgrid  number of lambda_3 values desired (default 50)
-#' @param nlambda  number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.
-#' @param alpha mixing parameter- default 0.5. When the goal is to include more interactions, alpha should be very small and vice versa.
-#' @param max_it maximum number of iterations in the ADMM algorithm for one lambda. Default 50000
-#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
-#' @param e.abs absolute error for the admm. default is 1E-3
-#' @param e.rel relative error for the admm-default is 1E-3
+#' @param maxgrid  number of lambda_3 values desired
+#' @param nlambda  number of lambda_3 values desired. Similar to maxgrid but can have a value less than or equal to maxgrid.
+#' @param alpha mixing parameter. When the goal is to include more interactions, alpha should be very small and vice versa.
+#' @param max_it maximum number of iterations in the ADMM algorithm for one lambda
+#' @param rho the Lagrange variable for the ADMM. This value is updated during the ADMM call based on a certain condition.
+#' @param e.abs absolute error for the ADMM
+#' @param e.rel relative error for the ADMM
 #' @param gg penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.
-#' @param my_lambda user specified lambda_3 values. Default NULL
-#' @param lambda_min the smallest value for lambda_3 , as a fraction of max(lambda_3), the (data derived (lammax)) entry value (i.e. the smallest value for which all coefficients are zero). Default is 0.001 if N>p, and 0.01 if N< p.
-#' @param max_it 	maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
-#' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
-#' @param alph an overrelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
+#' @param my_lambda user specified lambda_3 values
+#' @param lambda_min the smallest value for lambda_3 , as a fraction of max(lambda_3), the (data derived (lammax)) entry value (i.e. the smallest value for which all coefficients are zero)
+#' @param max_it 	maximum number of iterations in loop for one lambda during the ADMM optimization
+#' @param my_print Should information form each ADMM iteration be printed along the way? This prints the dual and primal residuals
+#' @param alph an overrelaxation parameter in \[1, 1.8\]. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.
-#' @param parallel should parallel processing be used or not? Defaults to `TRUE`. If set to `TRUE`, pal should be set to `FALSE`.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available? Default is `FALSE`.
-#' @param tol threshold for the non-zero coefficients. Default 1E-4
-#' @param cl The number of cpu to be used for parallel processing. default 4
-#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
-#' C++.
+#' @param parallel should parallel processing be used or not? If set to `TRUE`, pal should be set to `FALSE`.
+#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available?
+#' @param tol threshold for the non-zero coefficients
+#' @param cl The number of CPUs to be used for parallel processing
+#' @param legacy If \code{TRUE}, use the R version of the algorithm
 #' @return   predicted values for the MADMMplasso object with the following components:
 #' path: a table containing the summary of the model for each lambda_3.
 #'
