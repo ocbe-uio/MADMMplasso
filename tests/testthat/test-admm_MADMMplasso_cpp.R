@@ -206,7 +206,7 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl) # TODO: transpose somewhere (return?)
+  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)

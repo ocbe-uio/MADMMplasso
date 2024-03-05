@@ -1,6 +1,3 @@
-#ifndef MISC_H
-#define MISC_H
-
 #include <RcppArmadillo.h>
 arma::ivec multiples_of(arma::ivec, int, bool = false);
 arma::mat scale_cpp(arma::mat, arma::vec);
@@ -23,4 +20,6 @@ arma::mat model_p(
   const arma::mat
 );
 Rcpp::List reg(const arma::mat, const arma::mat);
-#endif
+int count_nonzero_a_cpp(SEXP);
+int count_nonzero_a_sp_mat(arma::sp_mat);
+int count_nonzero_a_cube(arma::cube);

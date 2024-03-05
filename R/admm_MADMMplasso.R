@@ -41,8 +41,8 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     return(out)
   }
   warning(
-    "Using legacy R code for MADMMplasso.",
-    "This functionality will be removed in a future release.",
+    "Using legacy R code for MADMMplasso. ",
+    "This functionality will be removed in a future release. ",
     "Please consider using legacy = FALSE instead."
   )
   TT <- tree
