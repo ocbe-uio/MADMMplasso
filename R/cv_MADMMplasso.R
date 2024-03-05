@@ -1,33 +1,13 @@
-#' @title Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
-#'  @description Carries out cross-validation for  a  MADMMplasso model over a path of regularization values
+#' @title Carries out cross-validation for a MADMMplasso model over a path of regularization values
+#' @description Carries out cross-validation for a MADMMplasso model over a path of regularization values
+#' @inheritParams MADMMplasso
 #' @param fit  object returned by the MADMMplasso function
-#' @param X  N by p matrix of predictors
-#' @param Z N by K matrix of modifying variables. The elements of Z  may
-#' represent quantitative or categorical variables, or a mixture of the two.
-#'  Categorical variables should be coded by 0-1 dummy variables: for a k-level
-#' variable, one can use either k or k-1  dummy variables.
-#' @param y N by D-matrix of responses. The X and Z variables are centered in
-#' the function. We recommend that x and z also be standardized before the call
 #' @param nfolds  number of cross-validation folds
 #' @param foldid  vector with values in 1:K, indicating folds for K-fold CV. Default NULL
-#' @param alpha mixing parameter- default 0.5. This value should be same as the one used for the MADMMplasso call.
-#' @param lambda  user specified lambda_3 values. Default fit$Lambdas.
-#' @param max_it maximum number of iterations in loop for one lambda during the ADMM optimization. Default 50000
-#' @param e.abs absolute error for the admm. default is 1E-3
-#' @param e.rel relative error for the admm-default is 1E-3
-#' @param nlambda number of lambda_3 values desired (default 50). Similar to maxgrid but can have a value less than or equal to maxgrid.
-#' @param rho the Lagrange variable for the ADMM (default 5 ). This value is updated during the ADMM call based on a certain condition.
-#' @param my_print Should information form each ADMM iteration be printed along the way? Default FALSE. This prints  the dual and primal residuals
-#' @param alph an overelaxation parameter in \[1, 1.8\]. Default 1. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
-#' @param parallel should parallel processing be used during the admm call or not? Default True. If set to true, pal should be set `FALSE`.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available. Default is `FALSE`.
-#' @param gg penalty term for the tree structure obtained from the fit.
+#' @param lambda  user specified lambda_3 values.
+#' @param rho the Lagrange variable for the ADMM. This value is updated during the ADMM call based on a certain condition.
 #' @param TT The results from the hierarchical clustering of the response matrix.
 #' This should same as the parameter tree used during the MADMMplasso call.
-#' @param tol threshold for the non-zero coefficients. Default 1E-4
-#' @param cl The number of cpu to be used for parallel processing. default 2
-#' @param legacy If \code{TRUE}, use the R version of the algorithm. Defaults to
-#' C++.
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
 #' @export
