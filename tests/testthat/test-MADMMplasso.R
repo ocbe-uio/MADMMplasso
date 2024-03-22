@@ -68,7 +68,6 @@ y <- y_train
 
 colnames(y) <- c(paste0("y", seq_len(ncol(y))))
 TT <- tree_parms(y)
-plot(TT$h_clust)
 gg1 <- matrix(0, 2, 2)
 gg1[1, ] <- c(0.02, 0.02)
 gg1[2, ] <- c(0.02, 0.02)
