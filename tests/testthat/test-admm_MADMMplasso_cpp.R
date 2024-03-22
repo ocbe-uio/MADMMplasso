@@ -160,7 +160,7 @@ my_values <- suppressWarnings(suppressMessages(admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = mprt, invmat = invmat, gg = gg, legacy = TRUE
+  my_print = mprt, invmat = invmat, gg = gg
 )))
 beta <- my_values$beta
 theta <- my_values$theta
@@ -192,10 +192,10 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
-my_values_cpp <- admm_MADMMplasso(
+my_values_cpp <- admm_MADMMplasso_cpp(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
-  e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
+  e.rel, alpha, lambda = lambda, alph, svd_w = svd.w, tree = TT,
   my_print = mprt, invmat = invmat, gg = gg
 )
 

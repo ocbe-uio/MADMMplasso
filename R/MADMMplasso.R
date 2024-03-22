@@ -195,13 +195,22 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
-
-    my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
-      admm_MADMMplasso(
-        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, gg[i, ], legacy
-      )
+    if (legacy) {
+      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+        admm_MADMMplasso(
+          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+          y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
+          invmat, gg[i, ]
+        )
+      }
+    } else {
+      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+        admm_MADMMplasso_cpp(
+          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+          y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
+          invmat, gg[i, ]
+        )
+      }
     }
     parallel::stopCluster(cl)
 
@@ -210,27 +219,49 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       my_values[[hh]] <- my_values_matrix[hh, ]
     }
   } else if (!parallel && !pal) {
-    my_values <- lapply(
-      seq_len(nlambda),
-      function(g) {
-        admm_MADMMplasso(
-          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
-          XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, gg[g, ], legacy
-        )
-      }
-    )
+    if (legacy) {
+      my_values <- lapply(
+        seq_len(nlambda),
+        function(g) {
+          admm_MADMMplasso(
+            beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
+            XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
+            invmat, gg[g, ]
+          )
+        }
+      )
+    } else {
+      my_values <- lapply(
+        seq_len(nlambda),
+        function(g) {
+          admm_MADMMplasso_cpp(
+            beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
+            XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
+            invmat, gg[g, ]
+          )
+        }
+      )
+    }
   } else {
     # This is triggered when parallel is FALSE and pal is 1
     my_values <- list()
   }
 
-  loop_output <- hh_nlambda_loop(
-    lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
-    my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
-    invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
-    BETA_hat, Y_HAT, THETA, D, my_values, legacy
-  )
+  if (legacy) {
+    loop_output <- hh_nlambda_loop(
+      lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
+      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
+      invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
+      BETA_hat, Y_HAT, THETA, D, my_values
+    )
+  } else {
+    loop_output <- hh_nlambda_loop_cpp(
+      lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
+      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
+      invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
+      BETA_hat, Y_HAT, THETA, D, my_values
+    )
+  }
 
   remove(invmat)
   remove(my_W_hat)

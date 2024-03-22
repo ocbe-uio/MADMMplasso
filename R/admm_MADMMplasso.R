@@ -32,19 +32,7 @@
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat, gg = 0.2, legacy = FALSE) {
-  if (!legacy) {
-    out <- admm_MADMMplasso_cpp(
-      beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
-      N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, invmat, gg, my_print
-    )
-    return(out)
-  }
-  warning(
-    "Using legacy R code for MADMMplasso. ",
-    "This functionality will be removed in a future release. ",
-    "Please consider using legacy = FALSE instead."
-  )
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat, gg = 0.2) {
   TT <- tree
 
   C <- TT$Tree

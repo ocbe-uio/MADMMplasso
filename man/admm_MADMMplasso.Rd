@@ -27,8 +27,7 @@ admm_MADMMplasso(
   tree,
   my_print,
   invmat,
-  gg = 0.2,
-  legacy = FALSE
+  gg = 0.2
 )
 }
 \arguments{
@@ -78,8 +77,6 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 \item{invmat}{A list of length ncol(y), each containing the C_d part of equation 32 in the paper}
 
 \item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.}
-
-\item{legacy}{If \code{TRUE}, use the R version of the algorithm}
 }
 \value{
 predicted values for the ADMM part
