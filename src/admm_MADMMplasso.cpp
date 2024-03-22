@@ -283,78 +283,78 @@ Rcpp::List admm_MADMMplasso_cpp(
       e = II(c_count);
     }
 
-      E.rows(0, C.n_cols - 1) = N_E.slice(0);
-      e = II(0);
+    E.rows(0, C.n_cols - 1) = N_E.slice(0);
+    e = II(0);
 
-      for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
-        E.rows(e, ((c_count + 1) * y.n_cols) - 1) = N_E.slice(c_count);
-        e = II(c_count);
-      }
+    for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
+      E.rows(e, ((c_count + 1) * y.n_cols) - 1) = N_E.slice(c_count);
+      e = II(c_count);
+    }
 
-      H += Big_beta_response - E;
+    H += Big_beta_response - E;
 
-      double v_diff = arma::accu(arma::pow(-rho * (V - V_old), 2));
-      double q_diff = arma::accu(arma::pow(-rho * (Q - Q_old), 2));
-      double e_diff = arma::accu(arma::pow(-rho * (E - E_old), 2));
-      double ee_diff = arma::accu(arma::pow(-rho * (EE - EE_old), 2));
-      double s = sqrt(v_diff + q_diff + e_diff + ee_diff);
+    double v_diff = arma::accu(arma::pow(-rho * (V - V_old), 2));
+    double q_diff = arma::accu(arma::pow(-rho * (Q - Q_old), 2));
+    double e_diff = arma::accu(arma::pow(-rho * (E - E_old), 2));
+    double ee_diff = arma::accu(arma::pow(-rho * (EE - EE_old), 2));
+    double s = sqrt(v_diff + q_diff + e_diff + ee_diff);
 
-      double v_diff1_sum = arma::accu(v_diff1);
-      double q_diff1_sum = arma::accu(q_diff1);
-      double e_diff1 = arma::accu(arma::pow(Big_beta_response - E, 2));
-      double ee_diff1_sum = arma::accu(ee_diff1);
-      double r = sqrt(v_diff1_sum + q_diff1_sum + e_diff1 + ee_diff1_sum);
+    double v_diff1_sum = arma::accu(v_diff1);
+    double q_diff1_sum = arma::accu(q_diff1);
+    double e_diff1 = arma::accu(arma::pow(Big_beta_response - E, 2));
+    double ee_diff1_sum = arma::accu(ee_diff1);
+    double r = sqrt(v_diff1_sum + q_diff1_sum + e_diff1 + ee_diff1_sum);
 
-      res_dual = s;
-      res_pri = r;
+    res_dual = s;
+    res_pri = r;
 
-      double part_1 = sqrt(Big_beta11.n_elem + 2 * beta_hat.n_elem + Big_beta_response.n_elem);
-      arma::vec Big_beta11_vec = arma::vectorise(Big_beta11);
-      arma::vec beta_hat_vec = arma::vectorise(beta_hat);
-      arma::vec Big_beta_response_vec = arma::vectorise(Big_beta_response);
-      arma::vec part_2 = arma::join_vert(Big_beta11_vec, beta_hat_vec, beta_hat_vec, Big_beta_response_vec);
-      double part_2_norm = arma::norm(part_2);
+    double part_1 = sqrt(Big_beta11.n_elem + 2 * beta_hat.n_elem + Big_beta_response.n_elem);
+    arma::vec Big_beta11_vec = arma::vectorise(Big_beta11);
+    arma::vec beta_hat_vec = arma::vectorise(beta_hat);
+    arma::vec Big_beta_response_vec = arma::vectorise(Big_beta_response);
+    arma::vec part_2 = arma::join_vert(Big_beta11_vec, beta_hat_vec, beta_hat_vec, Big_beta_response_vec);
+    double part_2_norm = arma::norm(part_2);
 
-      arma::vec V_vec = arma::vectorise(V);
-      arma::vec Q_vec = arma::vectorise(Q);
-      arma::vec E_vec = arma::vectorise(E);
-      arma::vec EE_vec = arma::vectorise(EE);
-      arma::vec part_3 = -1 * arma::join_vert(V_vec, Q_vec, E_vec, EE_vec);
-      double part_3_norm = arma::norm(part_3);
+    arma::vec V_vec = arma::vectorise(V);
+    arma::vec Q_vec = arma::vectorise(Q);
+    arma::vec E_vec = arma::vectorise(E);
+    arma::vec EE_vec = arma::vectorise(EE);
+    arma::vec part_3 = -1 * arma::join_vert(V_vec, Q_vec, E_vec, EE_vec);
+    double part_3_norm = arma::norm(part_3);
 
-      double part_2_3 = std::max(part_2_norm, part_3_norm);
+    double part_2_3 = std::max(part_2_norm, part_3_norm);
 
-      double e_primal = part_1 * e_abs + e_rel * part_2_3;
+    double e_primal = part_1 * e_abs + e_rel * part_2_3;
 
-      arma::vec O_vec = arma::vectorise(O);
-      arma::vec P_vec = arma::vectorise(P);
-      arma::vec H_vec = arma::vectorise(H);
-      arma::vec HH_vec = arma::vectorise(HH);
-      arma::vec part_4 = arma::join_vert(O_vec, P_vec, H_vec, HH_vec);
-      double e_dual = part_1 * e_abs + e_rel * arma::max(part_4);
+    arma::vec O_vec = arma::vectorise(O);
+    arma::vec P_vec = arma::vectorise(P);
+    arma::vec H_vec = arma::vectorise(H);
+    arma::vec HH_vec = arma::vectorise(HH);
+    arma::vec part_4 = arma::join_vert(O_vec, P_vec, H_vec, HH_vec);
+    double e_dual = part_1 * e_abs + e_rel * arma::max(part_4);
 
-      V_old = V,
-      Q_old = Q,
-      E_old = E,
-      EE_old = EE;
+    V_old = V,
+    Q_old = Q,
+    E_old = E,
+    EE_old = EE;
 
-      if (res_pri > 10 * res_dual) {
-        rho *= 2;
-      } else if (res_pri * 10 < res_dual ) {
-        rho /= 2;
-      }
+    if (res_pri > 10 * res_dual) {
+      rho *= 2;
+    } else if (res_pri * 10 < res_dual ) {
+      rho /= 2;
+    }
 
+    if (my_print) {
+      Rprintf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
+    }
+
+    if (res_pri <= e_primal && res_dual <= e_dual) {
       if (my_print) {
-        Rprintf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
+        Rprintf("Convergence reached after %u iterations\n", i);
       }
-
-      if (res_pri <= e_primal && res_dual <= e_dual) {
-        if (my_print) {
-          Rprintf("Convergence reached after %u iterations\n", i);
-        }
-        converge = true;
-        break;
-      }
+      converge = true;
+      break;
+    }
   }
 
   res_val = I.t() * E;
