@@ -90,8 +90,8 @@ Rcpp::List hh_nlambda_loop_cpp(
 
     BETA0[hh] = beta0;
     THETA0[hh] = theta0;
-    BETA[hh] = arma::conv_to<arma::sp_mat>::from(beta1);
-    BETA_hat[hh] = arma::conv_to<arma::sp_mat>::from(beta_hat1);
+    BETA[hh] = beta1;
+    BETA_hat[hh] = beta_hat1;
     Y_HAT[hh] = y_hat;
     THETA[hh] = theta1;
 

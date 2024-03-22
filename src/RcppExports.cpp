@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // admm_MADMMplasso_cpp
-Rcpp::List admm_MADMMplasso_cpp(const arma::vec beta0, const arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, const arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const Rcpp::List invmat, const arma::vec gg, const bool my_print);
+Rcpp::List admm_MADMMplasso_cpp(const arma::vec beta0, const arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const Rcpp::List invmat, const arma::vec gg, const bool my_print);
 RcppExport SEXP _MADMMplasso_admm_MADMMplasso_cpp(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP beta_hatSEXP, SEXP thetaSEXP, SEXP rho1SEXP, SEXP XSEXP, SEXP ZSEXP, SEXP max_itSEXP, SEXP W_hatSEXP, SEXP XtYSEXP, SEXP ySEXP, SEXP NSEXP, SEXP e_absSEXP, SEXP e_relSEXP, SEXP alphaSEXP, SEXP lambdaSEXP, SEXP alphSEXP, SEXP svd_wSEXP, SEXP treeSEXP, SEXP invmatSEXP, SEXP ggSEXP, SEXP my_printSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -27,7 +27,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< const int >::type max_it(max_itSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type W_hat(W_hatSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type XtY(XtYSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type XtY(XtYSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type y(ySEXP);
     Rcpp::traits::input_parameter< const int >::type N(NSEXP);
     Rcpp::traits::input_parameter< const double >::type e_abs(e_absSEXP);

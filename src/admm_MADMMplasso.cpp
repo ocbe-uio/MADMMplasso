@@ -46,7 +46,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat Z,
   const int max_it,
   const arma::mat W_hat,
-  const arma::mat XtY,
+  arma::mat XtY,
   const arma::mat y,
   const int N,
   const double e_abs,
@@ -120,21 +120,19 @@ Rcpp::List admm_MADMMplasso_cpp(
   if (my_print) {
     Rcpp::Rcout << "\ni\tres_dual\te_dual\t\tres_pri\t\te_primal" << std::endl;
   }
+  arma::mat r_current = y;
+  arma::vec v_diff1(D, arma::fill::zeros);
+  arma::vec q_diff1(D, arma::fill::zeros);
+  arma::vec ee_diff1(D, arma::fill::zeros);
+  arma::vec new_G(p + p * K, arma::fill::zeros);
+  arma::mat new_group(p, K + 1, arma::fill::zeros);
   for (int i = 1; i < max_it + 1; i++) {
-    arma::mat shared_model = model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
-    arma::mat r_current = y - shared_model;
+    r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
     Rcpp::List b = reg(r_current, Z);
     arma::mat beta0 = b["beta0"];
     arma::mat theta0 = b["theta0"];
-    arma::mat new_y = y - (arma::ones(N) * beta0 + Z * theta0);
-    arma::mat XtY = W_hat.t() * new_y;
-    arma::cube main_beta(p, K + 1, D, arma::fill::zeros);
+    XtY = W_hat.t() * (y - (arma::ones(N) * beta0 + Z * theta0));
     res_val = rho * (I.t() * E - (I.t() * H));
-    arma::vec v_diff1(D, arma::fill::zeros);
-    arma::vec q_diff1(D, arma::fill::zeros);
-    arma::vec ee_diff1(D, arma::fill::zeros);
-
-    arma::vec new_G(p + p * K, arma::fill::zeros);
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);
     new_G = rho * (1 + new_G);
@@ -144,18 +142,15 @@ Rcpp::List admm_MADMMplasso_cpp(
     }
 
     for (int rr = 0; rr < D; rr++) {
-      double DD1 = rho * (new_I(rr) + 1);
-      arma::vec DD2 = new_G + DD1;
-      invmat.slice(rr) = DD2;  // Matrix::chol2inv( Matrix::chol(new_sparse) )
+      // Matrix::chol2inv(Matrix::chol(new_sparse))
+      invmat.slice(rr) = new_G + rho * (new_I(rr) + 1);
     }
 
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
-      arma::vec group1 = group.row(0).t();
-      arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
-      arma::mat new_group(p, K + 1, arma::fill::zeros);
-      new_group.col(0) = group1;
-      new_group.tail_cols(new_group.n_cols - 1) = group2;
+      new_group *= 0;
+      new_group.col(0) = group.row(0).t();
+      new_group.tail_cols(new_group.n_cols - 1) = group.tail_rows(group.n_rows - 1).t();
       arma::vec my_beta_jj = XtY.col(jj) / N +\
         arma::vectorise(new_group) + res_val.row(jj).t() +\
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
@@ -361,11 +356,9 @@ Rcpp::List admm_MADMMplasso_cpp(
 
   for (arma::uword jj = 0; jj < y.n_cols; jj++) {
     arma::mat group = G.t() * V.slice(jj).t();
-    arma::vec group1 = group.row(0).t();
-    arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
     arma::mat new_group = arma::zeros<arma::mat>(p, K + 1);
-    new_group.col(0) = group1;
-    new_group.tail_cols(new_group.n_cols - 1) = group2;
+    new_group.col(0) = group.row(0).t();
+    new_group.tail_cols(new_group.n_cols - 1) = group.tail_rows(group.n_rows - 1).t();
     arma::vec new_g_theta = arma::vectorise(new_group);
 
     arma::mat beta_hat_B1 = beta_hat.submat(0, jj, p - 1, jj);
