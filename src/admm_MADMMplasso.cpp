@@ -142,11 +142,6 @@ Rcpp::List admm_MADMMplasso_cpp(
       invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
     }
 
-    for (int rr = 0; rr < D; rr++) {
-      // Matrix::chol2inv(Matrix::chol(new_sparse))
-      invmat.slice(rr) = new_G + rho * (new_I(rr) + 1);
-    }
-
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
       new_group *= 0;
