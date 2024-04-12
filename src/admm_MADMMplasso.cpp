@@ -125,6 +125,10 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
   Rcpp::List b;
   const arma::mat W_hat_t = W_hat.t();
+  arma::mat DD3(W_hat_t.n_rows, W_hat_t.n_rows);
+  arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
+  arma::vec part_y(W_hat_t.n_rows);
+  arma::vec my_beta_jj(W_hat_t.n_rows);
   for (int i = 1; i < max_it + 1; i++) {
     r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
     b = reg(r_current, Z);
@@ -138,18 +142,17 @@ Rcpp::List admm_MADMMplasso_cpp(
     for (arma::uword slc = 0; slc < D; slc++) {
       invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
     }
-    arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
-    arma::mat part_y(W_hat_t.n_rows, 1);
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
       new_group *= 0;
       new_group.col(0) = group.row(0).t();
       new_group.tail_cols(new_group.n_cols - 1) = group.tail_rows(group.n_rows - 1).t();
-      arma::vec my_beta_jj = XtY.col(jj) / N +\
+      my_beta_jj = XtY.col(jj) / N +\
         arma::vectorise(new_group) + res_val.row(jj).t() +\
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
         arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
-      arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
+      DD3 = arma::diagmat(1 / invmat.slice(jj));
+
       part_z = DD3 * W_hat_t;
       part_y = DD3 * my_beta_jj;
       part_y -= part_z * arma::solve(R_svd_inv + svd_w_tv * part_z, svd_w_tv * part_y, arma::solve_opts::fast);
