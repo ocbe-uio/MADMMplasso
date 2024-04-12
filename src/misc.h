@@ -23,3 +23,4 @@ Rcpp::List reg(const arma::mat, const arma::mat);
 int count_nonzero_a_cpp(SEXP);
 int count_nonzero_a_sp_mat(arma::sp_mat);
 int count_nonzero_a_cube(arma::cube);
+int count_nonzero_a_mat(arma::mat);

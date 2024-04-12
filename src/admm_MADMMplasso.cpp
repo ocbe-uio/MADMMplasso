@@ -53,16 +53,14 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alpha,
   const arma::vec lambda,
   const double alph,
-  const Rcpp::List svd_w,
-  const Rcpp::List tree,
+  const arma::mat svd_w_tu,
+  const arma::mat svd_w_tv,
+  const arma::vec svd_w_d,
+  const arma::sp_mat C,
+  const arma::vec CW,
   const arma::vec gg,
   const bool my_print = true
 ) {
-  const Rcpp::List TT = tree;
-  const arma::sp_mat C = TT["Tree"];
-  const arma::vec CW = TT["Tw"];
-  const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]).t();
-  const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]).t();
   const int D = y.n_cols;
   const int p = X.n_cols;
   const unsigned int K = Z.n_cols;
@@ -109,9 +107,8 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::cube EE_old = EE;
   double res_pri = 0.;
   double res_dual = 0.;
-  const arma::mat SVD_D = arma::diagmat(Rcpp::as<arma::vec>(svd_w["d"]));
-  const arma::mat R_svd = (svd_w_tu.t() * SVD_D) / N;
-  const arma::mat R_svd_inv = arma::inv(R_svd);
+  const arma::mat SVD_D = arma::diagmat(svd_w_d);
+  const arma::mat R_svd_inv = arma::inv((svd_w_tu.t() * SVD_D) / N);
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val;  // declared here because it's also needed outside the loop
@@ -194,7 +191,6 @@ Rcpp::List admm_MADMMplasso_cpp(
       q_diff1(jj) = arma::accu(arma::pow(beta_hat1 - Q.slice(jj), 2));
       ee_diff1(jj) = arma::accu(arma::pow(beta_hat1 - EE.slice(jj), 2));
     }
-
     arma::mat Big_beta_response = I * beta_hat.t();
     arma::mat b_hat_response = alph * Big_beta_response + (1 - alph) * E;
     arma::mat new_mat = b_hat_response + H;
@@ -345,7 +341,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   }
 
   res_val = I.t() * E;
-
   for (arma::uword jj = 0; jj < y.n_cols; jj++) {
     arma::mat group = G.t() * V.slice(jj).t();
     arma::mat new_group = arma::zeros<arma::mat>(p, K + 1);
@@ -368,7 +363,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     theta.slice(jj) = beta_hat1.tail_cols(beta_hat1.n_cols - 1);
     beta_hat.col(jj) = arma::join_vert(beta_hat1.col(0), arma::vectorise(theta.slice(jj)));
   }
-
   arma::mat y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z);
 
   Rcpp::List out = Rcpp::List::create(

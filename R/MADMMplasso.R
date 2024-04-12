@@ -255,11 +255,19 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       BETA_hat, Y_HAT, THETA, D, my_values
     )
   } else {
+    C <- TT$Tree
+    CW <- TT$Tw
+    svd_w_tu <- t(svd.w$u)
+    svd_w_tv <- t(svd.w$v)
+    svd_w_d <- svd.w$d
+    BETA <- array(0, c(p, D, nlambda))
+    BETA_hat <- array(0, c(p + p * K, D, nlambda))
     loop_output <- hh_nlambda_loop_cpp(
       lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
-      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
-      invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
-      BETA_hat, Y_HAT, THETA, D, my_values
+      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, my_print,
+      gg, tol, parallel, pal, simplify2array(BETA0), simplify2array(THETA0),
+      BETA, BETA_hat, simplify2array(Y_HAT),
+      THETA, D, C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
     )
   }
 

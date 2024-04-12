@@ -18,8 +18,11 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alpha,
   const arma::vec lambda,
   const double alph,
-  const Rcpp::List svd_w,
-  const Rcpp::List tree,
+  const arma::mat svd_w_tu,
+  const arma::mat svd_w_tv,
+  const arma::vec svd_w_d,
+  const arma::sp_mat C,
+  const arma::vec CW,
   const arma::vec gg,
   const bool my_print = true
 );

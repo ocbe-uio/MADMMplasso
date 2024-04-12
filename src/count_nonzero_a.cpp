@@ -46,3 +46,12 @@ int count_nonzero_a_cube(arma::cube x) {
   }
   return arma::max(count1);
 }
+
+// [[Rcpp::export]]
+int count_nonzero_a_mat(arma::mat x) {
+  arma::vec count1(x.n_cols, arma::fill::zeros);
+  for (unsigned int ww = 0; ww < x.n_cols; ++ww) {
+    count1(ww) = arma::accu(x.col(ww) != 0);
+  }
+  return arma::max(count1);
+}

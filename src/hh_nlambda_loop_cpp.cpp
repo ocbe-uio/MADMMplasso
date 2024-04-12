@@ -23,35 +23,35 @@ Rcpp::List hh_nlambda_loop_cpp(
   const double e_rel,
   const double alpha,
   const double alph,
-  const Rcpp::List svd_w,
-  const Rcpp::List tree,
   const bool my_print,
-  const Rcpp::List invmat,
   const arma::mat gg,
   const double tol,
   const bool parallel,
   const bool pal,
-  Rcpp::List BETA0,
-  Rcpp::List THETA0,
-  Rcpp::List BETA,
-  Rcpp::List BETA_hat,
-  Rcpp::List Y_HAT,
+  arma::cube BETA0,
+  arma::cube THETA0,
+  arma::cube BETA,
+  arma::cube BETA_hat,
+  arma::cube Y_HAT,
   Rcpp::List THETA,
   const unsigned int D,
+  const arma::sp_mat C,
+  const arma::vec CW,
+  const arma::mat svd_w_tu,
+  const arma::mat svd_w_tv,
+  const arma::vec svd_w_d,
   Rcpp::List my_values
 ) {
   arma::vec obj;
   arma::vec non_zero_theta;
-  Rcpp::List my_obj;
   arma::vec n_main_terms;
   arma::vec lam_list;
   arma::mat y_hat = y;
   unsigned int hh = 0;
-
+  Rcpp::List my_values_hh;
   while (hh <= nlambda - 1) {
     arma::vec lambda = lam.row(hh).t();
 
-    Rcpp::List my_values_hh;
     if (parallel) { // TODO: recheck all conditions (all parallel-pal combinations)
       // my_values is already a list of length hh
       my_values_hh = my_values[hh];
@@ -59,7 +59,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // In this case, my_values is an empty list to be created now
       my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree,
+        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW,
         gg.row(hh).t(), my_print
       );
     }
@@ -71,15 +71,17 @@ Rcpp::List hh_nlambda_loop_cpp(
     beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
     y_hat = Rcpp::as<arma::mat>(my_values_hh["y_hat"]);
 
-    arma::sp_mat beta1(beta % (abs(beta) > tol));
-    arma::cube theta1(theta % (abs(theta) > tol)); // should be sparse, but Arma doesn't have sp_cube
-    arma::sp_mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
+    // should be sparse, but Arma doesn't have sp_cube; beta1 and beta_hat1
+    // are going into a cube, so they need to be dense as well
+    arma::mat beta1(beta % (abs(beta) > tol));
+    arma::cube theta1(theta % (abs(theta) > tol));
+    arma::mat beta_hat1(beta_hat % (abs(beta_hat) > tol));
 
     // TODO: messy! Simplify!
     arma::vec n_interaction_terms(1);
     n_interaction_terms = count_nonzero_a_cube(theta1);
     arma::vec n_beta_terms(1);
-    n_beta_terms = count_nonzero_a_sp_mat(beta1);
+    n_beta_terms = count_nonzero_a_mat(beta1);
     n_main_terms = arma::join_vert(n_main_terms, n_beta_terms);
 
     double obj1 = arma::accu(arma::pow(y - y_hat, 2)) / (D * N);
@@ -88,11 +90,11 @@ Rcpp::List hh_nlambda_loop_cpp(
     non_zero_theta = arma::join_vert(non_zero_theta, n_interaction_terms);
     lam_list = arma::join_vert(lam_list, lambda);
 
-    BETA0[hh] = beta0;
-    THETA0[hh] = theta0;
-    BETA[hh] = beta1;
-    BETA_hat[hh] = beta_hat1;
-    Y_HAT[hh] = y_hat;
+    BETA0.slice(hh) = beta0;
+    THETA0.slice(hh) = theta0;
+    BETA.slice(hh) = beta1;
+    BETA_hat.slice(hh) = beta_hat1;
+    Y_HAT.slice(hh) = y_hat;
     THETA[hh] = theta1;
 
     if (my_print) {

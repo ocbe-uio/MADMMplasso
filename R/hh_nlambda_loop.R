@@ -20,7 +20,6 @@ hh_nlambda_loop <- function(
         y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat,
         gg[hh, ]
       )
-
       beta <- my_values$beta
       theta <- my_values$theta
       my_obj[[hh]] <- list(my_values$obj)
