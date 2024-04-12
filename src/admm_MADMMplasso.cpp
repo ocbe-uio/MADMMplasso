@@ -111,6 +111,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   double res_dual = 0.;
   const arma::mat SVD_D = arma::diagmat(Rcpp::as<arma::vec>(svd_w["d"]));
   const arma::mat R_svd = (svd_w_tu.t() * SVD_D) / N;
+  const arma::mat R_svd_inv = arma::inv(R_svd);
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val;  // declared here because it's also needed outside the loop
@@ -123,9 +124,10 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec q_diff1(D, arma::fill::zeros);
   arma::vec ee_diff1(D, arma::fill::zeros);
   arma::vec new_G(p + p * K, arma::fill::zeros);
-  arma::mat new_group(p, K + 1, arma::fill::zeros);
+  arma::mat new_group(p, K + 1);
   arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
   Rcpp::List b;
+  const arma::mat W_hat_t = W_hat.t();
   for (int i = 1; i < max_it + 1; i++) {
     r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
     b = reg(r_current, Z);
@@ -139,7 +141,8 @@ Rcpp::List admm_MADMMplasso_cpp(
     for (arma::uword slc = 0; slc < D; slc++) {
       invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
     }
-
+    arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
+    arma::mat part_y(W_hat_t.n_rows, 1);
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
       new_group *= 0;
@@ -150,16 +153,11 @@ Rcpp::List admm_MADMMplasso_cpp(
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
         arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
       arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
-      arma::mat part_z = DD3 * W_hat.t();
-      arma::mat part_y = DD3 * my_beta_jj;
-
-      arma::mat beta_hat_j = arma::inv(arma::inv(R_svd) + svd_w_tv * part_z);
-      beta_hat_j = beta_hat_j * (svd_w_tv * part_y);
-      beta_hat_j = part_z * beta_hat_j;
-
-      arma::vec beta_hat_JJ = arma::vectorise(part_y - beta_hat_j);
-      beta_hat.col(jj) = beta_hat_JJ;
-      arma::mat beta_hat1 = arma::reshape(beta_hat_JJ, p, 1 + K);
+      part_z = DD3 * W_hat_t;
+      part_y = DD3 * my_beta_jj;
+      part_y -= part_z * arma::solve(R_svd_inv + svd_w_tv * part_z, svd_w_tv * part_y, arma::solve_opts::fast);
+      beta_hat.col(jj) = part_y;
+      arma::mat beta_hat1 = arma::reshape(part_y, p, 1 + K);
       arma::mat b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
       Q.slice(jj).col(0) = b_hat.col(0) + P.slice(jj).col(0);
       arma::mat new_mat = b_hat.tail_cols(b_hat.n_cols - 1) + P.slice(jj).tail_cols(P.slice(jj).n_cols - 1);
