@@ -193,10 +193,9 @@ test_that("mean values of final objects are expected", {
 
 # Testing the C++ function =====================================================
 my_values_cpp <- admm_MADMMplasso_cpp(
-  beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
-  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
-  e.rel, alpha, lambda = lambda, alph, svd_w = svd.w, tree = TT, gg = gg,
-  my_print = mprt
+  beta0, theta0, beta, beta_hat, theta, rho, X, Z, max_it, my_W_hat, XtY, y, N,
+  e.abs, e.rel, alpha, lambda, alph, t(svd.w$u), t(svd.w$v), svd.w$d, TT$Tree,
+  TT$Tw, gg, mprt
 )
 
 test_that("C++ function output structure", {

@@ -103,10 +103,10 @@ fit_R <- suppressWarnings(
 test_that("C++ and R versions basically output the same thing", {
   expect_named(fit_C$beta, names(fit_R$beta))
   tl <- 1e1
-  expect_equal(fit_C$beta0[[1]], t(fit_R$beta0[[1]]), tolerance = tl)
-  expect_equal(as.vector(fit_C$beta[[1]]), as.vector(fit_R$beta[[1]]), tolerance = tl)
-  expect_equal(as.vector(fit_C$BETA_hat[[1]]), as.vector(fit_R$BETA_hat[[1]]), tolerance = tl)
-  expect_equal(fit_C$theta0, fit_R$theta0, tolerance = tl)
+  expect_equal(fit_C$beta0[, , 1], fit_R$beta0[[1]][1, ], tolerance = tl)
+  expect_equal(as.vector(fit_C$beta[, , 1]), as.vector(fit_R$beta[[1]]), tolerance = tl)
+  expect_equal(as.vector(fit_C$BETA_hat[, , 1]), as.vector(fit_R$BETA_hat[[1]]), tolerance = tl)
+  expect_equal(fit_C$theta0[, , 1], fit_R$theta0[[1]], tolerance = tl)
   for (i in 1:6) {
     expect_equal(as.vector(fit_C$theta[[1]][, , i]), as.vector(fit_R$theta[[1]][, , i]), tolerance = tl)
   }
@@ -114,6 +114,6 @@ test_that("C++ and R versions basically output the same thing", {
   expect_identical(fit_C$Lambdas, fit_R$Lambdas)
   expect_identical(fit_C$non_zero[1], fit_R$non_zero)
   expect_identical(fit_C$LOSS[1], fit_R$LOSS)
-  expect_equal(fit_C$Y_HAT, fit_R$Y_HAT, tolerance = tl)
+  expect_equal(fit_C$Y_HAT[, , 1], fit_R$Y_HAT[[1]], tolerance = tl)
   expect_identical(fit_C$gg, fit_R$gg)
 })
