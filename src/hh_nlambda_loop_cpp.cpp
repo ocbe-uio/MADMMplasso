@@ -60,7 +60,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW,
-        gg.row(hh).t(), my_print
+        gg.row(hh), my_print
       );
     }
 

@@ -23,6 +23,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::vec svd_w_d,
   const arma::sp_mat C,
   const arma::vec CW,
-  const arma::vec gg,
+  const arma::rowvec gg,
   const bool my_print = true
 );
