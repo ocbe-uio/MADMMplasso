@@ -33,7 +33,6 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::cube BETA,
   arma::cube BETA_hat,
   arma::cube Y_HAT,
-  Rcpp::List THETA,
   const unsigned int D,
   const arma::sp_mat C,
   const arma::vec CW,
@@ -49,6 +48,7 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::mat y_hat = y;
   unsigned int hh = 0;
   Rcpp::List my_values_hh;
+  Rcpp::List THETA(nlambda);
   while (hh <= nlambda - 1) {
     arma::vec lambda = lam.row(hh).t();
 

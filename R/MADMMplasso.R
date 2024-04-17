@@ -181,8 +181,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   r_current <- y
   b <- reg(r_current, Z)
-  beta0 <- b$beta0
-  theta0 <- b$theta0
+  beta0 <- b[1, ]
+  theta0 <- b[-1, ]
 
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
@@ -263,11 +263,11 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     BETA <- array(0, c(p, D, nlambda))
     BETA_hat <- array(0, c(p + p * K, D, nlambda))
     loop_output <- hh_nlambda_loop_cpp(
-      lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
-      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, my_print,
+      lam, as.integer(nlambda), beta0, theta0, beta, beta_hat, theta, rho1, X, Z, as.integer(max_it),
+      my_W_hat, XtY, y, as.integer(N), e.abs, e.rel, alpha, alph, my_print,
       gg, tol, parallel, pal, simplify2array(BETA0), simplify2array(THETA0),
       BETA, BETA_hat, simplify2array(Y_HAT),
-      THETA, D, C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
+      as.integer(D), C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
     )
   }
 

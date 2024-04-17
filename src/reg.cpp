@@ -13,10 +13,7 @@ arma::vec lm_arma(const arma::vec &R, const arma::mat &Z) {
 }
 
 // [[Rcpp::export]]
-Rcpp::List reg(
-  const arma::mat r,
-  const arma::mat Z
-){
+arma::mat reg(const arma::mat r, const arma::mat Z) {
 
   arma::rowvec beta01(r.n_cols, arma::fill::zeros);
   arma::mat theta01(Z.n_cols, r.n_cols, arma::fill::zeros);
@@ -27,9 +24,6 @@ Rcpp::List reg(
     theta01.col(e) = new1.tail(new1.n_elem - 1);
   }
 
-  Rcpp::List out = Rcpp::List::create(
-    Rcpp::Named("beta0") = beta01,
-    Rcpp::Named("theta0") = theta01
-  );
+  arma::mat out = arma::join_vert(beta01, theta01);
   return out;
 }

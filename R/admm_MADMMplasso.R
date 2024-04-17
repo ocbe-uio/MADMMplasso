@@ -105,8 +105,8 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
   for (i in 2:max_it) {
     r_current <- (y - model_intercept(beta0, theta0, beta = beta_hat, theta, X = W_hat, Z))
     b <- reg(r_current, Z) # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
-    beta0 <- b$beta0
-    theta0 <- b$theta0
+    beta0 <- b[1, ]
+    theta0 <- b[-1, ]
 
     new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 

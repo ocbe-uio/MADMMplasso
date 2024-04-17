@@ -19,7 +19,7 @@ arma::mat model_p(
   const arma::mat,
   const arma::mat
 );
-Rcpp::List reg(const arma::mat, const arma::mat);
+arma::mat reg(const arma::mat, const arma::mat);
 int count_nonzero_a_cpp(SEXP);
 int count_nonzero_a_sp_mat(arma::sp_mat);
 int count_nonzero_a_cube(arma::cube);

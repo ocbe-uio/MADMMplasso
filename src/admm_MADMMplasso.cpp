@@ -123,7 +123,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec new_G(p + p * K, arma::fill::zeros);
   arma::mat new_group(p, K + 1);
   arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
-  Rcpp::List b;
+  arma::mat b;
   const arma::mat W_hat_t = W_hat.t();
   arma::mat DD3(W_hat_t.n_rows, W_hat_t.n_rows);
   arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
@@ -132,8 +132,8 @@ Rcpp::List admm_MADMMplasso_cpp(
   for (int i = 1; i < max_it + 1; i++) {
     r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
     b = reg(r_current, Z);
-    arma::mat beta0 = b["beta0"];
-    arma::mat theta0 = b["theta0"];
+    arma::mat beta0 = b.row(0);
+    arma::mat theta0 = b.tail_rows(b.n_rows - 1);
     XtY = W_hat.t() * (y - (arma::ones(N) * beta0 + Z * theta0));
     res_val = rho * (I.t() * E - (I.t() * H));
     new_G.rows(0, p - 1).fill(1);
