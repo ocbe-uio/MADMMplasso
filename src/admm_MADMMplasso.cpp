@@ -130,7 +130,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec part_y(W_hat_t.n_rows);
   arma::vec my_beta_jj(W_hat_t.n_rows);
   for (int i = 1; i < max_it + 1; i++) {
-    r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
+    r_current = y - model_intercept(beta_hat, W_hat);
     b = reg(r_current, Z);
     arma::mat beta0 = b.row(0);
     arma::mat theta0 = b.tail_rows(b.n_rows - 1);
@@ -366,7 +366,7 @@ Rcpp::List admm_MADMMplasso_cpp(
     theta.slice(jj) = beta_hat1.tail_cols(beta_hat1.n_cols - 1);
     beta_hat.col(jj) = arma::join_vert(beta_hat1.col(0), arma::vectorise(theta.slice(jj)));
   }
-  arma::mat y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z);
+  arma::mat y_hat = model_p(beta0, theta0, beta_hat, W_hat, Z);
 
   Rcpp::List out = Rcpp::List::create(
     Rcpp::Named("beta0") = beta0,

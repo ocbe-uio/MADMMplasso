@@ -137,34 +137,29 @@ BEGIN_RCPP
 END_RCPP
 }
 // model_intercept
-arma::mat model_intercept(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, const arma::cube theta, const arma::mat X, const arma::mat Z);
-RcppExport SEXP _MADMMplasso_model_intercept(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP thetaSEXP, SEXP XSEXP, SEXP ZSEXP) {
+arma::mat model_intercept(const arma::mat beta, const arma::mat X);
+RcppExport SEXP _MADMMplasso_model_intercept(SEXP betaSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec >::type beta0(beta0SEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type theta0(theta0SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type Z(ZSEXP);
-    rcpp_result_gen = Rcpp::wrap(model_intercept(beta0, theta0, beta, theta, X, Z));
+    rcpp_result_gen = Rcpp::wrap(model_intercept(beta, X));
     return rcpp_result_gen;
 END_RCPP
 }
 // model_p
-arma::mat model_p(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, const arma::cube theta, const arma::mat X, const arma::mat Z);
-RcppExport SEXP _MADMMplasso_model_p(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP thetaSEXP, SEXP XSEXP, SEXP ZSEXP) {
+arma::mat model_p(const arma::vec beta0, const arma::mat theta0, const arma::mat beta, const arma::mat X, const arma::mat Z);
+RcppExport SEXP _MADMMplasso_model_p(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP XSEXP, SEXP ZSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec >::type beta0(beta0SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type theta0(theta0SEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::cube >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< const arma::mat >::type Z(ZSEXP);
-    rcpp_result_gen = Rcpp::wrap(model_p(beta0, theta0, beta, theta, X, Z));
+    rcpp_result_gen = Rcpp::wrap(model_p(beta0, theta0, beta, X, Z));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -248,8 +243,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_MADMMplasso_count_nonzero_a_cube", (DL_FUNC) &_MADMMplasso_count_nonzero_a_cube, 1},
     {"_MADMMplasso_count_nonzero_a_mat", (DL_FUNC) &_MADMMplasso_count_nonzero_a_mat, 1},
     {"_MADMMplasso_hh_nlambda_loop_cpp", (DL_FUNC) &_MADMMplasso_hh_nlambda_loop_cpp, 36},
-    {"_MADMMplasso_model_intercept", (DL_FUNC) &_MADMMplasso_model_intercept, 6},
-    {"_MADMMplasso_model_p", (DL_FUNC) &_MADMMplasso_model_p, 6},
+    {"_MADMMplasso_model_intercept", (DL_FUNC) &_MADMMplasso_model_intercept, 2},
+    {"_MADMMplasso_model_p", (DL_FUNC) &_MADMMplasso_model_p, 5},
     {"_MADMMplasso_modulo", (DL_FUNC) &_MADMMplasso_modulo, 2},
     {"_MADMMplasso_multiples_of", (DL_FUNC) &_MADMMplasso_multiples_of, 3},
     {"_MADMMplasso_lm_arma", (DL_FUNC) &_MADMMplasso_lm_arma, 2},

@@ -56,12 +56,12 @@ hh_nlambda_loop_cpp <- function(lam, nlambda, beta0, theta0, beta, beta_hat, the
     .Call(`_MADMMplasso_hh_nlambda_loop_cpp`, lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, my_print, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, D, C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values)
 }
 
-model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
-    .Call(`_MADMMplasso_model_intercept`, beta0, theta0, beta, theta, X, Z)
+model_intercept <- function(beta, X) {
+    .Call(`_MADMMplasso_model_intercept`, beta, X)
 }
 
-model_p <- function(beta0, theta0, beta, theta, X, Z) {
-    .Call(`_MADMMplasso_model_p`, beta0, theta0, beta, theta, X, Z)
+model_p <- function(beta0, theta0, beta, X, Z) {
+    .Call(`_MADMMplasso_model_p`, beta0, theta0, beta, X, Z)
 }
 
 modulo <- function(x, n) {
