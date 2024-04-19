@@ -35,8 +35,8 @@
 //' @export
 // [[Rcpp::export]]
 Rcpp::List admm_MADMMplasso_cpp(
-  const arma::vec beta0,
-  const arma::mat theta0,
+  arma::vec beta0,
+  arma::mat theta0,
   arma::mat beta,
   arma::mat beta_hat,
   arma::cube theta,
@@ -132,9 +132,9 @@ Rcpp::List admm_MADMMplasso_cpp(
   for (int i = 1; i < max_it + 1; i++) {
     r_current = y - model_intercept(beta_hat, W_hat);
     b = reg(r_current, Z);
-    arma::mat beta0 = b.row(0);
-    arma::mat theta0 = b.tail_rows(b.n_rows - 1);
-    XtY = W_hat.t() * (y - (arma::ones(N) * beta0 + Z * theta0));
+    beta0 = b.row(0).t();
+    theta0 = b.tail_rows(b.n_rows - 1);
+    XtY = W_hat.t() * (y - (arma::ones(N) * beta0.t() + Z * theta0));
     res_val = rho * (I.t() * E - (I.t() * H));
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);

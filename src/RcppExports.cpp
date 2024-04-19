@@ -12,13 +12,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // admm_MADMMplasso_cpp
-Rcpp::List admm_MADMMplasso_cpp(const arma::vec beta0, const arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const arma::mat svd_w_tu, const arma::mat svd_w_tv, const arma::vec svd_w_d, const arma::sp_mat C, const arma::vec CW, const arma::rowvec gg, const bool my_print);
+Rcpp::List admm_MADMMplasso_cpp(arma::vec beta0, arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat W_hat, arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const arma::vec lambda, const double alph, const arma::mat svd_w_tu, const arma::mat svd_w_tv, const arma::vec svd_w_d, const arma::sp_mat C, const arma::vec CW, const arma::rowvec gg, const bool my_print);
 RcppExport SEXP _MADMMplasso_admm_MADMMplasso_cpp(SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP beta_hatSEXP, SEXP thetaSEXP, SEXP rho1SEXP, SEXP XSEXP, SEXP ZSEXP, SEXP max_itSEXP, SEXP W_hatSEXP, SEXP XtYSEXP, SEXP ySEXP, SEXP NSEXP, SEXP e_absSEXP, SEXP e_relSEXP, SEXP alphaSEXP, SEXP lambdaSEXP, SEXP alphSEXP, SEXP svd_w_tuSEXP, SEXP svd_w_tvSEXP, SEXP svd_w_dSEXP, SEXP CSEXP, SEXP CWSEXP, SEXP ggSEXP, SEXP my_printSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec >::type beta0(beta0SEXP);
-    Rcpp::traits::input_parameter< const arma::mat >::type theta0(theta0SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type beta0(beta0SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type theta0(theta0SEXP);
     Rcpp::traits::input_parameter< arma::mat >::type beta(betaSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type beta_hat(beta_hatSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type theta(thetaSEXP);
