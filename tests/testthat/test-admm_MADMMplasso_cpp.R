@@ -171,7 +171,7 @@ beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
 test_that("final objects have correct dimensions", {
-  expect_identical(dim(beta0), c(1L, 6L))
+  expect_identical(length(beta0), 6L)
   expect_identical(dim(theta0), c(4L, 6L))
   expect_identical(dim(beta), c(50L, 6L))
   expect_identical(dim(theta), c(50L, 4L, 6L))
@@ -205,7 +205,7 @@ test_that("C++ function output structure", {
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)
+  expect_equal(my_values$beta0, my_values_cpp$beta0[, 1], tolerance = tl)
   expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
   expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
   expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)

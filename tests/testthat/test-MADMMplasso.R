@@ -103,7 +103,7 @@ fit_R <- suppressWarnings(
 test_that("C++ and R versions basically output the same thing", {
   expect_named(fit_C$beta, names(fit_R$beta))
   tl <- 1e1
-  expect_equal(fit_C$beta0[, , 1], fit_R$beta0[[1]][1, ], tolerance = tl)
+  expect_equal(fit_C$beta0[, , 1], fit_R$beta0[[1]], tolerance = tl)
   expect_equal(as.vector(fit_C$beta[, , 1]), as.vector(fit_R$beta[[1]]), tolerance = tl)
   expect_equal(as.vector(fit_C$BETA_hat[, , 1]), as.vector(fit_R$BETA_hat[[1]]), tolerance = tl)
   expect_equal(fit_C$theta0[, , 1], fit_R$theta0[[1]], tolerance = tl)

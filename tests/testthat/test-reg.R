@@ -18,6 +18,7 @@ test_that("reg() produces the correct output", {
   for (rp in seq_len(reps)) {
     r <- matrix(rnorm(n_obs[rp] * n_vars[rp]), n_obs[rp], n_vars[rp])
     z <- as.matrix(sample(0:1, n_obs[rp], replace = TRUE))
-    expect_identical(reg(r, z), reg_R(r, z), tolerance = 1e-10)
+    expect_identical(reg(r, z)[1, ], reg_R(r, z)[[1]][1, ], tolerance = 1e-10)
+    expect_identical(reg(r, z)[2, ], reg_R(r, z)[[2]][1, ], tolerance = 1e-10)
   }
 })
