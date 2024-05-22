@@ -37,7 +37,7 @@
 //' @description TODO: add description
 //' @export
 // [[Rcpp::export]]
-Rcpp::List admm_MADMMplasso_cpp(
+arma::field<arma::cube> admm_MADMMplasso_cpp(
   arma::vec beta0,
   arma::mat theta0,
   arma::mat beta,
@@ -371,15 +371,28 @@ Rcpp::List admm_MADMMplasso_cpp(
   }
   arma::mat y_hat = model_p(beta0, theta0, beta_hat, W_hat, Z);
 
-  Rcpp::List out = Rcpp::List::create(
-    Rcpp::Named("beta0") = beta0,
-    Rcpp::Named("theta0") = theta0,
-    Rcpp::Named("beta") = beta,
-    Rcpp::Named("theta") = theta,
-    Rcpp::Named("converge") = converge,
-    Rcpp::Named("obj") = NULL,
-    Rcpp::Named("beta_hat") = beta_hat,
-    Rcpp::Named("y_hat") = y_hat
-  );
+  // Return important values
+  arma::field<arma::cube> out(7);
+  // TODO: print all dimensions to make sure they are correct
+  out(0) = arma::cube(beta0.n_elem, 1, 1);
+  out(0).slice(0) = beta0;
+
+  out(1) = arma::cube(theta0.n_rows, theta0.n_cols, 1);
+  out(1).slice(0) = theta0;
+
+  out(2) = arma::cube(beta.n_rows, beta.n_cols, 1);
+  out(2).slice(0) = beta;
+
+  out(3) = theta;
+
+  out(4) = arma::cube(1, 1, 1);
+  out(4).slice(0) = converge;
+
+  out(5) = arma::cube(beta_hat.n_rows, beta_hat.n_cols, 1);
+  out(5).slice(0) = beta_hat;
+
+  out(6) = arma::cube(y_hat.n_rows, y_hat.n_cols, 1);
+  out(6).slice(0) = y_hat;
+
   return out;
 }

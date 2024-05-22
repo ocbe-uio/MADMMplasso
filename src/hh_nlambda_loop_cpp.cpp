@@ -47,29 +47,33 @@ Rcpp::List hh_nlambda_loop_cpp(
   arma::vec lam_list;
   arma::mat y_hat = y;
   unsigned int hh = 0;
-  Rcpp::List my_values_hh;
-  Rcpp::List THETA(nlambda);
+  arma::field<arma::cube> THETA(nlambda);
   while (hh <= nlambda - 1) {
     arma::vec lambda = lam.row(hh).t();
 
     if (parallel) { // TODO: recheck all conditions (all parallel-pal combinations)
       // my_values is already a list of length hh
-      my_values_hh = my_values[hh];
+      beta0 = my_values[hh]["beta0"];
+      theta0 = my_values[hh]["theta0"];
+      beta = my_values[hh]["beta"];
+      theta = my_values[hh]["theta"];
+      beta_hat = my_values[hh]["beta_hat"];
+      y_hat = my_values[hh]["y_hat"];
     } else if (pal) {
       // In this case, my_values is an empty list to be created now
-      my_values_hh = admm_MADMMplasso_cpp(
+      arma::field<arma::cube> my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW,
         gg.row(hh), my_print
       );
+      beta0 = my_values_hh(0).slice(0);
+      theta0 = my_values_hh(1).slice(0);
+      beta = my_values_hh(2).slice(0);
+      theta = my_values_hh(3);
+      beta_hat = my_values_hh(5).slice(0);
+      y_hat = my_values_hh(6).slice(0);
     }
 
-    beta = Rcpp::as<arma::mat>(my_values_hh["beta"]);
-    theta = Rcpp::as<arma::cube>(my_values_hh["theta"]);
-    beta0 = Rcpp::as<arma::vec>(my_values_hh["beta0"]);
-    theta0 = Rcpp::as<arma::mat>(my_values_hh["theta0"]);
-    beta_hat = Rcpp::as<arma::mat>(my_values_hh["beta_hat"]);
-    y_hat = Rcpp::as<arma::mat>(my_values_hh["y_hat"]);
 
     // should be sparse, but Arma doesn't have sp_cube; beta1 and beta_hat1
     // are going into a cube, so they need to be dense as well
@@ -95,7 +99,7 @@ Rcpp::List hh_nlambda_loop_cpp(
     BETA.slice(hh) = beta1;
     BETA_hat.slice(hh) = beta_hat1;
     Y_HAT.slice(hh) = y_hat;
-    THETA[hh] = theta1;
+    THETA(hh) = theta1;
 
     if (my_print) {
       if (hh == 0) {

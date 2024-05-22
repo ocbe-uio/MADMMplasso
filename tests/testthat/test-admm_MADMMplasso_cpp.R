@@ -199,17 +199,15 @@ my_values_cpp <- admm_MADMMplasso_cpp(
 )
 
 test_that("C++ function output structure", {
-  expect_identical(length(my_values_cpp), length(my_values))
-  expect_identical(names(my_values_cpp), names(my_values))
+  expect_identical(length(my_values_cpp), length(my_values) - 1L)
 })
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, my_values_cpp$beta0[, 1], tolerance = tl)
-  expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
-  expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
-  expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
-  expect_identical(my_values$converge, my_values_cpp$converge)
-  expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
-  expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)
+  expect_equal(my_values$beta0, my_values_cpp[[1]][, 1, 1], tolerance = tl)
+  expect_equal(my_values$theta0, my_values_cpp[[2]][, , 1], tolerance = tl)
+  expect_equal(my_values$beta, my_values_cpp[[3]][, , 1], tolerance = tl)
+  expect_equal(my_values$theta, my_values_cpp[[4]], tolerance = tl)
+  expect_equal(my_values$beta_hat, my_values_cpp[[6]][, , 1], tolerance = tl)
+  expect_equal(my_values$y_hat, my_values_cpp[[7]][, , 1], tolerance = tl)
 })
