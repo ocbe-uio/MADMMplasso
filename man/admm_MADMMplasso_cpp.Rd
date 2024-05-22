@@ -23,8 +23,11 @@ admm_MADMMplasso_cpp(
   alpha,
   lambda,
   alph,
-  svd_w,
-  tree,
+  svd_w_tu,
+  svd_w_tv,
+  svd_w_d,
+  C,
+  CW,
   gg,
   my_print = TRUE
 )
@@ -69,9 +72,15 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{alph}{an overrelaxation parameter in [1, 1.8], usually obtained from the MADMMplasso call.}
 
-\item{svd_w}{singular value decomposition of W}
+\item{svd_w_tu}{the transpose of the U matrix from the SVD of W_hat}
 
-\item{tree}{The results from the hierarchical clustering of the response matrix.
+\item{svd_w_tv}{the transpose of the V matrix from the SVD of W_hat}
+
+\item{svd_w_d}{the D matrix from the SVD of W_hat}
+
+\item{C}{the trained tree}
+
+\item{CW}{weights for the trained tree
 The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 However, user decide on a specific structure and then input a tree that follows such structure.}
 

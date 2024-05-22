@@ -24,8 +24,11 @@
 //' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
 //' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
 //' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
-//' @param svd_w singular value decomposition of W
-//' @param tree The results from the hierarchical clustering of the response matrix.
+//' @param svd_w_tu the transpose of the U matrix from the SVD of W_hat
+//' @param svd_w_tv the transpose of the V matrix from the SVD of W_hat
+//' @param svd_w_d the D matrix from the SVD of W_hat
+//' @param C the trained tree
+//' @param CW weights for the trained tree
 //' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 //' However, user decide on a specific structure and then input a tree that follows such structure.
 //' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
