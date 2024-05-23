@@ -243,7 +243,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       )
     }
   } else {
-    # This is triggered when parallel is FALSE and pal is 1
+    # This is triggered when parallel is FALSE and pal is TRUE
     my_values <- list()
   }
 
@@ -270,9 +270,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       as.integer(D), C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
     )
   }
-
-  remove(invmat)
-  remove(my_W_hat)
 
   loop_output$obj[1] <- loop_output$obj[2]
 
