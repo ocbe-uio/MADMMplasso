@@ -124,7 +124,7 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
   arma::vec ee_diff1(D, arma::fill::zeros);
   arma::vec new_G(p + p * K, arma::fill::zeros);
   arma::mat new_group(p, K + 1);
-  arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
+  arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates // TODO: looks like this could be a matrix. Simplify!
   arma::mat b;
   const arma::mat W_hat_t = W_hat.t();
   arma::mat DD3(W_hat_t.n_rows, W_hat_t.n_rows);
@@ -157,7 +157,7 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
         arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
 
-      DD3 = arma::diagmat(1 / invmat.slice(jj));
+      DD3 = arma::diagmat(1 / invmat.slice(jj)); // TODO: perform this operation outside of the loop
       DD3_diag = arma::diagvec(DD3);
       for (arma::uword j = 0; j < W_hat_t.n_cols; ++j) {
           part_z.col(j) = DD3_diag % W_hat_t.col(j);
