@@ -127,7 +127,6 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
   arma::mat invmat(new_G.n_rows, D);  // denominator of the beta estimates
   arma::mat b;
   const arma::mat W_hat_t = W_hat.t();
-  arma::mat DD3(W_hat_t.n_rows, W_hat_t.n_rows);
   arma::vec DD3_diag(W_hat_t.n_rows);
   arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
   arma::vec part_y(W_hat_t.n_rows);
@@ -147,6 +146,7 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
     for (arma::uword slc = 0; slc < D; slc++) {
       invmat.col(slc) = new_G + rho * (new_I(slc) + 1);
     }
+    arma::mat DD3 = 1 / invmat;
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
       new_group *= 0;
@@ -157,12 +157,11 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
         arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
 
-      DD3 = arma::diagmat(1 / invmat.col(jj)); // TODO: perform this operation outside of the loop
-      DD3_diag = arma::diagvec(DD3);
       for (arma::uword j = 0; j < W_hat_t.n_cols; ++j) {
-          part_z.col(j) = DD3_diag % W_hat_t.col(j);
+          part_z.col(j) = DD3.col(jj) % W_hat_t.col(j);
       }
-      part_y = DD3_diag % my_beta_jj;
+      part_y = DD3.col(jj) % my_beta_jj;
+
       part_y -= part_z * arma::solve(R_svd_inv + svd_w_tv * part_z, svd_w_tv * part_y, arma::solve_opts::fast);
       beta_hat.col(jj) = part_y;
       beta_hat1 = arma::reshape(part_y, p, 1 + K);
