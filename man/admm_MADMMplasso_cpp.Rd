@@ -92,5 +92,5 @@ However, user decide on a specific structure and then input a tree that follows 
 predicted values for the ADMM part
 }
 \description{
-TODO: add description
+This function fits a multi-response pliable lasso model over a path of regularization values.
 }

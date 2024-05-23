@@ -33,7 +33,7 @@
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
 #' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 #' @return  predicted values for the ADMM part
-#' @description TODO: add description
+#' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 #' @export
 admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW, gg, my_print = TRUE) {
     .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW, gg, my_print)

@@ -34,7 +34,7 @@
 //' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
 //' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 //' @return  predicted values for the ADMM part
-//' @description TODO: add description
+//' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 //' @export
 // [[Rcpp::export]]
 arma::field<arma::cube> admm_MADMMplasso_cpp(
@@ -378,7 +378,6 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
 
   // Return important values
   arma::field<arma::cube> out(7);
-  // TODO: print all dimensions to make sure they are correct
   out(0) = arma::cube(beta0.n_elem, 1, 1);
   out(0).slice(0) = beta0;
 
