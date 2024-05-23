@@ -126,9 +126,11 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::vec ee_diff1(D, arma::fill::zeros);
   arma::vec new_G(p + p * K, arma::fill::zeros);
   arma::mat new_group(p, K + 1, arma::fill::zeros);
+  arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
+  Rcpp::List b;
   for (int i = 1; i < max_it + 1; i++) {
     r_current = y - model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
-    Rcpp::List b = reg(r_current, Z);
+    b = reg(r_current, Z);
     arma::mat beta0 = b["beta0"];
     arma::mat theta0 = b["theta0"];
     XtY = W_hat.t() * (y - (arma::ones(N) * beta0 + Z * theta0));
@@ -136,7 +138,6 @@ Rcpp::List admm_MADMMplasso_cpp(
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);
     new_G = rho * (1 + new_G);
-    arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
     for (arma::uword slc = 0; slc < D; slc++) {
       invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
     }
