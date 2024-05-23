@@ -29,7 +29,6 @@
 //' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 //' However, user decide on a specific structure and then input a tree that follows such structure.
 //' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
-//' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
 //' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 //' @return  predicted values for the ADMM part
 //' @description TODO: add description
@@ -56,7 +55,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alph,
   const Rcpp::List svd_w,
   const Rcpp::List tree,
-  const Rcpp::List invmat,
   const arma::vec gg,
   const bool my_print = true
 ) {

@@ -20,7 +20,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alph,
   const Rcpp::List svd_w,
   const Rcpp::List tree,
-  const Rcpp::List invmat,
   const arma::vec gg,
   const bool my_print = true
 );

@@ -208,7 +208,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
         admm_MADMMplasso_cpp(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-          invmat, gg[i, ]
+          gg[i, ]
         )
       }
     }
@@ -237,7 +237,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
           admm_MADMMplasso_cpp(
             beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
             XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-            invmat, gg[g, ]
+            gg[g, ]
           )
         }
       )

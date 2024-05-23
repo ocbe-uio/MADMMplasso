@@ -25,7 +25,6 @@ admm_MADMMplasso_cpp(
   alph,
   svd_w,
   tree,
-  invmat,
   gg,
   my_print = TRUE
 )
@@ -75,8 +74,6 @@ variable, one can use either k or k-1  dummy variables.}
 \item{tree}{The results from the hierarchical clustering of the response matrix.
 The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 However, user decide on a specific structure and then input a tree that follows such structure.}
-
-\item{invmat}{A list of length ncol(y), each containing the C_d part of equation 32 in the paper}
 
 \item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.}
 

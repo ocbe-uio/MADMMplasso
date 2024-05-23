@@ -59,7 +59,7 @@ Rcpp::List hh_nlambda_loop_cpp(
       // In this case, my_values is an empty list to be created now
       my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat,
+        y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree,
         gg.row(hh).t(), my_print
       );
     }
