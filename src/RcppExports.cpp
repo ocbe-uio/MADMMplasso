@@ -78,7 +78,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // hh_nlambda_loop_cpp
-Rcpp::List hh_nlambda_loop_cpp(const arma::mat lam, const unsigned int nlambda, arma::vec beta0, arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat my_W_hat, const arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const bool my_print, const Rcpp::List invmat, const arma::mat gg, const double tol, const bool parallel, const bool pal, Rcpp::List BETA0, Rcpp::List THETA0, Rcpp::List BETA, Rcpp::List BETA_hat, Rcpp::List Y_HAT, Rcpp::List THETA, const unsigned int D, const Rcpp::List my_values);
+Rcpp::List hh_nlambda_loop_cpp(const arma::mat lam, const unsigned int nlambda, arma::vec beta0, arma::mat theta0, arma::mat beta, arma::mat beta_hat, arma::cube theta, const double rho1, const arma::mat X, const arma::mat Z, const int max_it, const arma::mat my_W_hat, const arma::mat XtY, const arma::mat y, const int N, const double e_abs, const double e_rel, const double alpha, const double alph, const Rcpp::List svd_w, const Rcpp::List tree, const bool my_print, const Rcpp::List invmat, const arma::mat gg, const double tol, const bool parallel, const bool pal, Rcpp::List BETA0, Rcpp::List THETA0, Rcpp::List BETA, Rcpp::List BETA_hat, Rcpp::List Y_HAT, Rcpp::List THETA, const unsigned int D, Rcpp::List my_values);
 RcppExport SEXP _MADMMplasso_hh_nlambda_loop_cpp(SEXP lamSEXP, SEXP nlambdaSEXP, SEXP beta0SEXP, SEXP theta0SEXP, SEXP betaSEXP, SEXP beta_hatSEXP, SEXP thetaSEXP, SEXP rho1SEXP, SEXP XSEXP, SEXP ZSEXP, SEXP max_itSEXP, SEXP my_W_hatSEXP, SEXP XtYSEXP, SEXP ySEXP, SEXP NSEXP, SEXP e_absSEXP, SEXP e_relSEXP, SEXP alphaSEXP, SEXP alphSEXP, SEXP svd_wSEXP, SEXP treeSEXP, SEXP my_printSEXP, SEXP invmatSEXP, SEXP ggSEXP, SEXP tolSEXP, SEXP parallelSEXP, SEXP palSEXP, SEXP BETA0SEXP, SEXP THETA0SEXP, SEXP BETASEXP, SEXP BETA_hatSEXP, SEXP Y_HATSEXP, SEXP THETASEXP, SEXP DSEXP, SEXP my_valuesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -117,7 +117,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::List >::type Y_HAT(Y_HATSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type THETA(THETASEXP);
     Rcpp::traits::input_parameter< const unsigned int >::type D(DSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::List >::type my_values(my_valuesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type my_values(my_valuesSEXP);
     rcpp_result_gen = Rcpp::wrap(hh_nlambda_loop_cpp(lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values));
     return rcpp_result_gen;
 END_RCPP
