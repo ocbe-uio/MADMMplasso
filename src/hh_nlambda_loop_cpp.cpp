@@ -75,7 +75,6 @@ Rcpp::List hh_nlambda_loop_cpp(
       y_hat = my_values_hh(6).slice(0);
     }
 
-
     // should be sparse, but Arma doesn't have sp_cube; beta1 and beta_hat1
     // are going into a cube, so they need to be dense as well
     arma::mat beta1(beta % (abs(beta) > tol));
