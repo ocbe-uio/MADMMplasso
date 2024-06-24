@@ -53,12 +53,13 @@ Rcpp::List hh_nlambda_loop_cpp(
 
     if (parallel) { // TODO: recheck all conditions (all parallel-pal combinations)
       // my_values is already a list of length hh
-      beta0 = my_values[hh]["beta0"];
-      theta0 = my_values[hh]["theta0"];
-      beta = my_values[hh]["beta"];
-      theta = my_values[hh]["theta"];
-      beta_hat = my_values[hh]["beta_hat"];
-      y_hat = my_values[hh]["y_hat"];
+      arma::field<arma::cube> my_values_hh = my_values[hh];
+      beta0 = my_values_hh(0).slice(0);
+      theta0 = my_values_hh(1).slice(0);
+      beta = my_values_hh(2).slice(0);
+      theta = my_values_hh(3);
+      beta_hat = my_values_hh(5).slice(0);
+      y_hat = my_values_hh(6).slice(0);
     } else if (pal) {
       // In this case, my_values is an empty list to be created now
       arma::field<arma::cube> my_values_hh = admm_MADMMplasso_cpp(
