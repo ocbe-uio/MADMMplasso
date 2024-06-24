@@ -33,13 +33,13 @@ hh_nlambda_loop <- function(
       print(cost_time)
     }
     if (parallel && !pal) {
-      beta <- my_values[hh, ]$beta
-      theta <- my_values[hh, ]$theta
-      my_obj[[hh]] <- list(my_values[hh, ]$obj)
-      beta0 <- my_values[hh, ]$beta0
-      theta0 <- my_values[hh, ]$theta0 ### iteration
-      beta_hat <- my_values[hh, ]$beta_hat
-      y_hat <- my_values[hh, ]$y_hat
+      beta <- my_values[[hh]]$beta
+      theta <- my_values[[hh]]$theta
+      my_obj[[hh]] <- list(my_values[[hh]]$obj)
+      beta0 <- my_values[[hh]]$beta0
+      theta0 <- my_values[[hh]]$theta0 ### iteration
+      beta_hat <- my_values[[hh]]$beta_hat
+      y_hat <- my_values[[hh]]$y_hat
     } else if (!parallel && !pal) {
       beta <- my_values[[hh]]$beta
       theta <- my_values[[hh]]$theta

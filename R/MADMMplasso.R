@@ -228,8 +228,13 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     parallel::stopCluster(cl)
 
     # Converting to list so hh_nlambda_loop_cpp can handle it
-    for (hh in seq_len(nlambda)) {
-      my_values[[hh]] <- my_values_matrix[hh, ]
+    if (nlambda == 1) {
+      my_values <- list(my_values_matrix)
+    } else {
+      my_values <- list()
+      for (hh in seq_len(nlambda)) {
+        my_values[[hh]] <- my_values_matrix[hh, ]
+      }
     }
   } else if (!parallel && !pal) {
     if (legacy) {
