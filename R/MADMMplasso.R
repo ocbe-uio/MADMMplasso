@@ -49,7 +49,10 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = FALSE, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = !parallel, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+  if (parallel & pal) {
+    stop("parallel and pal cannot be TRUE at the same time")
+  }
   N <- nrow(X)
 
   p <- ncol(X)
