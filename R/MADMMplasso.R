@@ -204,6 +204,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     BETA <- array(0, c(p, D, nlambda))
     BETA_hat <- array(0, c(p + p * K, D, nlambda))
   }
+
+  # Pre-calculating my_values through my_values_matrix
   if (parallel) {
     cl <- makeCluster(cl1, type = "FORK")
     doParallel::registerDoParallel(cl = cl)
@@ -265,6 +267,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     my_values <- list()
   }
 
+  # Big calculations
   if (legacy) {
     loop_output <- hh_nlambda_loop(
       lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
@@ -282,6 +285,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     )
   }
 
+  # Final adjustments in output
   loop_output$obj[1] <- loop_output$obj[2]
 
   pred <- data.frame(
