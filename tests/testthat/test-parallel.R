@@ -93,6 +93,7 @@ fit_C_par <- mad_wrap(legacy = FALSE, parallel = TRUE, pal = FALSE) # FIXME: fai
 
 test_that("results are identical after parallelization", {
   expect_identical(fit_R, fit_R_pal)
+  expect_identical(fit_C, fit_C_pal)
 })
 
 test_that("parallel and pal cannot be both true", {
