@@ -51,22 +51,23 @@ Rcpp::List hh_nlambda_loop_cpp(
   while (hh <= nlambda - 1) {
     arma::vec lambda = lam.row(hh).t();
 
-    if (parallel) { // TODO: recheck all conditions (all parallel-pal combinations)
-      // my_values is already a list of length hh
-      arma::field<arma::cube> my_values_hh = my_values[hh];
-      beta0 = my_values_hh(0).slice(0);
-      theta0 = my_values_hh(1).slice(0);
-      beta = my_values_hh(2).slice(0);
-      theta = my_values_hh(3);
-      beta_hat = my_values_hh(5).slice(0);
-      y_hat = my_values_hh(6).slice(0);
-    } else if (pal) {
+    if (pal) {
       // In this case, my_values is an empty list to be created now
       arma::field<arma::cube> my_values_hh = admm_MADMMplasso_cpp(
         beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
         y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW,
         gg.row(hh), my_print
       );
+      beta0 = my_values_hh(0).slice(0);
+      theta0 = my_values_hh(1).slice(0);
+      beta = my_values_hh(2).slice(0);
+      theta = my_values_hh(3);
+      beta_hat = my_values_hh(5).slice(0);
+      y_hat = my_values_hh(6).slice(0);
+    } else {
+      // Gets triggered regardless of parallel. Whatever the case,
+      // my_values is already a list of length hh
+      arma::field<arma::cube> my_values_hh = my_values[hh];
       beta0 = my_values_hh(0).slice(0);
       theta0 = my_values_hh(1).slice(0);
       beta = my_values_hh(2).slice(0);

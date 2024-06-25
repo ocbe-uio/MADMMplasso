@@ -94,9 +94,9 @@ fit_C_parallel <- mad_wrap(legacy = FALSE, parallel = TRUE, pal = FALSE)
 test_that("results are identical after parallelization", {
   expect_identical(fit_R_pal, fit_R)
   expect_identical(fit_R_parallel, fit_R)
-  expect_identical(fit_R_pal, fit_C_parallel)
-  # expect_identical(fit_C_pal, fit_C) # FIXME: not identical
-  # expect_identical(fit_C_parallel, fit_C) # FIXME: not identical
+  expect_identical(fit_R_pal, fit_R_parallel)
+  expect_identical(fit_C_pal, fit_C)
+  expect_identical(fit_C_parallel, fit_C)
   expect_identical(fit_C_pal, fit_C_parallel)
 })
 
