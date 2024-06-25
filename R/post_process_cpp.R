@@ -1,6 +1,6 @@
 post_process_cpp <- function(lst) {
   array2list <- function(ra) {
-    return(apply(ra, 3, I, simplify = FALSE))
+    return(apply(ra, 3, function(x) x, simplify = FALSE))
   }
   lst$BETA0 <- array2list(lst$BETA0)
   lst$THETA0 <- array2list(lst$THETA0)
