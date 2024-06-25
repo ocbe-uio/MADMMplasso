@@ -283,6 +283,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       BETA, BETA_hat, simplify2array(Y_HAT),
       as.integer(D), C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
     )
+    # TODO: adjust C++ output to match R output. Should fix plotting
   }
 
   # Final adjustments in output
