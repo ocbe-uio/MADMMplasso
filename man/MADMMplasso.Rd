@@ -23,7 +23,7 @@ MADMMplasso(
   alph = 1.8,
   tree,
   parallel = TRUE,
-  pal = FALSE,
+  pal = !parallel,
   gg = NULL,
   tol = 1e-04,
   cl = 4,
