@@ -9,6 +9,13 @@ arma::vec lm_arma(const arma::vec &R, const arma::mat &Z) {
     // Solve the system of linear equations
     arma::vec coefficients = arma::solve(Z_intercept, R);
 
+    // Replace 0 with NA (arma::datum::nan)
+    for (arma::uword i = 0; i < coefficients.n_elem; i++) {
+        if (coefficients(i) == 0) {
+            coefficients(i) = arma::datum::nan;
+        }
+    }
+
     return coefficients;
 }
 
