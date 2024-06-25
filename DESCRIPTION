@@ -1,6 +1,6 @@
 Package: MADMMplasso
 Title: Multi Variate Multi Response 'ADMM' with Interaction Effects
-Version: 0.0.0.9017-1719289199
+Version: 0.0.0.9017-1719322643
 Authors@R:
     c(
         person(
