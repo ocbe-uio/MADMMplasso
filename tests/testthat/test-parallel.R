@@ -73,8 +73,7 @@ gg1[1, ] <- c(0.02, 0.02)
 gg1[2, ] <- c(0.02, 0.02)
 
 # Running MADMMplasso ========================================================
-set.seed(9356219)
-mad_wrap <- function(seed = 2238398, ...) {
+mad_wrap <- function(seed = 3398, ...) {
   set.seed(seed)
   MADMMplasso(
     X, Z, y,
