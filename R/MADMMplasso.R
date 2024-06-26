@@ -49,7 +49,10 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = FALSE, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = !parallel, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
+  if (parallel && pal) {
+    stop("parallel and pal cannot be TRUE at the same time")
+  }
   N <- nrow(X)
 
   p <- ncol(X)
@@ -181,8 +184,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   r_current <- y
   b <- reg(r_current, Z)
-  beta0 <- b$beta0
-  theta0 <- b$theta0
+  beta0 <- b[1, ]
+  theta0 <- b[-1, ]
 
   new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
@@ -190,51 +193,100 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
 
   cl1 <- cl
+
+  # Adjusting objects for C++
+  if (!legacy) {
+    C <- TT$Tree
+    CW <- TT$Tw
+    svd_w_tu <- t(svd.w$u)
+    svd_w_tv <- t(svd.w$v)
+    svd_w_d <- svd.w$d
+    BETA <- array(0, c(p, D, nlambda))
+    BETA_hat <- array(0, c(p + p * K, D, nlambda))
+  }
+
+  # Pre-calculating my_values through my_values_matrix
   if (parallel) {
     cl <- makeCluster(cl1, type = "FORK")
-
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
-
-    my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
-      admm_MADMMplasso(
-        beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
-        y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
-        invmat, gg[i, ], legacy
-      )
+    if (legacy) {
+      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+        admm_MADMMplasso(
+          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+          y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
+          invmat, gg[i, ]
+        )
+      }
+    } else {
+      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+        admm_MADMMplasso_cpp(
+          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+          y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd_w_tu, svd_w_tv, svd_w_d,
+          C, CW, gg[i, ], my_print
+        )
+      }
     }
     parallel::stopCluster(cl)
 
     # Converting to list so hh_nlambda_loop_cpp can handle it
-    for (hh in seq_len(nrow(my_values_matrix))) {
-      my_values[[hh]] <- my_values_matrix[hh, ]
+    if (nlambda == 1) {
+      my_values <- list(my_values_matrix)
+    } else {
+      my_values <- list()
+      for (hh in seq_len(nlambda)) {
+        my_values[[hh]] <- my_values_matrix[hh, ]
+      }
     }
   } else if (!parallel && !pal) {
-    my_values <- lapply(
-      seq_len(nlambda),
-      function(g) {
-        admm_MADMMplasso(
-          beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
-          XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
-          invmat, gg[g, ], legacy
-        )
-      }
-    )
+    if (legacy) {
+      my_values <- lapply(
+        seq_len(nlambda),
+        function(g) {
+          admm_MADMMplasso(
+            beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat,
+            XtY, y, N, e.abs, e.rel, alpha, lam[g, ], alph, svd.w, tree, my_print,
+            invmat, gg[g, ]
+          )
+        }
+      )
+    } else {
+      my_values <- lapply(
+        seq_len(nlambda),
+        function(i) {
+          admm_MADMMplasso_cpp(
+            beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
+            y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd_w_tu, svd_w_tv, svd_w_d,
+            C, CW, gg[i, ], my_print
+          )
+        }
+      )
+    }
   } else {
-    # This is triggered when parallel is FALSE and pal is 1
+    # This is triggered when parallel is FALSE and pal is TRUE
     my_values <- list()
   }
 
-  loop_output <- hh_nlambda_loop(
-    lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
-    my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
-    invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
-    BETA_hat, Y_HAT, THETA, D, my_values, legacy
-  )
+  # Big calculations
+  if (legacy) {
+    loop_output <- hh_nlambda_loop(
+      lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it,
+      my_W_hat, XtY, y, N, e.abs, e.rel, alpha, alph, svd.w, tree, my_print,
+      invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA,
+      BETA_hat, Y_HAT, THETA, D, my_values
+    )
+  } else {
+    loop_output <- hh_nlambda_loop_cpp(
+      lam, as.integer(nlambda), beta0, theta0, beta, beta_hat, theta, rho1, X, Z, as.integer(max_it),
+      my_W_hat, XtY, y, as.integer(N), e.abs, e.rel, alpha, alph, my_print,
+      gg, tol, parallel, pal, simplify2array(BETA0), simplify2array(THETA0),
+      BETA, BETA_hat, simplify2array(Y_HAT),
+      as.integer(D), C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values
+    )
+    loop_output <- post_process_cpp(loop_output)
+  }
 
-  remove(invmat)
-  remove(my_W_hat)
-
+  # Final adjustments in output
   loop_output$obj[1] <- loop_output$obj[2]
 
   pred <- data.frame(

@@ -23,18 +23,20 @@
 #' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
 #' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
 #' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
-#' @param svd_w singular value decomposition of W
-#' @param tree The results from the hierarchical clustering of the response matrix.
+#' @param svd_w_tu the transpose of the U matrix from the SVD of W_hat
+#' @param svd_w_tv the transpose of the V matrix from the SVD of W_hat
+#' @param svd_w_d the D matrix from the SVD of W_hat
+#' @param C the trained tree
+#' @param CW weights for the trained tree
 #' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 #' However, user decide on a specific structure and then input a tree that follows such structure.
 #' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
-#' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
 #' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 #' @return  predicted values for the ADMM part
-#' @description TODO: add description
+#' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 #' @export
-admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg, my_print = TRUE) {
-    .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w, tree, invmat, gg, my_print)
+admm_MADMMplasso_cpp <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW, gg, my_print = TRUE) {
+    .Call(`_MADMMplasso_admm_MADMMplasso_cpp`, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e_abs, e_rel, alpha, lambda, alph, svd_w_tu, svd_w_tv, svd_w_d, C, CW, gg, my_print)
 }
 
 count_nonzero_a_cpp <- function(x) {
@@ -49,16 +51,20 @@ count_nonzero_a_cube <- function(x) {
     .Call(`_MADMMplasso_count_nonzero_a_cube`, x)
 }
 
-hh_nlambda_loop_cpp <- function(lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values) {
-    .Call(`_MADMMplasso_hh_nlambda_loop_cpp`, lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, svd_w, tree, my_print, invmat, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, THETA, D, my_values)
+count_nonzero_a_mat <- function(x) {
+    .Call(`_MADMMplasso_count_nonzero_a_mat`, x)
 }
 
-model_intercept <- function(beta0, theta0, beta, theta, X, Z) {
-    .Call(`_MADMMplasso_model_intercept`, beta0, theta0, beta, theta, X, Z)
+hh_nlambda_loop_cpp <- function(lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, my_print, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, D, C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values) {
+    .Call(`_MADMMplasso_hh_nlambda_loop_cpp`, lam, nlambda, beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY, y, N, e_abs, e_rel, alpha, alph, my_print, gg, tol, parallel, pal, BETA0, THETA0, BETA, BETA_hat, Y_HAT, D, C, CW, svd_w_tu, svd_w_tv, svd_w_d, my_values)
 }
 
-model_p <- function(beta0, theta0, beta, theta, X, Z) {
-    .Call(`_MADMMplasso_model_p`, beta0, theta0, beta, theta, X, Z)
+model_intercept <- function(beta, X) {
+    .Call(`_MADMMplasso_model_intercept`, beta, X)
+}
+
+model_p <- function(beta0, theta0, beta, X, Z) {
+    .Call(`_MADMMplasso_model_p`, beta0, theta0, beta, X, Z)
 }
 
 modulo <- function(x, n) {

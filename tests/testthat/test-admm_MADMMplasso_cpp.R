@@ -160,7 +160,7 @@ my_values <- suppressWarnings(suppressMessages(admm_MADMMplasso(
   beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
   theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
   e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = mprt, invmat = invmat, gg = gg, legacy = TRUE
+  my_print = mprt, invmat = invmat, gg = gg
 )))
 beta <- my_values$beta
 theta <- my_values$theta
@@ -171,7 +171,7 @@ beta_hat <- my_values$beta_hat
 y_hat <- my_values$y_hat
 
 test_that("final objects have correct dimensions", {
-  expect_identical(dim(beta0), c(1L, 6L))
+  expect_identical(length(beta0), 6L)
   expect_identical(dim(theta0), c(4L, 6L))
   expect_identical(dim(beta), c(50L, 6L))
   expect_identical(dim(theta), c(50L, 4L, 6L))
@@ -192,25 +192,22 @@ test_that("mean values of final objects are expected", {
 })
 
 # Testing the C++ function =====================================================
-my_values_cpp <- admm_MADMMplasso(
-  beta0 = beta0, theta0 = theta0, beta = beta, beta_hat = beta_hat,
-  theta = theta, rho, X, Z, max_it, W_hat = my_W_hat, XtY, y, N, e.abs,
-  e.rel, alpha, lambda = lambda, alph, svd.w = svd.w, tree = TT,
-  my_print = mprt, invmat = invmat, gg = gg
+my_values_cpp <- admm_MADMMplasso_cpp(
+  beta0, theta0, beta, beta_hat, theta, rho, X, Z, max_it, my_W_hat, XtY, y, N,
+  e.abs, e.rel, alpha, lambda, alph, t(svd.w$u), t(svd.w$v), svd.w$d, TT$Tree,
+  TT$Tw, gg, mprt
 )
 
 test_that("C++ function output structure", {
-  expect_identical(length(my_values_cpp), length(my_values))
-  expect_identical(names(my_values_cpp), names(my_values))
+  expect_identical(length(my_values_cpp), length(my_values) - 1L)
 })
 
 test_that("Values are the same", {
   tl <- 1e-1
-  expect_equal(my_values$beta0, t(my_values_cpp$beta0), tolerance = tl)
-  expect_equal(my_values$theta0, my_values_cpp$theta0, tolerance = tl)
-  expect_equal(my_values$beta, my_values_cpp$beta, tolerance = tl)
-  expect_equal(my_values$theta, my_values_cpp$theta, tolerance = tl)
-  expect_identical(my_values$converge, my_values_cpp$converge)
-  expect_equal(my_values$beta_hat, my_values_cpp$beta_hat, tolerance = tl)
-  expect_equal(my_values$y_hat, my_values_cpp$y_hat, tolerance = tl)
+  expect_equal(my_values$beta0, my_values_cpp[[1]][, 1, 1], tolerance = tl)
+  expect_equal(my_values$theta0, my_values_cpp[[2]][, , 1], tolerance = tl)
+  expect_equal(my_values$beta, my_values_cpp[[3]][, , 1], tolerance = tl)
+  expect_equal(my_values$theta, my_values_cpp[[4]], tolerance = tl)
+  expect_equal(my_values$beta_hat, my_values_cpp[[6]][, , 1], tolerance = tl)
+  expect_equal(my_values$y_hat, my_values_cpp[[7]][, , 1], tolerance = tl)
 })

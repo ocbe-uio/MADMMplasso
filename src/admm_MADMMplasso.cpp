@@ -24,20 +24,22 @@
 //' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
 //' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
 //' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
-//' @param svd_w singular value decomposition of W
-//' @param tree The results from the hierarchical clustering of the response matrix.
+//' @param svd_w_tu the transpose of the U matrix from the SVD of W_hat
+//' @param svd_w_tv the transpose of the V matrix from the SVD of W_hat
+//' @param svd_w_d the D matrix from the SVD of W_hat
+//' @param C the trained tree
+//' @param CW weights for the trained tree
 //' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 //' However, user decide on a specific structure and then input a tree that follows such structure.
 //' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
-//' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
 //' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
 //' @return  predicted values for the ADMM part
-//' @description TODO: add description
+//' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 //' @export
 // [[Rcpp::export]]
-Rcpp::List admm_MADMMplasso_cpp(
-  const arma::vec beta0,
-  const arma::mat theta0,
+arma::field<arma::cube> admm_MADMMplasso_cpp(
+  arma::vec beta0,
+  arma::mat theta0,
   arma::mat beta,
   arma::mat beta_hat,
   arma::cube theta,
@@ -46,7 +48,7 @@ Rcpp::List admm_MADMMplasso_cpp(
   const arma::mat Z,
   const int max_it,
   const arma::mat W_hat,
-  const arma::mat XtY,
+  arma::mat XtY,
   const arma::mat y,
   const int N,
   const double e_abs,
@@ -54,17 +56,14 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alpha,
   const arma::vec lambda,
   const double alph,
-  const Rcpp::List svd_w,
-  const Rcpp::List tree,
-  const Rcpp::List invmat,
-  const arma::vec gg,
+  const arma::mat svd_w_tu,
+  const arma::mat svd_w_tv,
+  const arma::vec svd_w_d,
+  const arma::sp_mat C,
+  const arma::vec CW,
+  const arma::rowvec gg,
   const bool my_print = true
 ) {
-  const Rcpp::List TT = tree;
-  const arma::sp_mat C = TT["Tree"];
-  const arma::vec CW = TT["Tw"];
-  const arma::mat svd_w_tu = Rcpp::as<arma::mat>(svd_w["u"]).t();
-  const arma::mat svd_w_tv = Rcpp::as<arma::mat>(svd_w["v"]).t();
   const int D = y.n_cols;
   const int p = X.n_cols;
   const unsigned int K = Z.n_cols;
@@ -78,7 +77,6 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::cube P(p, 1 + K, D, arma::fill::zeros);
   arma::mat H(y.n_cols * C.n_rows, p + p * K);
   arma::cube HH(p, 1 + K, D, arma::fill::zeros);
-
 
   // for response groups =======================================================
   const arma::ivec input = Rcpp::seq_len(D * C.n_rows);
@@ -111,8 +109,8 @@ Rcpp::List admm_MADMMplasso_cpp(
   arma::cube EE_old = EE;
   double res_pri = 0.;
   double res_dual = 0.;
-  const arma::mat SVD_D = arma::diagmat(Rcpp::as<arma::vec>(svd_w["d"]));
-  const arma::mat R_svd = (svd_w_tu.t() * SVD_D) / N;
+  const arma::mat SVD_D = arma::diagmat(svd_w_d);
+  const arma::mat R_svd_inv = arma::inv((svd_w_tu.t() * SVD_D) / N);
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val;  // declared here because it's also needed outside the loop
@@ -120,58 +118,54 @@ Rcpp::List admm_MADMMplasso_cpp(
   if (my_print) {
     Rcpp::Rcout << "\ni\tres_dual\te_dual\t\tres_pri\t\te_primal" << std::endl;
   }
+  arma::mat r_current = y;
+  arma::vec v_diff1(D, arma::fill::zeros);
+  arma::vec q_diff1(D, arma::fill::zeros);
+  arma::vec ee_diff1(D, arma::fill::zeros);
+  arma::vec new_G(p + p * K, arma::fill::zeros);
+  arma::mat new_group(p, K + 1);
+  arma::mat invmat(new_G.n_rows, D);  // denominator of the beta estimates
+  arma::mat b;
+  const arma::mat W_hat_t = W_hat.t();
+  arma::vec DD3_diag(W_hat_t.n_rows);
+  arma::mat part_z(W_hat_t.n_rows, W_hat_t.n_cols);
+  arma::vec part_y(W_hat_t.n_rows);
+  arma::vec my_beta_jj(W_hat_t.n_rows);
+  arma::mat beta_hat1(p, 1 + K);
+  arma::mat b_hat(p, 1 + K);
   for (int i = 1; i < max_it + 1; i++) {
-    arma::mat shared_model = model_intercept(beta0, theta0, beta_hat, theta, W_hat, Z);
-    arma::mat r_current = y - shared_model;
-    Rcpp::List b = reg(r_current, Z);
-    arma::mat beta0 = b["beta0"];
-    arma::mat theta0 = b["theta0"];
-    arma::mat new_y = y - (arma::ones(N) * beta0 + Z * theta0);
-    arma::mat XtY = W_hat.t() * new_y;
-    arma::cube main_beta(p, K + 1, D, arma::fill::zeros);
+    r_current = y - model_intercept(beta_hat, W_hat);
+    b = reg(r_current, Z);
+    beta0 = b.row(0).t();
+    theta0 = b.tail_rows(b.n_rows - 1);
+    XtY = W_hat.t() * (y - (arma::ones(N) * beta0.t() + Z * theta0));
     res_val = rho * (I.t() * E - (I.t() * H));
-    arma::vec v_diff1(D, arma::fill::zeros);
-    arma::vec q_diff1(D, arma::fill::zeros);
-    arma::vec ee_diff1(D, arma::fill::zeros);
-
-    arma::vec new_G(p + p * K, arma::fill::zeros);
     new_G.rows(0, p - 1).fill(1);
     new_G.rows(p, p + p * K - 1).fill(2);
     new_G = rho * (1 + new_G);
-    arma::cube invmat(new_G.n_rows, 1, D);  // denominator of the beta estimates
     for (arma::uword slc = 0; slc < D; slc++) {
-      invmat.slice(slc) = new_G + rho * (new_I(slc) + 1);
+      invmat.col(slc) = new_G + rho * (new_I(slc) + 1);
     }
-
-    for (int rr = 0; rr < D; rr++) {
-      double DD1 = rho * (new_I(rr) + 1);
-      arma::vec DD2 = new_G + DD1;
-      invmat.slice(rr) = DD2;  // Matrix::chol2inv( Matrix::chol(new_sparse) )
-    }
-
+    arma::mat DD3 = 1 / invmat;
     for (int jj = 0; jj < D; jj++) {
       arma::mat group = rho * (G.t() * V.slice(jj).t() - G.t() * O.slice(jj).t());
-      arma::vec group1 = group.row(0).t();
-      arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
-      arma::mat new_group(p, K + 1, arma::fill::zeros);
-      new_group.col(0) = group1;
-      new_group.tail_cols(new_group.n_cols - 1) = group2;
-      arma::vec my_beta_jj = XtY.col(jj) / N +\
+      new_group *= 0;
+      new_group.col(0) = group.row(0).t();
+      new_group.tail_cols(new_group.n_cols - 1) = group.tail_rows(group.n_rows - 1).t();
+      my_beta_jj = XtY.col(jj) / N +\
         arma::vectorise(new_group) + res_val.row(jj).t() +\
         arma::vectorise(rho * (Q.slice(jj) - P.slice(jj))) +\
         arma::vectorise(rho * (EE.slice(jj) - HH.slice(jj)));
-      arma::mat DD3 = arma::diagmat(1 / invmat.slice(jj));
-      arma::mat part_z = DD3 * W_hat.t();
-      arma::mat part_y = DD3 * my_beta_jj;
 
-      arma::mat beta_hat_j = arma::inv(arma::inv(R_svd) + svd_w_tv * part_z);
-      beta_hat_j = beta_hat_j * (svd_w_tv * part_y);
-      beta_hat_j = part_z * beta_hat_j;
+      for (arma::uword j = 0; j < W_hat_t.n_cols; ++j) {
+          part_z.col(j) = DD3.col(jj) % W_hat_t.col(j);
+      }
+      part_y = DD3.col(jj) % my_beta_jj;
 
-      arma::vec beta_hat_JJ = arma::vectorise(part_y - beta_hat_j);
-      beta_hat.col(jj) = beta_hat_JJ;
-      arma::mat beta_hat1 = arma::reshape(beta_hat_JJ, p, 1 + K);
-      arma::mat b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
+      part_y -= part_z * arma::solve(R_svd_inv + svd_w_tv * part_z, svd_w_tv * part_y, arma::solve_opts::fast);
+      beta_hat.col(jj) = part_y;
+      beta_hat1 = arma::reshape(part_y, p, 1 + K);
+      b_hat = alph * beta_hat1 + (1 - alph) * Q.slice(jj);
       Q.slice(jj).col(0) = b_hat.col(0) + P.slice(jj).col(0);
       arma::mat new_mat = b_hat.tail_cols(b_hat.n_cols - 1) + P.slice(jj).tail_cols(P.slice(jj).n_cols - 1);
       Q.slice(jj).tail_cols(Q.n_cols - 1) = arma::sign(new_mat) % arma::max(arma::abs(new_mat) - ((alpha * lambda(jj)) / rho), arma::zeros(arma::size(new_mat)));
@@ -207,7 +201,6 @@ Rcpp::List admm_MADMMplasso_cpp(
       q_diff1(jj) = arma::accu(arma::pow(beta_hat1 - Q.slice(jj), 2));
       ee_diff1(jj) = arma::accu(arma::pow(beta_hat1 - EE.slice(jj), 2));
     }
-
     arma::mat Big_beta_response = I * beta_hat.t();
     arma::mat b_hat_response = alph * Big_beta_response + (1 - alph) * E;
     arma::mat new_mat = b_hat_response + H;
@@ -283,87 +276,86 @@ Rcpp::List admm_MADMMplasso_cpp(
       e = II(c_count);
     }
 
-      E.rows(0, C.n_cols - 1) = N_E.slice(0);
-      e = II(0);
+    E.rows(0, C.n_cols - 1) = N_E.slice(0);
+    e = II(0);
 
-      for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
-        E.rows(e, ((c_count + 1) * y.n_cols) - 1) = N_E.slice(c_count);
-        e = II(c_count);
-      }
+    for (arma::uword c_count = 1; c_count < C.n_rows; c_count++) {
+      E.rows(e, ((c_count + 1) * y.n_cols) - 1) = N_E.slice(c_count);
+      e = II(c_count);
+    }
 
-      H += Big_beta_response - E;
+    H += Big_beta_response - E;
 
-      double v_diff = arma::accu(arma::pow(-rho * (V - V_old), 2));
-      double q_diff = arma::accu(arma::pow(-rho * (Q - Q_old), 2));
-      double e_diff = arma::accu(arma::pow(-rho * (E - E_old), 2));
-      double ee_diff = arma::accu(arma::pow(-rho * (EE - EE_old), 2));
-      double s = sqrt(v_diff + q_diff + e_diff + ee_diff);
+    double v_diff = arma::accu(arma::pow(-rho * (V - V_old), 2));
+    double q_diff = arma::accu(arma::pow(-rho * (Q - Q_old), 2));
+    double e_diff = arma::accu(arma::pow(-rho * (E - E_old), 2));
+    double ee_diff = arma::accu(arma::pow(-rho * (EE - EE_old), 2));
+    double s = sqrt(v_diff + q_diff + e_diff + ee_diff);
 
-      double v_diff1_sum = arma::accu(v_diff1);
-      double q_diff1_sum = arma::accu(q_diff1);
-      double e_diff1 = arma::accu(arma::pow(Big_beta_response - E, 2));
-      double ee_diff1_sum = arma::accu(ee_diff1);
-      double r = sqrt(v_diff1_sum + q_diff1_sum + e_diff1 + ee_diff1_sum);
+    double v_diff1_sum = arma::accu(v_diff1);
+    double q_diff1_sum = arma::accu(q_diff1);
+    double e_diff1 = arma::accu(arma::pow(Big_beta_response - E, 2));
+    double ee_diff1_sum = arma::accu(ee_diff1);
+    double r = sqrt(v_diff1_sum + q_diff1_sum + e_diff1 + ee_diff1_sum);
 
-      res_dual = s;
-      res_pri = r;
+    res_dual = s;
+    res_pri = r;
 
-      double part_1 = sqrt(Big_beta11.n_elem + 2 * beta_hat.n_elem + Big_beta_response.n_elem);
-      arma::vec Big_beta11_vec = arma::vectorise(Big_beta11);
-      arma::vec beta_hat_vec = arma::vectorise(beta_hat);
-      arma::vec Big_beta_response_vec = arma::vectorise(Big_beta_response);
-      arma::vec part_2 = arma::join_vert(Big_beta11_vec, beta_hat_vec, beta_hat_vec, Big_beta_response_vec);
-      double part_2_norm = arma::norm(part_2);
+    double part_1 = sqrt(Big_beta11.n_elem + 2 * beta_hat.n_elem + Big_beta_response.n_elem);
+    arma::vec Big_beta11_vec = arma::vectorise(Big_beta11);
+    arma::vec beta_hat_vec = arma::vectorise(beta_hat);
+    arma::vec Big_beta_response_vec = arma::vectorise(Big_beta_response);
+    arma::vec part_2 = arma::join_vert(Big_beta11_vec, beta_hat_vec, beta_hat_vec, Big_beta_response_vec);
+    double part_2_norm = arma::norm(part_2);
 
-      arma::vec V_vec = arma::vectorise(V);
-      arma::vec Q_vec = arma::vectorise(Q);
-      arma::vec E_vec = arma::vectorise(E);
-      arma::vec EE_vec = arma::vectorise(EE);
-      arma::vec part_3 = -1 * arma::join_vert(V_vec, Q_vec, E_vec, EE_vec);
-      double part_3_norm = arma::norm(part_3);
+    arma::vec V_vec = arma::vectorise(V);
+    arma::vec Q_vec = arma::vectorise(Q);
+    arma::vec E_vec = arma::vectorise(E);
+    arma::vec EE_vec = arma::vectorise(EE);
+    arma::vec part_3 = -1 * arma::join_vert(V_vec, Q_vec, E_vec, EE_vec);
+    double part_3_norm = arma::norm(part_3);
 
-      double part_2_3 = std::max(part_2_norm, part_3_norm);
+    double part_2_3 = std::max(part_2_norm, part_3_norm);
 
-      double e_primal = part_1 * e_abs + e_rel * part_2_3;
+    double e_primal = part_1 * e_abs + e_rel * part_2_3;
 
-      arma::vec O_vec = arma::vectorise(O);
-      arma::vec P_vec = arma::vectorise(P);
-      arma::vec H_vec = arma::vectorise(H);
-      arma::vec HH_vec = arma::vectorise(HH);
-      arma::vec part_4 = arma::join_vert(O_vec, P_vec, H_vec, HH_vec);
-      double e_dual = part_1 * e_abs + e_rel * arma::max(part_4);
+    arma::vec O_vec = arma::vectorise(O);
+    arma::vec P_vec = arma::vectorise(P);
+    arma::vec H_vec = arma::vectorise(H);
+    arma::vec HH_vec = arma::vectorise(HH);
+    arma::vec part_4 = arma::join_vert(O_vec, P_vec, H_vec, HH_vec);
+    double e_dual = part_1 * e_abs + e_rel * arma::max(part_4);
 
-      V_old = V,
-      Q_old = Q,
-      E_old = E,
-      EE_old = EE;
+    V_old = V,
+    Q_old = Q,
+    E_old = E,
+    EE_old = EE;
 
-      if (res_pri > 10 * res_dual) {
-        rho *= 2;
-      } else if (res_pri * 10 < res_dual ) {
-        rho /= 2;
-      }
+    if (res_pri > 10 * res_dual) {
+      rho *= 2;
+    } else if (res_pri * 10 < res_dual ) {
+      rho /= 2;
+    }
 
+    if (my_print) {
+      Rprintf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
+    }
+
+    if (res_pri <= e_primal && res_dual <= e_dual) {
       if (my_print) {
-        Rprintf("%u\t%e\t%e\t%e\t%e\n", i, res_dual, e_dual, res_pri, e_primal);
-      }
-
-      if (res_pri <= e_primal && res_dual <= e_dual) {
         Rprintf("Convergence reached after %u iterations\n", i);
-        converge = true;
-        break;
       }
+      converge = true;
+      break;
+    }
   }
 
   res_val = I.t() * E;
-
   for (arma::uword jj = 0; jj < y.n_cols; jj++) {
     arma::mat group = G.t() * V.slice(jj).t();
-    arma::vec group1 = group.row(0).t();
-    arma::mat group2 = group.tail_rows(group.n_rows - 1).t();
     arma::mat new_group = arma::zeros<arma::mat>(p, K + 1);
-    new_group.col(0) = group1;
-    new_group.tail_cols(new_group.n_cols - 1) = group2;
+    new_group.col(0) = group.row(0).t();
+    new_group.tail_cols(new_group.n_cols - 1) = group.tail_rows(group.n_rows - 1).t();
     arma::vec new_g_theta = arma::vectorise(new_group);
 
     arma::mat beta_hat_B1 = beta_hat.submat(0, jj, p - 1, jj);
@@ -381,18 +373,29 @@ Rcpp::List admm_MADMMplasso_cpp(
     theta.slice(jj) = beta_hat1.tail_cols(beta_hat1.n_cols - 1);
     beta_hat.col(jj) = arma::join_vert(beta_hat1.col(0), arma::vectorise(theta.slice(jj)));
   }
+  arma::mat y_hat = model_p(beta0, theta0, beta_hat, W_hat, Z);
 
-  arma::mat y_hat = model_p(beta0, theta0, beta_hat, theta, W_hat, Z);
+  // Return important values
+  arma::field<arma::cube> out(7);
+  out(0) = arma::cube(beta0.n_elem, 1, 1);
+  out(0).slice(0) = beta0;
 
-  Rcpp::List out = Rcpp::List::create(
-    Rcpp::Named("beta0") = beta0,
-    Rcpp::Named("theta0") = theta0,
-    Rcpp::Named("beta") = beta,
-    Rcpp::Named("theta") = theta,
-    Rcpp::Named("converge") = converge,
-    Rcpp::Named("obj") = NULL,
-    Rcpp::Named("beta_hat") = beta_hat,
-    Rcpp::Named("y_hat") = y_hat
-  );
+  out(1) = arma::cube(theta0.n_rows, theta0.n_cols, 1);
+  out(1).slice(0) = theta0;
+
+  out(2) = arma::cube(beta.n_rows, beta.n_cols, 1);
+  out(2).slice(0) = beta;
+
+  out(3) = theta;
+
+  out(4) = arma::cube(1, 1, 1);
+  out(4).slice(0) = converge;
+
+  out(5) = arma::cube(beta_hat.n_rows, beta_hat.n_cols, 1);
+  out(5).slice(0) = beta_hat;
+
+  out(6) = arma::cube(y_hat.n_rows, y_hat.n_cols, 1);
+  out(6).slice(0) = y_hat;
+
   return out;
 }

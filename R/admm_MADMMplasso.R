@@ -32,19 +32,7 @@
 
 
 #' @export
-admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat, gg = 0.2, legacy = FALSE) {
-  if (!legacy) {
-    out <- admm_MADMMplasso_cpp(
-      beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y,
-      N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, invmat, gg, my_print
-    )
-    return(out)
-  }
-  warning(
-    "Using legacy R code for MADMMplasso. ",
-    "This functionality will be removed in a future release. ",
-    "Please consider using legacy = FALSE instead."
-  )
+admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, W_hat, XtY, y, N, e.abs, e.rel, alpha, lambda, alph, svd.w, tree, my_print, invmat, gg = 0.2) {
   TT <- tree
 
   C <- TT$Tree
@@ -115,10 +103,10 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
   rho <- rho1
   Big_beta11 <- V
   for (i in 2:max_it) {
-    r_current <- (y - model_intercept(beta0, theta0, beta = beta_hat, theta, X = W_hat, Z))
+    r_current <- (y - model_intercept(beta_hat, W_hat))
     b <- reg(r_current, Z) # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)
-    beta0 <- b$beta0
-    theta0 <- b$theta0
+    beta0 <- b[1, ]
+    theta0 <- b[-1, ]
 
     new_y <- y - (matrix(1, N) %*% beta0 + Z %*% ((theta0)))
 
@@ -368,7 +356,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     theta[, , jj] <- (beta_hat1[, -1])
     beta_hat[, jj] <- c(c(beta_hat1[, 1], as.vector(theta[, , jj])))
   }
-  y_hat <- model_p(beta0, theta0, beta = beta_hat, theta, X = W_hat, Z)
+  y_hat <- model_p(beta0, theta0, beta = beta_hat, X = W_hat, Z)
 
   out <- list(beta0 = beta0, theta0 = theta0, beta = beta, theta = theta, converge = converge, obj = obj, beta_hat = beta_hat, y_hat = y_hat)
 

@@ -1,5 +1,5 @@
 #include <RcppArmadillo.h>
-Rcpp::List admm_MADMMplasso_cpp(
+arma::field<arma::cube> admm_MADMMplasso_cpp(
   const arma::vec beta0,
   const arma::mat theta0,
   arma::mat beta,
@@ -18,9 +18,11 @@ Rcpp::List admm_MADMMplasso_cpp(
   const double alpha,
   const arma::vec lambda,
   const double alph,
-  const Rcpp::List svd_w,
-  const Rcpp::List tree,
-  const Rcpp::List invmat,
-  const arma::vec gg,
+  const arma::mat svd_w_tu,
+  const arma::mat svd_w_tv,
+  const arma::vec svd_w_d,
+  const arma::sp_mat C,
+  const arma::vec CW,
+  const arma::rowvec gg,
   const bool my_print = true
 );
