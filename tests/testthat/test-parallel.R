@@ -81,7 +81,7 @@ mad_wrap <- function(seed = 3398, ...) {
       alpha = 0.2, my_lambda = matrix(rep(0.2, dim(y)[2]), 1),
       lambda_min = 0.001, max_it = 5000, e.abs = 1e-4, e.rel = 1e-2, maxgrid = 1L,
       nlambda = 1L, rho = 5, tree = TT, my_print = FALSE, alph = 1, gg = gg1,
-      tol = 1e-3, cl = 6, ...
+      tol = 1e-3, cl = 2, ...
     )
   )
 }
