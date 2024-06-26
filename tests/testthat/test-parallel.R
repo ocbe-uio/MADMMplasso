@@ -89,16 +89,22 @@ fit_R <- mad_wrap(legacy = TRUE, parallel = FALSE, pal = FALSE)
 fit_C <- mad_wrap(legacy = FALSE, parallel = FALSE, pal = FALSE)
 fit_R_pal <- mad_wrap(legacy = TRUE, parallel = FALSE, pal = TRUE)
 fit_C_pal <- mad_wrap(legacy = FALSE, parallel = FALSE, pal = TRUE)
-fit_R_parallel <- mad_wrap(legacy = TRUE, parallel = TRUE, pal = FALSE)
-fit_C_parallel <- mad_wrap(legacy = FALSE, parallel = TRUE, pal = FALSE)
+
+# Restrict to *nix machines
+if (.Platform$OS.type == "unix") {
+  fit_R_parallel <- mad_wrap(legacy = TRUE, parallel = TRUE, pal = FALSE)
+  fit_C_parallel <- mad_wrap(legacy = FALSE, parallel = TRUE, pal = FALSE)
+}
 
 test_that("results are identical after parallelization", {
   expect_identical(fit_R_pal, fit_R)
-  expect_identical(fit_R_parallel, fit_R)
-  expect_identical(fit_R_pal, fit_R_parallel)
   expect_identical(fit_C_pal, fit_C)
-  expect_identical(fit_C_parallel, fit_C)
-  expect_identical(fit_C_pal, fit_C_parallel)
+  if (.Platform$OS.type == "unix") {
+    expect_identical(fit_R_parallel, fit_R)
+    expect_identical(fit_R_pal, fit_R_parallel)
+    expect_identical(fit_C_parallel, fit_C)
+    expect_identical(fit_C_pal, fit_C_parallel)
+  }
 })
 
 test_that("parallel and pal cannot be both true", {
