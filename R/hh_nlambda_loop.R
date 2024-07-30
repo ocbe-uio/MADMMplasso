@@ -28,9 +28,8 @@ hh_nlambda_loop <- function(
       beta_hat <- my_values$beta_hat
       y_hat <- my_values$y_hat
     }
-    cost_time <- Sys.time() - start_time
     if (my_print) {
-      print(cost_time)
+      print(Sys.time() - start_time)
     }
     if (parallel && !pal) {
       beta <- my_values[[hh]]$beta
@@ -75,9 +74,9 @@ hh_nlambda_loop <- function(
 
     if (my_print) {
       if (hh == 1) {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1))
+        cat(hh, (n_main_terms[hh]), non_zero_theta[hh], obj1)
       } else {
-        print(c(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1))
+        cat(hh, (n_main_terms[hh]), non_zero_theta[hh], obj[hh - 1], obj1)
       }
     }
 
