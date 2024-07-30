@@ -25,7 +25,7 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
   nfolds <- length(table(foldid))
 
   for (ii in 1:nfolds) {
-    print(c("fold,", ii))
+    cat("fold,", ii)
     oo <- foldid == ii
 
     ggg[[ii]] <- MADMMplasso(X = X[!oo, , drop = FALSE], Z = Z[!oo, , drop = FALSE], y = y[!oo, , drop = FALSE], alpha = alpha, my_lambda = lambda, lambda_min = 0.01, max_it = max_it, e.abs = e.abs, e.rel = e.rel, nlambda = length(lambda[, 1]), rho = rho, tree = TT, my_print = my_print, alph = alph, pal = pal, gg = gg, tol = tol, cl = cl, legacy)

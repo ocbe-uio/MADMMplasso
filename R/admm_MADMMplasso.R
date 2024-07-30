@@ -324,7 +324,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     }
 
     if (my_print) {
-      print(c(res_dual, e.dual, res_pri, e.primal))
+      cat(res_dual, e.dual, res_pri, e.primal)
     }
     if (res_pri <= e.primal && res_dual <= e.dual) {
       # Remove excess beta and nll
