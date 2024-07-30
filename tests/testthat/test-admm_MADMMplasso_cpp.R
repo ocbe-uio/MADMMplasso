@@ -1,5 +1,4 @@
 # Auxiliary funcions ===========================================================
-# TODO: ask why these are not in the package?
 model <- function(beta0, theta0, beta, theta, X, Z) {
   N <- nrow(X)
   intercepts <- (matrix(1, N)) %*% beta0 + Z %*% ((theta0))
