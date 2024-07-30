@@ -17,18 +17,18 @@ predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   lambda.arg <- lambda
   if (is.null(lambda.arg)) {
     lambda <- object$Lambdas[, 1]
-    isel <- 1:length(lambda)
+    isel <- seq_along(lambda)
   }
 
   if (!is.null(lambda.arg)) {
-    isel <- as.numeric(knn1(matrix(object$Lambdas[, 1], ncol = 1), matrix(lambda.arg, ncol = 1), 1:length(object$Lambdas[, 1])))
+    isel <- as.numeric(knn1(matrix(object$Lambdas[, 1], ncol = 1), matrix(lambda.arg, ncol = 1), seq_along(object$Lambdas[, 1])))
   }
 
   N <- nrow(X)
 
   p <- ncol(X)
   K <- ncol(as.matrix(Z))
-  D <- dim(y)[2]
+  D <- ncol(y)
   my_W_hat <- generate_my_w(X = X, Z = Z)
 
   yh <- array(0, c(N, D, length(isel)))

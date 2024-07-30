@@ -67,7 +67,7 @@ e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
 
-colnames(y) <- c(paste0("y", 1:(ncol(y))))
+colnames(y) <- c(paste0("y", seq_len(ncol(y))))
 TT <- tree_parms(y)
 plot(TT$h_clust)
 gg1 <- matrix(0, 2, 2)
@@ -81,7 +81,7 @@ alpha <- 0.2
 tol <- 1E-3
 fit <- MADMMplasso(
   X, Z, y,
-  alpha = alpha, my_lambda = matrix(rep(0.2, dim(y)[2]), 1),
+  alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = TRUE, parallel = FALSE,
   pal = TRUE, gg = gg1, tol = tol, cl = 6

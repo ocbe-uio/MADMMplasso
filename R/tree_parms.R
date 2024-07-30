@@ -10,11 +10,11 @@
 
 #' @export
 tree_parms <- function(y = y, h = 0.7) {
-  m <- dim(y)[2]
+  m <- ncol(y)
   myDist0 <- 1 - abs(fast_corr(y))
   myDist <- myDist0[lower.tri(myDist0)]
   a0 <- dist(t(y))
-  a0[1:length(a0)] <- myDist
+  a0[seq_along(a0)] <- myDist
   # hierarchical clustering for multivariate responses
   myCluster_0 <- hclust(a0, method = "complete")
   myCluster <- cbind(ifelse(myCluster_0$merge < 0, -myCluster_0$merge, myCluster_0$merge + m), myCluster_0$height)

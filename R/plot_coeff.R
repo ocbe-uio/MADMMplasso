@@ -36,7 +36,7 @@ plot_coeff <- function(beta, theta, error, nz, p, K, D, nlambda, Lambda) {
     index <- b
     sbeta <- (my_beta)
     for (j in act) {
-      for (i in 1:length(index)) {
+      for (i in seq_along(index)) {
         if (ntheta[j, i] > 0) text(index[i], sbeta[j, i], label = "x", cex = 0.7)
       }
     }

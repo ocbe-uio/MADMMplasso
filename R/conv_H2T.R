@@ -1,8 +1,6 @@
 conv_H2T <- function(H, w_max) {
-  K <- dim(H)[1] + 1
+  K <- nrow(H) + 1
   Nd <- cbind(rep((K + 1):(2 * K - 1), each = 2), as.vector(t(H[, 1:2])))
   W_norm <- H[, 3] / max(H[, 3])
-  conv0 <- conv_Nd2T(Nd, W_norm, w_max)
-
-  return(conv0)
+  conv_Nd2T(Nd, W_norm, w_max)
 }

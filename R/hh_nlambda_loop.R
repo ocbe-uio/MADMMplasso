@@ -83,10 +83,11 @@ hh_nlambda_loop <- function(
 
     hh <- hh + 1
   } ### lambda
-  out <- list(
+
+  # Output
+  list(
     obj = obj, n_main_terms = n_main_terms, non_zero_theta = non_zero_theta,
     BETA0 = BETA0, THETA0 = THETA0, BETA = BETA, BETA_hat = BETA_hat,
     Y_HAT = Y_HAT, THETA = THETA
   )
-  return(out)
 }

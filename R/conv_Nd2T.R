@@ -10,7 +10,7 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
   # ===========================
   find_leaves <- function(Nd, ch, K, Jt, w, Tw) {
-    for (ii in 1:length(ch)) {
+    for (ii in seq_along(ch)) {
       if (Nd[ch[ii], 2] > K) {
         leaves0 <- find_leaves(Nd, which(Nd[, 1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
         Jt <- leaves0$Jt
@@ -22,7 +22,7 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
     Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
 
-    return(list(Jt = Jt, Tw = Tw))
+    list(Jt = Jt, Tw = Tw)
   }
   # ===========================
 
@@ -56,5 +56,5 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
   Tree <- sparseMatrix(i = I, j = J, x = rep(1, length(I)), dims = c(V, K))
 
-  return(list(Tree = Tree, Tw = Tw))
+  list(Tree = Tree, Tw = Tw)
 }

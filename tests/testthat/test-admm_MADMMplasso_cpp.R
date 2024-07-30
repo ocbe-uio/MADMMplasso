@@ -1,17 +1,16 @@
 # Auxiliary funcions ===========================================================
-# TODO: ask why these are not in the package?
 model <- function(beta0, theta0, beta, theta, X, Z) {
   N <- nrow(X)
   intercepts <- (matrix(1, N)) %*% beta0 + Z %*% ((theta0))
   shared_model <- X %*% (beta)
-  return(intercepts + shared_model)
+  intercepts + shared_model
 }
 
 reg_temp <- function(r, Z) {
   K <- ncol(Z)
   beta01 <- matrix(0, 1, ncol(r))
   theta01 <- matrix(0, ncol(Z), ncol(r))
-  for (e in 1:ncol(r)) {
+  for (e in seq_len(ncol(r))) {
     my_one <- matrix(1, nrow(Z))
     my_w <- data.frame(Z, my_one)
     my_w <- as.matrix(my_w)
@@ -20,7 +19,7 @@ reg_temp <- function(r, Z) {
     beta01[e] <- matrix(my_res[(K + 1)])
     theta01[, e] <- matrix(my_res[1:K])
   }
-  return(list(beta0 = beta01, theta0 = theta01))
+  list(beta0 = beta01, theta0 = theta01)
 }
 
 # Generate the data ============================================================
@@ -88,14 +87,14 @@ e <- mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
 colnames(y) <- 1:6
-colnames(y) <- c(paste0("y", 1:(ncol(y))))
+colnames(y) <- c(paste0("y", seq_len(ncol(y))))
 TT <- tree_parms(y)
 C <- TT$Tree
 CW <- TT$Tw
 N <- nrow(X)
 p <- ncol(X)
 K <- ncol(Z)
-D <- dim(y)[2]
+D <- ncol(y)
 lambda <- rep(0.5, 6)
 alpha <- 0.5
 e.abs <- 1E-4
@@ -110,14 +109,14 @@ my_W_hat <- generate_my_w(X = X, Z = Z)
 svd.w <- svd(my_W_hat)
 svd.w$tu <- t(svd.w$u)
 svd.w$tv <- t(svd.w$v)
-input <- 1:(dim(y)[2] * nrow(C))
-multiple_of_D <- (input %% dim(y)[2]) == 0
-I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
+input <- 1:(ncol(y) * nrow(C))
+multiple_of_D <- (input %% ncol(y)) == 0
+I <- matrix(0, nrow = nrow(C) * ncol(y), ncol = ncol(y))
 II <- input[multiple_of_D]
-diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
+diag(I[seq_len(ncol(y)), ]) <- C[1, ] * (CW[1])
 c_count <- 2
 for (e in II[-length(II)]) {
-  diag(I[c((e + 1):(c_count * dim(y)[2])), ]) <- C[c_count, ] * (CW[c_count])
+  diag(I[c((e + 1):(c_count * ncol(y))), ]) <- C[c_count, ] * (CW[c_count])
   c_count <- 1 + c_count
 }
 new_I <- diag(t(I) %*% I)
@@ -138,14 +137,14 @@ beta <- (matrix(0, p, D))
 beta_hat <- (matrix(0, p + p * (K), D))
 V <- (array(0, c(p, 2 * (1 + K), D)))
 O <- (array(0, c(p, 2 * (1 + K), D)))
-E <- (matrix(0, dim(y)[2] * nrow(C), (p + p * K))) # response auxiliary
+E <- (matrix(0, ncol(y) * nrow(C), (p + p * K))) # response auxiliary
 EE <- (array(0, c(p, (1 + K), D)))
 
 # auxiliary variables for the L1 norm####
 theta <- (array(0, c(p, K, D)))
 Q <- (array(0, c(p, (1 + K), D)))
 P <- (array(0, c(p, (1 + K), D)))
-H <- (matrix(0, dim(y)[2] * nrow(C), (p + p * K))) # response multiplier
+H <- (matrix(0, ncol(y) * nrow(C), (p + p * K))) # response multiplier
 HH <- (array(0, c(p, (1 + K), D)))
 r_current <- y
 b <- reg_temp(r_current, Z) # Analytic solution how no sample lower bound (Z.T @ Z + cI)^-1 @ (Z.T @ r)

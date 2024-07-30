@@ -16,7 +16,7 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
   no <- nrow(X)
   ggg <- vector("list", nfolds)
 
-  yhat <- array(NA, c(no, dim(y)[2], length(lambda[, 1])))
+  yhat <- array(NA, c(no, ncol(y), length(lambda[, 1])))
 
   if (is.null(foldid)) {
     foldid <- sample(rep(1:nfolds, ceiling(no / nfolds)), no, replace = FALSE)
@@ -48,9 +48,9 @@ cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambd
 
   non_zero <- c(fit$path$nzero)
 
-  cvm <- (apply(err, 2, mean, na.rm = TRUE)) / dim(y)[2]
+  cvm <- (apply(err, 2, mean, na.rm = TRUE)) / ncol(y)
   nn <- apply(!is.na(err), 2, sum, na.rm = TRUE)
-  cvsd <- sqrt(apply(err, 2, var, na.rm = TRUE) / (dim(y)[2] * nn))
+  cvsd <- sqrt(apply(err, 2, var, na.rm = TRUE) / (ncol(y) * nn))
 
   cvm.nz <- cvm
   cvm.nz[non_zero == 0] <- BIG

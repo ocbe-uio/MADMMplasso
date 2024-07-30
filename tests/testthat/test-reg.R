@@ -7,7 +7,7 @@ reg_R <- function(r, Z) {
     beta01[e] <- matrix(new1$coefficients[1])
     theta01[, e] <- as.vector(new1$coefficients[-1])
   }
-  return(list(beta0 = beta01, theta0 = theta01))
+  list(beta0 = beta01, theta0 = theta01)
 }
 
 # Testing ======================================================================
