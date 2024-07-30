@@ -19,8 +19,7 @@
 #' @param my_print Should information form each ADMM iteration be printed along the way? This prints the dual and primal residuals
 #' @param alph an overrelaxation parameter in \[1, 1.8\]. The implementation is borrowed from Stephen Boyd's \href{https://stanford.edu/~boyd/papers/admm/lasso/lasso.html}{MATLAB code}
 #' @param tree The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.
-#' @param parallel should parallel processing be used or not? If set to `TRUE`, pal should be set to `FALSE`.
-#' @param pal Should the lapply function be applied for an alternative quicker optimization when there no parallel package available?
+#' @param pal Should the lapply function be applied for an alternative to parallelization.
 #' @param tol threshold for the non-zero coefficients
 #' @param cl The number of CPUs to be used for parallel processing
 #' @param legacy If \code{TRUE}, use the R version of the algorithm
@@ -49,10 +48,11 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, parallel = TRUE, pal = !parallel, gg = NULL, tol = 1E-4, cl = 4, legacy = FALSE) {
-  if (parallel && pal) {
-    stop("parallel and pal cannot be TRUE at the same time")
-  }
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, pal = cl == 1L, gg = NULL, tol = 1E-4, cl = detectCores() - 1L, legacy = FALSE) {
+  # Recalculating the number of CPUs
+  cl <- ifelse(pal, 1L, cl) # cl is irrelevant if pal = TRUE
+  parallel <- cl > 1L
+
   N <- nrow(X)
 
   p <- ncol(X)

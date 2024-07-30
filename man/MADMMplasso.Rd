@@ -22,11 +22,10 @@ MADMMplasso(
   my_print = FALSE,
   alph = 1.8,
   tree,
-  parallel = TRUE,
-  pal = !parallel,
+  pal = cl == 1L,
   gg = NULL,
   tol = 1e-04,
-  cl = 4,
+  cl = detectCores() - 1L,
   legacy = FALSE
 )
 }
@@ -62,9 +61,7 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 
 \item{tree}{The results from the hierarchical clustering of the response matrix. The easy way to obtain this is by using the function (tree_parms) which gives a default clustering. However, user decide on a specific structure and then input a tree that follows such structure.}
 
-\item{parallel}{should parallel processing be used or not? If set to \code{TRUE}, pal should be set to \code{FALSE}.}
-
-\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available?}
+\item{pal}{Should the lapply function be applied for an alternative to parallelization.}
 
 \item{gg}{penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
 
@@ -189,7 +186,7 @@ fit <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = TRUE, parallel = FALSE,
+  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = TRUE,
   pal = TRUE, gg = gg1, tol = tol, cl = 6
 )
 }
