@@ -21,7 +21,6 @@ arma::vec lm_arma(const arma::vec &R, const arma::mat &Z) {
 
 // [[Rcpp::export]]
 arma::mat reg(const arma::mat r, const arma::mat Z) {
-
   arma::rowvec beta01(r.n_cols, arma::fill::zeros);
   arma::mat theta01(Z.n_cols, r.n_cols, arma::fill::zeros);
 

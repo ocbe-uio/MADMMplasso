@@ -100,8 +100,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     lammax <- lapply(
       seq_len(dim(y)[2]),
       function(g) {
-        l_max <- max(abs(t(X) %*% (r - colMeans(r))) / length(r[, 1])) / ((1 - alpha) + (max(gg[1, ]) * max(CW) + max(gg[2, ])))
-        return(l_max)
+        max(abs(t(X) %*% (r - colMeans(r))) / length(r[, 1])) / ((1 - alpha) + (max(gg[1, ]) * max(CW) + max(gg[2, ])))
       }
     )
 
@@ -109,9 +108,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     lambda_i <- lapply(
       seq_len(dim(y)[2]),
       function(g) {
-        lam_i <- exp(seq(log(big_lambda[[g]]), log(big_lambda[[g]] * rat), length = maxgrid))
-
-        return(lam_i)
+        exp(seq(log(big_lambda[[g]]), log(big_lambda[[g]] * rat), length = maxgrid))
       }
     )
     gg1 <- seq((gg[1, 1]), (gg[1, 2]), length = maxgrid)

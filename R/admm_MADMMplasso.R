@@ -124,7 +124,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     new_G[1:p] <- rho * (1 + new_G[1:p])
     new_G[-1:-p] <- rho * (1 + new_G[-1:-p])
 
-    invmat <- lapply(seq_len(D), function(j) return(new_G + rho * (new_I[j] + 1)))
+    invmat <- lapply(seq_len(D), function(j) new_G + rho * (new_I[j] + 1))
 
     for (jj in 1:D) {
       group <- (rho) * (t(G) %*% t(V[, , jj]) - t(G) %*% t(O[, , jj]))

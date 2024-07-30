@@ -22,7 +22,7 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
     Tw[Nd[ch, 2]] <- Tw[Nd[ch, 2]] * w
 
-    return(list(Jt = Jt, Tw = Tw))
+    list(Jt = Jt, Tw = Tw)
   }
   # ===========================
 

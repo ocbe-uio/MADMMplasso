@@ -14,7 +14,7 @@ objective <- function(beta0, theta0, beta, theta, X, Z, y, alpha, lambda, p, N, 
 
     pliable_norm[ee] <- sum(unlist(norm_1_l))
   }
-  objective_l <- mse + (1 - alpha) * min(lambda / 4) * IB + (1 - alpha) * min(lambda / 4) * l_1 + sum(pliable_norm)
 
-  return(objective_l)
+  # Output
+  mse + (1 - alpha) * min(lambda / 4) * IB + (1 - alpha) * min(lambda / 4) * l_1 + sum(pliable_norm)
 }

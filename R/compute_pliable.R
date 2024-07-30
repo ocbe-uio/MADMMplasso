@@ -17,5 +17,5 @@ compute_pliable <- function(X, Z, theta) {
   )
   xz_term <- (Reduce(f = "+", x = xz_theta))
 
-  return(xz_term)
+  xz_term
 }

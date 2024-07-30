@@ -4,7 +4,7 @@ model <- function(beta0, theta0, beta, theta, X, Z) {
   N <- nrow(X)
   intercepts <- (matrix(1, N)) %*% beta0 + Z %*% ((theta0))
   shared_model <- X %*% (beta)
-  return(intercepts + shared_model)
+  intercepts + shared_model
 }
 
 reg_temp <- function(r, Z) {
