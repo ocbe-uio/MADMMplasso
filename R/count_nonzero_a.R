@@ -14,6 +14,5 @@ count_nonzero_a <- function(x) {
     }
     n <- max(count1)
   }
-
-  return(n)
+  n
 }

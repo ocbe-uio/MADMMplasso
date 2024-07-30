@@ -56,5 +56,5 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
   Tree <- sparseMatrix(i = I, j = J, x = rep(1, length(I)), dims = c(V, K))
 
-  return(list(Tree = Tree, Tw = Tw))
+  list(Tree = Tree, Tw = Tw)
 }

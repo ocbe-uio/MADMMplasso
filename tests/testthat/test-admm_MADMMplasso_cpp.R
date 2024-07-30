@@ -19,7 +19,7 @@ reg_temp <- function(r, Z) {
     beta01[e] <- matrix(my_res[(K + 1)])
     theta01[, e] <- matrix(my_res[1:K])
   }
-  return(list(beta0 = beta01, theta0 = theta01))
+  list(beta0 = beta01, theta0 = theta01)
 }
 
 # Generate the data ============================================================
