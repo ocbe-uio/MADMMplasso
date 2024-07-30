@@ -140,7 +140,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   I <- matrix(0, nrow = nrow(C) * ncol(y), ncol = ncol(y))
 
   II <- input[multiple_of_D]
-  diag(I[1:ncol(y), ]) <- C[1, ] * (CW[1])
+  diag(I[seq_len(ncol(y)), ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
@@ -172,7 +172,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   if (is.null(my_lambda)) {
     lam <- matrix(0, nlambda, ncol(y))
-    for (i in 1:ncol(y)) {
+    for (i in seq_len(ncol(y))) {
       lam[, i] <- lambda_i[[i]]
     }
   } else {

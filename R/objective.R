@@ -4,7 +4,7 @@ objective <- function(beta0, theta0, beta, theta, X, Z, y, alpha, lambda, p, N, 
 
   l_1 <- sum(abs(beta))
   pliable_norm <- matrix(0, ncol(y))
-  for (ee in 1:ncol(y)) {
+  for (ee in seq_len(ncol(y))) {
     beta11 <- beta[, ee]
     theta11 <- theta[, , ee]
     norm_1_l <- lapply(

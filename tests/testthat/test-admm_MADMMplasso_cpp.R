@@ -10,7 +10,7 @@ reg_temp <- function(r, Z) {
   K <- ncol(Z)
   beta01 <- matrix(0, 1, ncol(r))
   theta01 <- matrix(0, ncol(Z), ncol(r))
-  for (e in 1:ncol(r)) {
+  for (e in seq_len(ncol(r))) {
     my_one <- matrix(1, nrow(Z))
     my_w <- data.frame(Z, my_one)
     my_w <- as.matrix(my_w)
@@ -113,7 +113,7 @@ input <- 1:(ncol(y) * nrow(C))
 multiple_of_D <- (input %% ncol(y)) == 0
 I <- matrix(0, nrow = nrow(C) * ncol(y), ncol = ncol(y))
 II <- input[multiple_of_D]
-diag(I[1:ncol(y), ]) <- C[1, ] * (CW[1])
+diag(I[seq_len(ncol(y)), ]) <- C[1, ] * (CW[1])
 c_count <- 2
 for (e in II[-length(II)]) {
   diag(I[c((e + 1):(c_count * ncol(y))), ]) <- C[c_count, ] * (CW[c_count])

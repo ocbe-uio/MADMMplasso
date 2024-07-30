@@ -60,7 +60,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
 
   I <- matrix(0, nrow = nrow(C) * ncol(y), ncol = ncol(y))
   II <- input[multiple_of_D]
-  diag(I[1:ncol(y), ]) <- C[1, ] * (CW[1])
+  diag(I[seq_len(ncol(y)), ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
@@ -201,8 +201,8 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     beta.group <- (array(NA, c(p + p * K, ncol(y), nrow(C))))
     N_E <- list()
     II <- input[multiple_of_D]
-    new.mat_group[, , 1] <- t((new.mat[1:ncol(y), ]))
-    beta.group[, , 1] <- t((Big_beta_respone[1:ncol(y), ]))
+    new.mat_group[, , 1] <- t((new.mat[seq_len(ncol(y)), ]))
+    beta.group[, , 1] <- t((Big_beta_respone[seq_len(ncol(y)), ]))
 
     beta_transform <- matrix(0, p, (K + 1) * ncol(y))
     beta_transform[, 1:(1 + K)] <- matrix(new.mat_group[, 1, 1], ncol = (K + 1), nrow = p)
@@ -278,7 +278,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
       e <- II[c_count]
     }
 
-    E[1:ncol(C), ] <- N_E[[1]]
+    E[seq_len(ncol(C)), ] <- N_E[[1]]
 
     c_count <- 2
     e <- II[-length(II)][1]
@@ -338,7 +338,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
   } ### iteration
 
   res_val <- t(I) %*% (E)
-  for (jj in 1:ncol(y)) {
+  for (jj in seq_len(ncol(y))) {
     group <- (t(G) %*% t((V[, , jj])))
 
     group1 <- group[1, ]
