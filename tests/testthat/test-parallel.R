@@ -81,19 +81,19 @@ mad_wrap <- function(seed = 3398, ...) {
       alpha = 0.2, my_lambda = matrix(rep(0.2, ncol(y)), 1),
       lambda_min = 0.001, max_it = 5000, e.abs = 1e-4, e.rel = 1e-2, maxgrid = 1L,
       nlambda = 1L, rho = 5, tree = TT, my_print = FALSE, alph = 1, gg = gg1,
-      tol = 1e-3, cl = 2, ...
+      tol = 1e-3, ...
     )
   )
 }
-fit_R <- mad_wrap(legacy = TRUE, parallel = FALSE, pal = FALSE)
-fit_C <- mad_wrap(legacy = FALSE, parallel = FALSE, pal = FALSE)
-fit_R_pal <- mad_wrap(legacy = TRUE, parallel = FALSE, pal = TRUE)
-fit_C_pal <- mad_wrap(legacy = FALSE, parallel = FALSE, pal = TRUE)
+fit_R <- mad_wrap(legacy = TRUE, cl = 1L, pal = FALSE)
+fit_C <- mad_wrap(legacy = FALSE, cl = 1L, pal = FALSE)
+fit_R_pal <- mad_wrap(legacy = TRUE, cl = 1L, pal = TRUE)
+fit_C_pal <- mad_wrap(legacy = FALSE, cl = 1L, pal = TRUE)
 
 # Restrict to *nix machines
 if (.Platform$OS.type == "unix") {
-  fit_R_parallel <- mad_wrap(legacy = TRUE, parallel = TRUE, pal = FALSE)
-  fit_C_parallel <- mad_wrap(legacy = FALSE, parallel = TRUE, pal = FALSE)
+  fit_R_parallel <- mad_wrap(legacy = TRUE, cl = 2L, pal = FALSE)
+  fit_C_parallel <- mad_wrap(legacy = FALSE, cl = 2L, pal = FALSE)
 }
 
 test_that("results are identical after parallelization", {
@@ -105,10 +105,4 @@ test_that("results are identical after parallelization", {
     expect_identical(fit_C_parallel, fit_C)
     expect_identical(fit_C_pal, fit_C_parallel)
   }
-})
-
-test_that("parallel and pal cannot be both true", {
-  msg <- "parallel and pal cannot be TRUE at the same time"
-  expect_error(mad_wrap(legacy = TRUE, parallel = TRUE, pal = TRUE), msg)
-  expect_error(mad_wrap(legacy = FALSE, parallel = TRUE, pal = TRUE), msg)
 })

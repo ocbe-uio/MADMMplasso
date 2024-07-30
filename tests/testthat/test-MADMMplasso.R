@@ -84,7 +84,7 @@ fit_C <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
+  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
   pal = TRUE, gg = gg1, tol = tol, cl = 6
 )
 set.seed(9356219)
@@ -94,7 +94,7 @@ fit_R <- suppressWarnings(
       X, Z, y,
       alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
       lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-      nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1, parallel = FALSE,
+      nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
       pal = TRUE, gg = gg1, tol = tol, cl = 6, legacy = TRUE
     )
   )

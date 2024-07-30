@@ -20,12 +20,11 @@ cv_MADMMplasso(
   my_print = FALSE,
   alph = 1,
   foldid = NULL,
-  parallel = TRUE,
-  pal = FALSE,
+  pal = cl == 1L,
   gg = c(7, 0.5),
   TT,
   tol = 1e-04,
-  cl = 2,
+  cl = detectCores() - 1L,
   legacy = FALSE
 )
 }
@@ -61,9 +60,7 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 
 \item{foldid}{vector with values in 1:K, indicating folds for K-fold CV. Default NULL}
 
-\item{parallel}{should parallel processing be used or not? If set to \code{TRUE}, pal should be set to \code{FALSE}.}
-
-\item{pal}{Should the lapply function be applied for an alternative quicker optimization when there no parallel package available?}
+\item{pal}{Should the lapply function be applied for an alternative to parallelization.}
 
 \item{gg}{penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
 
