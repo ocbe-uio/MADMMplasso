@@ -3,8 +3,8 @@ objective <- function(beta0, theta0, beta, theta, X, Z, y, alpha, lambda, p, N, 
   mse <- (1 / (2 * N)) * loss
 
   l_1 <- sum(abs(beta))
-  pliable_norm <- matrix(0, dim(y)[2])
-  for (ee in 1:dim(y)[2]) {
+  pliable_norm <- matrix(0, ncol(y))
+  for (ee in 1:ncol(y)) {
     beta11 <- beta[, ee]
     theta11 <- theta[, , ee]
     norm_1_l <- lapply(

@@ -57,7 +57,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   p <- ncol(X)
   K <- ncol(Z)
-  D <- dim(y)[2]
+  D <- ncol(y)
 
   TT <- tree
 
@@ -98,7 +98,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     r <- y
 
     lammax <- lapply(
-      seq_len(dim(y)[2]),
+      seq_len(ncol(y)),
       function(g) {
         max(abs(t(X) %*% (r - colMeans(r))) / length(r[, 1])) / ((1 - alpha) + (max(gg[1, ]) * max(CW) + max(gg[2, ])))
       }
@@ -106,7 +106,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
     big_lambda <- lammax
     lambda_i <- lapply(
-      seq_len(dim(y)[2]),
+      seq_len(ncol(y)),
       function(g) {
         exp(seq(log(big_lambda[[g]]), log(big_lambda[[g]] * rat), length = maxgrid))
       }
@@ -131,20 +131,20 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   rho1 <- rho
 
-  D <- dim(y)[2]
+  D <- ncol(y)
 
   ### for response groups ###############################################################
-  input <- 1:(dim(y)[2] * nrow(C))
-  multiple_of_D <- (input %% dim(y)[2]) == 0
+  input <- 1:(ncol(y) * nrow(C))
+  multiple_of_D <- (input %% ncol(y)) == 0
 
-  I <- matrix(0, nrow = nrow(C) * dim(y)[2], ncol = dim(y)[2])
+  I <- matrix(0, nrow = nrow(C) * ncol(y), ncol = ncol(y))
 
   II <- input[multiple_of_D]
-  diag(I[1:dim(y)[2], ]) <- C[1, ] * (CW[1])
+  diag(I[1:ncol(y), ]) <- C[1, ] * (CW[1])
 
   c_count <- 2
   for (e in II[-length(II)]) {
-    diag(I[c((e + 1):(c_count * dim(y)[2])), ]) <- C[c_count, ] * (CW[c_count])
+    diag(I[c((e + 1):(c_count * ncol(y))), ]) <- C[c_count, ] * (CW[c_count])
     c_count <- 1 + c_count
   }
   new_I <- diag(t(I) %*% I)
@@ -171,8 +171,8 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   theta <- (array(0, c(p, K, D)))
 
   if (is.null(my_lambda)) {
-    lam <- matrix(0, nlambda, dim(y)[2])
-    for (i in 1:dim(y)[2]) {
+    lam <- matrix(0, nlambda, ncol(y))
+    for (i in 1:ncol(y)) {
       lam[, i] <- lambda_i[[i]]
     }
   } else {
