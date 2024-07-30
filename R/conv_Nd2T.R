@@ -10,7 +10,7 @@ conv_Nd2T <- function(Nd, w, w_max) {
 
   # ===========================
   find_leaves <- function(Nd, ch, K, Jt, w, Tw) {
-    for (ii in 1:length(ch)) {
+    for (ii in seq_along(ch)) {
       if (Nd[ch[ii], 2] > K) {
         leaves0 <- find_leaves(Nd, which(Nd[, 1] == Nd[ch[ii], 2]), K, Jt, w, Tw)
         Jt <- leaves0$Jt
