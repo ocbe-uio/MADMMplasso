@@ -48,7 +48,7 @@
 
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
-MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, pal = cl == 1L, gg = NULL, tol = 1E-4, cl = detectCores() - 1L, legacy = FALSE) {
+MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, pal = cl == 1L, gg = NULL, tol = 1E-4, cl = 1L, legacy = FALSE) {
   # Recalculating the number of CPUs
   cl <- ifelse(pal, 1L, cl) # cl is irrelevant if pal = TRUE
   parallel <- cl > 1L

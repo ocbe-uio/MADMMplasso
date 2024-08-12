@@ -25,7 +25,7 @@ MADMMplasso(
   pal = cl == 1L,
   gg = NULL,
   tol = 1e-04,
-  cl = detectCores() - 1L,
+  cl = 1L,
   legacy = FALSE
 )
 }

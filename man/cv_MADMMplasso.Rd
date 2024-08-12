@@ -24,7 +24,7 @@ cv_MADMMplasso(
   gg = c(7, 0.5),
   TT,
   tol = 1e-04,
-  cl = detectCores() - 1L,
+  cl = 1L,
   legacy = FALSE
 )
 }

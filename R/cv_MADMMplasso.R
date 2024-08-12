@@ -11,7 +11,7 @@
 #' @return  results containing the CV values
 #' @example inst/examples/cv_MADMMplasso_example.R
 #' @export
-cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, pal = cl == 1L, gg = c(7, 0.5), TT, tol = 1E-4, cl = detectCores() - 1L, legacy = FALSE) {
+cv_MADMMplasso <- function(fit, nfolds, X, Z, y, alpha = 0.5, lambda = fit$Lambdas, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, nlambda, rho = 5, my_print = FALSE, alph = 1, foldid = NULL, pal = cl == 1L, gg = c(7, 0.5), TT, tol = 1E-4, cl = 1L, legacy = FALSE) {
   BIG <- 10e9
   no <- nrow(X)
   ggg <- vector("list", nfolds)
