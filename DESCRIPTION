@@ -34,6 +34,7 @@ Imports:
     Matrix,
     MASS,
     Rcpp,
+    RcppArmadillo,
     foreach,
     doParallel,
     class,
