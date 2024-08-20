@@ -50,9 +50,19 @@
 #' @export
 MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, pal = cl == 1L, gg = NULL, tol = 1E-4, cl = 1L, legacy = FALSE) {
   # Recalculating the number of CPUs
-  cl <- ifelse(pal, 1L, cl) # cl is irrelevant if pal = TRUE
+  if (pal && cl > 1L) {
+    cl <- 1L
+    warning("pal is TRUE, resetting cl to 1")
+  }
   parallel <- cl > 1L
-
+  if (my_print) {
+    message(
+      "Parallelization is ", ifelse(parallel, "enabled ", "disabled "),
+      "(", cl, " CPUs)"
+    )
+    message("pal is ", ifelse(pal, "TRUE", "FALSE"))
+    message("Using ", ifelse(legacy, "R", "C++"), " engine")
+  }
   N <- nrow(X)
 
   p <- ncol(X)
@@ -204,11 +214,15 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   # Pre-calculating my_values through my_values_matrix
   if (parallel) {
-    cl <- makeCluster(cl1, type = "FORK")
+    if (.Platform$OS.type == "unix") {
+      cl <- parallel::makeForkCluster(cl1)
+    } else {
+      cl <- parallel::makeCluster(cl1)
+    }
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
     if (legacy) {
-      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+      my_values <- foreach(i = 1:nlambda) %dopar% {
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
@@ -216,7 +230,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
         )
       }
     } else {
-      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+      my_values <- foreach(i = 1:nlambda) %dopar% {
         admm_MADMMplasso_cpp(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd_w_tu, svd_w_tv, svd_w_d,
@@ -225,16 +239,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       }
     }
     parallel::stopCluster(cl)
-
-    # Converting to list so hh_nlambda_loop_cpp can handle it
-    if (nlambda == 1) {
-      my_values <- list(my_values_matrix)
-    } else {
-      my_values <- list()
-      for (hh in seq_len(nlambda)) {
-        my_values[[hh]] <- my_values_matrix[hh, ]
-      }
-    }
   } else if (!parallel && !pal) {
     if (legacy) {
       my_values <- lapply(

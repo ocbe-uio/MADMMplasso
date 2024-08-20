@@ -1,5 +1,7 @@
-# Setting up objects =========================================================
+# Install and load the package, set the seed
 set.seed(1235)
+
+# Generate the data
 N <- 100
 p <- 50
 nz <- 4
@@ -28,6 +30,7 @@ beta_5[11:15] <- c(-2, -2, -2, -2, -2)
 beta_6[11:15] <- c(-2, -2, -2, -2, -2)
 
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
+
 colnames(Beta) <- 1:6
 
 theta <- array(0, c(p, K, 6))
@@ -60,44 +63,38 @@ pliable <- matrix(0, N, 6)
 for (e in 1:6) {
   pliable[, e] <- compute_pliable(X, Z, theta[, , e])
 }
-
 esd <- diag(6)
 e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-
-colnames(y) <- c(paste0("y", seq_len(ncol(y))))
+colnames(y) <- paste0("y", seq_len(ncol(y)))
 TT <- tree_parms(y)
+
 gg1 <- matrix(0, 2, 2)
 gg1[1, ] <- c(0.02, 0.02)
-gg1[2, ] <- c(0.02, 0.02)
-
-nlambda <- 1
+gg1[2, ] <- c(0.2, 0.2)
+nlambda <- 2
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- 0.2
+alpha <- 0.5
 tol <- 1E-3
-
-# Running MADMMplasso ========================================================
-set.seed(9356219)
+# Fitting models
+set.seed(1235)
 fit_C <- MADMMplasso(
   X, Z, y,
-  alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
+  alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-  pal = TRUE, gg = gg1, tol = tol, cl = 1
+  pal = FALSE, gg = gg1, tol = tol, legacy = FALSE, cl = 2L
 )
-set.seed(9356219)
-fit_R <- suppressWarnings(
-  suppressMessages(
-    MADMMplasso(
-      X, Z, y,
-      alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
-      lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-      nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-      pal = TRUE, gg = gg1, tol = tol, cl = 1, legacy = TRUE
-    )
-  )
+
+set.seed(1235)
+fit_R <- MADMMplasso(
+  X, Z, y,
+  alpha = alpha, my_lambda = NULL,
+  lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
+  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
+  pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = 2L
 )
 
 test_that("C++ and R versions basically output the same thing", {
@@ -116,8 +113,8 @@ test_that("C++ and R versions basically output the same thing", {
   }
   expect_equal(fit_C$path, fit_R$path, tolerance = tl)
   expect_identical(fit_C$Lambdas, fit_R$Lambdas)
-  expect_identical(fit_C$non_zero[1], fit_R$non_zero)
-  expect_identical(fit_C$LOSS[1], fit_R$LOSS)
+  expect_equal(fit_C$non_zero, as.matrix(fit_R$non_zero), tolerance = tl)
+  expect_equal(fit_C$LOSS, as.matrix(fit_R$LOSS), tolerance = tl)
   expect_equal(fit_C$Y_HAT[[1]], fit_R$Y_HAT[[1]], tolerance = tl)
   expect_identical(fit_C$gg, fit_R$gg)
 })
