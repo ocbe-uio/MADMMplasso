@@ -31,7 +31,7 @@ beta_6[11:15] <- c(-2, -2, -2, -2, -2)
 
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
 
-colnames(Beta) <- c(1:6)
+colnames(Beta) <- 1:6
 
 theta <- array(0, c(p, K, 6))
 theta[1, 1, 1] <- 2
@@ -67,7 +67,7 @@ esd <- diag(6)
 e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
+colnames(y) <- paste0("y", 1:(ncol(y)))
 TT <- tree_parms(y)
 
 gg1 <- matrix(0, 2, 2)
@@ -76,7 +76,7 @@ gg1[2, ] <- c(0.2, 0.2)
 nlambda <- 2
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- .5
+alpha <- 0.5
 tol <- 1E-3
 # Fitting models
 set.seed(1235)
