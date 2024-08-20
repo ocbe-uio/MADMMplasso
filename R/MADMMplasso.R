@@ -218,7 +218,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
     if (legacy) {
-      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+      my_values <- foreach(i = 1:nlambda, .packages = "MADMMplasso") %dopar% {
         admm_MADMMplasso(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd.w, tree, my_print,
@@ -226,7 +226,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
         )
       }
     } else {
-      my_values_matrix <- foreach(i = 1:nlambda, .packages = "MADMMplasso", .combine = rbind) %dopar% {
+      my_values <- foreach(i = 1:nlambda, .packages = "MADMMplasso") %dopar% {
         admm_MADMMplasso_cpp(
           beta0, theta0, beta, beta_hat, theta, rho1, X, Z, max_it, my_W_hat, XtY,
           y, N, e.abs, e.rel, alpha, lam[i, ], alph, svd_w_tu, svd_w_tv, svd_w_d,
@@ -235,16 +235,6 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
       }
     }
     parallel::stopCluster(cl)
-
-    # Converting to list so hh_nlambda_loop_cpp can handle it
-    if (nlambda == 1) {
-      my_values <- list(my_values_matrix)
-    } else {
-      my_values <- list()
-      for (hh in seq_len(nlambda)) {
-        my_values[[hh]] <- my_values_matrix[hh, ]
-      }
-    }
   } else if (!parallel && !pal) {
     if (legacy) {
       my_values <- lapply(

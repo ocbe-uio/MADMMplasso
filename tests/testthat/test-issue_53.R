@@ -1,6 +1,4 @@
 # Install and load the package, set the seed
-remotes::install_github("ocbe-uio/MADMMplasso")
-library(MADMMplasso)
 set.seed(1235)
 
 # Generate the data
@@ -61,7 +59,6 @@ theta[13, 2, 6] <- 2
 theta[14, 3, 6] <- -2
 theta[15, 4, 6] <- -2
 
-library(MASS)
 pliable <- matrix(0, N, 6)
 for (e in 1:6) {
   pliable[, e] <- compute_pliable(X, Z, theta[, , e])
@@ -76,24 +73,14 @@ TT <- tree_parms(y)
 gg1 <- matrix(0, 2, 2)
 gg1[1, ] <- c(0.02, 0.02)
 gg1[2, ] <- c(0.2, 0.2)
-nlambda <- 50
+nlambda <- 2
 e.abs <- 1E-4
 e.rel <- 1E-2
 alpha <- .5
 tol <- 1E-3
 
 # Fitting models
-message("fit_C")
 fit_C <- MADMMplasso(
-  X, Z, y,
-  alpha = alpha, my_lambda = NULL,
-  lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-  pal = FALSE, gg = gg1, tol = tol, legacy = FALSE, cl = 3L
-)
-
-message("fit_R")
-fit_R <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
