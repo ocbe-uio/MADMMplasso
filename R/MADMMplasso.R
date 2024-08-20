@@ -214,7 +214,7 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
 
   # Pre-calculating my_values through my_values_matrix
   if (parallel) {
-    cl <- makeCluster(cl1, type = "FORK")
+    cl <- parallel::makeForkCluster(cl1)
     doParallel::registerDoParallel(cl = cl)
     foreach::getDoParRegistered()
     if (legacy) {
