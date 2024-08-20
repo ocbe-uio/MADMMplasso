@@ -78,12 +78,43 @@ e.abs <- 1E-4
 e.rel <- 1E-2
 alpha <- .5
 tol <- 1E-3
-
 # Fitting models
+set.seed(1235)
 fit_C <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-  pal = FALSE, gg = gg1, tol = tol, legacy = FALSE, cl = 3L
+  pal = FALSE, gg = gg1, tol = tol, legacy = FALSE, cl = 2L
 )
+
+set.seed(1235)
+fit_R <- MADMMplasso(
+  X, Z, y,
+  alpha = alpha, my_lambda = NULL,
+  lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
+  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
+  pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = 2L
+)
+
+test_that("C++ and R versions basically output the same thing", {
+  expect_named(fit_C$beta, names(fit_R$beta))
+  tl <- 1e1
+  expect_equal(fit_C$beta0[[1]], as.matrix(fit_R$beta0[[1]]), tolerance = tl)
+  expect_equal(as.vector(fit_C$beta[[1]]), as.vector(fit_R$beta[[1]]), tolerance = tl)
+  expect_equal(as.vector(fit_C$BETA_hat[[1]]), as.vector(fit_R$BETA_hat[[1]]), tolerance = tl)
+  expect_equal(fit_C$theta0[[1]], fit_R$theta0[[1]], tolerance = tl)
+  for (i in 1:6) {
+    expect_equal(
+      as.vector(fit_C$theta[[1]][, , i]),
+      as.vector(fit_R$theta[[1]][, , i]),
+      tolerance = tl
+    )
+  }
+  expect_equal(fit_C$path, fit_R$path, tolerance = tl)
+  expect_identical(fit_C$Lambdas, fit_R$Lambdas)
+  expect_equal(fit_C$non_zero, as.matrix(fit_R$non_zero), tolerance = tl)
+  expect_equal(fit_C$LOSS, as.matrix(fit_R$LOSS), tolerance = tl)
+  expect_equal(fit_C$Y_HAT[[1]], fit_R$Y_HAT[[1]], tolerance = tl)
+  expect_identical(fit_C$gg, fit_R$gg)
+})
