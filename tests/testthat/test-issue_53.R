@@ -85,5 +85,5 @@ fit_C <- MADMMplasso(
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-  pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = 3L
+  pal = FALSE, gg = gg1, tol = tol, legacy = FALSE, cl = 3L
 )
