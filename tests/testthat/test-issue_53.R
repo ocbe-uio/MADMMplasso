@@ -67,7 +67,7 @@ esd <- diag(6)
 e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-colnames(y) <- paste0("y", 1:(ncol(y)))
+colnames(y) <- paste0("y", seq_len(ncol(y)))
 TT <- tree_parms(y)
 
 gg1 <- matrix(0, 2, 2)
