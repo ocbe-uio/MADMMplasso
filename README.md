@@ -80,8 +80,7 @@ tol <- 1E-3
 fit <- MADMMplasso(
   X, Z, y, alpha=alpha, my_lambda=NULL,
   lambda_min=0.001, max_it=5000, e.abs=e.abs, e.rel=e.rel, maxgrid=nlambda,
-  nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, parallel=FALSE,
-  pal=TRUE, gg=gg1, tol=tol
+  nlambda=nlambda, rho=5, tree=TT, my_print=FALSE, alph=1, gg=gg1, tol=tol
 )
 
 plot(fit)
