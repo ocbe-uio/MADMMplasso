@@ -49,9 +49,6 @@
 #' @example inst/examples/MADMMplasso_example.R
 #' @export
 MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, max_it = 50000, e.abs = 1E-3, e.rel = 1E-3, maxgrid, nlambda, rho = 5, my_print = FALSE, alph = 1.8, tree, pal = cl == 1L, gg = NULL, tol = 1E-4, cl = 1L, legacy = FALSE) {
-  # Validation
-  stopifnot(nlambda <= maxgrid)
-
   # Recalculating the number of CPUs
   if (pal && cl > 1L) {
     cl <- 1L
@@ -108,6 +105,9 @@ MADMMplasso <- function(X, Z, y, alpha, my_lambda = NULL, lambda_min = 0.001, ma
   rat <- lambda_min
 
   if (is.null(my_lambda)) {
+    # Validation
+    stopifnot(nlambda <= maxgrid)
+
     r <- y
 
     lammax <- lapply(
