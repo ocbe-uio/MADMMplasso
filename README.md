@@ -99,7 +99,7 @@ gg1 <- fit$gg
 cv_admp <- cv_MADMMplasso(
   fit, nfolds=5, X, Z, y, alpha=alpha, lambda=fit$Lambdas, max_it=5000,
   e.abs=e.abs, e.rel=e.rel, nlambda, rho=5, my_print=FALSE, alph=1,
-  foldid=NULL, parallel=FALSE, pal=TRUE, gg=gg1, TT=TT, tol=tol
+  foldid=NULL, gg=gg1, TT=TT, tol=tol
 )
 
 plot(cv_admp)
