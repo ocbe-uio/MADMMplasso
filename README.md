@@ -2,8 +2,8 @@
 
 Multi variate multi-response 'ADMM' with interaction effects combines the usual squared error loss for the mult-response problem with some penalty terms  to encourage responses that correlate to form groups and also allow for modeling main and interaction effects that exit within the covariates.
 
-The method can be powperful in situations where one assumes that;
-1.	certain factors influence the main covariate seperatly and aims to include these fatcors as modifying varibles to the main covariate.
+The method can be powerful in situations where one assumes that;
+1.	certain factors influence the main covariate separately and aims to include these factors as modifying variables to the main covariate.
 2.	There exists some form of grouping within the responses and want to include this information. We assume that the responses form overlapping groups that follows a certain hierarchy.
 A typical example is when one wants to model drug response for multiple drugs and assumes that some of the drugs share certain properties in common, for example drug target and chemical compounds and aims to include this information to improve prediction and also aim to predict which drug could be suitable for which patient (given a particular disease). The various diseases under study could be the modifying variable.
 
@@ -65,7 +65,7 @@ TT <- tree_parms(y)
 plot(TT$h_clust)
 ```
 
-![githubb](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/1a843b46-7154-405c-8db6-cec5b7a0982d)
+![github](https://github.com/ocbe-uio/MADMMplasso/assets/85598983/1a843b46-7154-405c-8db6-cec5b7a0982d)
 
 ```r
 gg1 <- matrix(0,2,2)

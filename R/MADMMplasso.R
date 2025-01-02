@@ -12,7 +12,7 @@
 #' @param rho the Lagrange variable for the ADMM. This value is updated during the ADMM call based on a certain condition.
 #' @param e.abs absolute error for the ADMM
 #' @param e.rel relative error for the ADMM
-#' @param gg penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.
+#' @param gg penalty term for the tree structure. This is a 2×2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.
 #' @param my_lambda user specified lambda_3 values
 #' @param lambda_min the smallest value for lambda_3 , as a fraction of max(lambda_3), the (data derived (lammax)) entry value (i.e. the smallest value for which all coefficients are zero)
 #' @param max_it 	maximum number of iterations in loop for one lambda during the ADMM optimization

@@ -13,7 +13,7 @@
 #' @param N nrow(X)
 #' @param svd.w singular value decomposition of W
 #' @param invmat A list of length ncol(y), each containing the C_d part of equation 32 in the paper
-#' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
+#' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the ADMM call.
 #' @return  predicted values for the ADMM part
 
 #' beta0:  estimated beta_0 coefficients  having a size of 1 by ncol(y)

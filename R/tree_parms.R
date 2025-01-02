@@ -3,7 +3,7 @@
 #' @param y  N by D matrix of response variables
 #' @param h is the tree cut off
 #' @return  A trained  tree with the following components:
-#' Tree: the tree matrix stored in 1's and 0's
+#' Tree: the tree matrix stored in 1s and 0s
 #'  Tw: tree weights associated with the tree matrix. Each weight corresponds to a row in the tree matrix.
 #'  h_clust: Summary of the hclust call
 #'  y.colnames: names of the response

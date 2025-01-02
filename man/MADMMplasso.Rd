@@ -63,7 +63,7 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 
 \item{pal}{Should the lapply function be applied for an alternative to parallelization.}
 
-\item{gg}{penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
+\item{gg}{penalty term for the tree structure. This is a 2×2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
 
 \item{tol}{threshold for the non-zero coefficients}
 

@@ -19,10 +19,10 @@
 //' @param XtY a matrix formed by multiplying the transpose of X by y.
 //' @param y  N by D matrix  of responses. The X and Z variables are centered in the function. We recommend that X and Z also be standardized before the call
 //' @param N nrow(X)
-//' @param e_abs absolute error for the admm. This is included int the call of MADMMplasso.
-//' @param e_rel relative error for the admm. This is included int the call of MADMMplasso.
+//' @param e_abs absolute error for the ADMM. This is included int the call of MADMMplasso.
+//' @param e_rel relative error for the ADMM. This is included int the call of MADMMplasso.
 //' @param alpha mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.
-//' @param lambda a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
+//' @param lambda a vector  lambda_3 values for the ADMM call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.
 //' @param alph an overrelaxation parameter in \[1, 1.8\], usually obtained from the MADMMplasso call.
 //' @param svd_w_tu the transpose of the U matrix from the SVD of W_hat
 //' @param svd_w_tv the transpose of the V matrix from the SVD of W_hat
@@ -32,7 +32,7 @@
 //' The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 //' However, user decide on a specific structure and then input a tree that follows such structure.
 //' @param my_print Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals
-//' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.
+//' @param gg penalty terms for the tree structure for lambda_1 and  lambda_2 for the ADMM call.
 //' @return  predicted values for the ADMM part
 //' @description This function fits a multi-response pliable lasso model over a path of regularization values.
 //' @export
