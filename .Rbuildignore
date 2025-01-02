@@ -5,3 +5,4 @@ CITATION.cff
 aux/
 ^\.github$
 ^.*\.out
+^cran-comments\.md$
