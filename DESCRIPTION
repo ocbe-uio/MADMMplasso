@@ -46,7 +46,6 @@ Imports:
 LinkingTo: Rcpp, RcppArmadillo
 Suggests:
     testthat (>= 3.0.0),
-    pracma,
     lintr
 License: GPL-3
 Encoding: UTF-8
