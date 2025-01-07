@@ -49,7 +49,7 @@ admm_MADMMplasso_cpp(
 
 \item{Z}{n by nz matrix of modifying variables. The elements of z
 may represent quantitative or categorical variables, or a mixture of the two.
-Categorical variables should be coded by 0-1 dummy variables: for a k-level
+Categorical varables should be coded by 0-1 dummy variables: for a k-level
 variable, one can use either k or k-1  dummy variables.}
 
 \item{max_it}{maximum number of iterations in loop for one lambda during the ADMM optimization. This is usually included  in the MADMMplasso call}
@@ -62,13 +62,13 @@ variable, one can use either k or k-1  dummy variables.}
 
 \item{N}{nrow(X)}
 
-\item{e_abs}{absolute error for the admm. This is included int the call of MADMMplasso.}
+\item{e_abs}{absolute error for the ADMM. This is included int the call of MADMMplasso.}
 
-\item{e_rel}{relative error for the admm. This is included int the call of MADMMplasso.}
+\item{e_rel}{relative error for the ADMM. This is included int the call of MADMMplasso.}
 
 \item{alpha}{mixing parameter, usually obtained from the MADMMplasso call. When the goal is to include more interactions, alpha should be very small and vice versa.}
 
-\item{lambda}{a vector  lambda_3 values for the admm call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.}
+\item{lambda}{a vector  lambda_3 values for the ADMM call with length ncol(y). This is usually calculated in the MADMMplasso call.   In our current setting, we use the same the lambda_3 value for all responses.}
 
 \item{alph}{an overrelaxation parameter in [1, 1.8], usually obtained from the MADMMplasso call.}
 
@@ -84,7 +84,7 @@ variable, one can use either k or k-1  dummy variables.}
 The easy way to obtain this is by using the function (tree_parms) which gives a default clustering.
 However, user decide on a specific structure and then input a tree that follows such structure.}
 
-\item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.}
+\item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the ADMM call.}
 
 \item{my_print}{Should information form each ADMM iteration be printed along the way? Default TRUE. This prints  the dual and primal residuals}
 }
