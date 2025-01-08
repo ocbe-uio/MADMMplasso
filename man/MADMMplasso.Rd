@@ -96,7 +96,7 @@ Y_HAT: a list (length=nlambda) of predicted response nrow(X) by ncol(y)
 gg: penalty term for the tree structure (lambda_1 and lambda_2) for each lambda_3 nlambda by 2
 }
 \description{
-This system allows one to model a multi response problem that has correlation among the responses and also has main and interaction effects among the covariates. The implementation is based on the methodology presented on Quachie Asenso, T., & Zucknick, M. (2023) \doi{10.48550/arXiv.2303.11155}.
+This system allows one to model a multi-variate, multi-response problem with interaction effects. It combines the usual squared error loss for the multi-response problem with some penalty terms to encourage responses that correlate to form groups and also allow for modeling main and interaction effects that exit within the covariates. The optimization method employed is the Alternating Direction Method of Multipliers (ADMM). The implementation is based on the methodology presented on Quachie Asenso, T., & Zucknick, M. (2023) \doi{10.48550/arXiv.2303.11155}.
 
 This function fits a multi-response pliable lasso model over a path of regularization values.
 }
