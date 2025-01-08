@@ -10,8 +10,7 @@
 #' @param y N by D matrix  of responses.
 #' @param lambda  values of lambda at which predictions are desired. If NULL (default), the path of lambda values from the fitted model. are used. If lambda is not NULL, the predictions are made at the closest values to lambda in the lambda path from the fitted model
 #' @param ... additional arguments to the generic \code{predict()} method
-
-#'  @return  predicted values
+#' @return  predicted values
 #' @export
 predict.MADMMplasso <- function(object, X, Z, y, lambda = NULL, ...) {
   lambda.arg <- lambda

@@ -20,8 +20,10 @@ test features x  and possibly other features.}
 
 \item{lambda}{values of lambda at which predictions are desired. If NULL (default), the path of lambda values from the fitted model. are used. If lambda is not NULL, the predictions are made at the closest values to lambda in the lambda path from the fitted model}
 
-\item{...}{additional arguments to the generic \code{predict()} method
-@return  predicted values}
+\item{...}{additional arguments to the generic \code{predict()} method}
+}
+\value{
+predicted values
 }
 \description{
 Compute predicted values from a MADMMplasso  object.
