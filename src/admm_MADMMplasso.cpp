@@ -6,7 +6,7 @@
 //' @param X  n by p matrix of predictors
 //' @param Z n by nz matrix of modifying variables. The elements of z
 //' may represent quantitative or categorical variables, or a mixture of the two.
-//' Categorical varables should be coded by 0-1 dummy variables: for a k-level
+//' Categorical variables should be coded by 0-1 dummy variables: for a k-level
 //' variable, one can use either k or k-1  dummy variables.
 //' @param beta0 a vector of length ncol(y) of estimated beta_0 coefficients
 //' @param theta0 matrix of the initial theta_0 coefficients  ncol(Z) by ncol(y)
