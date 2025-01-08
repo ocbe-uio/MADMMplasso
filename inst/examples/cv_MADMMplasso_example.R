@@ -1,5 +1,5 @@
  # nolint start: indentation_linter
-\dontrun{
+\donttest{
   # Train the model
   # generate some data
   set.seed(1235)

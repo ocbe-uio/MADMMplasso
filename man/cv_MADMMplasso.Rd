@@ -81,7 +81,7 @@ Carries out cross-validation for a MADMMplasso model over a path of regularizati
 }
 \examples{
  # nolint start: indentation_linter
-\dontrun{
+\donttest{
   # Train the model
   # generate some data
   set.seed(1235)
