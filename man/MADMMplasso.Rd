@@ -4,7 +4,7 @@
 \name{MADMMplasso}
 \alias{MADMMplasso-package}
 \alias{MADMMplasso}
-\title{MADMMplasso: Multi Variate Multi Response 'ADMM' with Interaction Effects}
+\title{MADMMplasso: Multi Variate Multi Response ADMM with Interaction Effects}
 \usage{
 MADMMplasso(
   X,
