@@ -76,7 +76,7 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 
 \item{invmat}{A list of length ncol(y), each containing the C_d part of equation 32 in the paper}
 
-\item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the admm call.}
+\item{gg}{penalty terms for the tree structure for lambda_1 and  lambda_2 for the ADMM call.}
 }
 \value{
 predicted values for the ADMM part

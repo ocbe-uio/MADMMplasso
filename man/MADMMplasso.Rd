@@ -4,7 +4,7 @@
 \name{MADMMplasso}
 \alias{MADMMplasso-package}
 \alias{MADMMplasso}
-\title{MADMMplasso: Multi Variate Multi Response 'ADMM' with Interaction Effects}
+\title{MADMMplasso: Multi Variate Multi Response ADMM with Interaction Effects}
 \usage{
 MADMMplasso(
   X,
@@ -63,7 +63,7 @@ Categorical variables should be coded by 0-1 dummy variables: for a k-level vari
 
 \item{pal}{Should the lapply function be applied for an alternative to parallelization.}
 
-\item{gg}{penalty term for the tree structure. This is a 2x2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
+\item{gg}{penalty term for the tree structure. This is a 2×2 matrix values in the first row representing the maximum to the minimum values for lambda_1 and the second row representing the maximum to the minimum values for lambda_2. In the current setting, we set both maximum and the minimum to be same because cross validation is not carried across the lambda_1 and lambda_2. However, setting different values will work during the model fit.}
 
 \item{tol}{threshold for the non-zero coefficients}
 
@@ -96,7 +96,7 @@ Y_HAT: a list (length=nlambda) of predicted response nrow(X) by ncol(y)
 gg: penalty term for the tree structure (lambda_1 and lambda_2) for each lambda_3 nlambda by 2
 }
 \description{
-This system allows one to model a multi response problem that has correlation among the responses and also has main and interaction effects among the covariates. The implementation is based on the methodology presented on Quachie Asenso, T., & Zucknick, M. (2023) \doi{10.48550/arXiv.2303.11155}.
+This system allows one to model a multi-variate, multi-response problem with interaction effects. It combines the usual squared error loss for the multi-response problem with some penalty terms to encourage responses that correlate to form groups and also allow for modeling main and interaction effects that exit within the covariates. The optimization method employed is the Alternating Direction Method of Multipliers (ADMM). The implementation is based on the methodology presented on Quachie Asenso, T., & Zucknick, M. (2023) \doi{10.48550/arXiv.2303.11155}.
 
 This function fits a multi-response pliable lasso model over a path of regularization values.
 }
@@ -185,9 +185,9 @@ tol <- 1E-3
 fit <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = matrix(rep(0.2, ncol(y)), 1),
-  lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
-  nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = TRUE,
-  pal = TRUE, gg = gg1, tol = tol, cl = 6
+  lambda_min = 0.001, max_it = 1000, e.abs = e.abs, e.rel = e.rel,
+  maxgrid = nlambda, nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE,
+  alph = TRUE, gg = gg1, tol = tol, cl = 2L
 )
 }
 \author{

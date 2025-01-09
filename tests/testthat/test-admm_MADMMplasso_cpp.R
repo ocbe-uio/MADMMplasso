@@ -14,7 +14,7 @@ reg_temp <- function(r, Z) {
     my_one <- matrix(1, nrow(Z))
     my_w <- data.frame(Z, my_one)
     my_w <- as.matrix(my_w)
-    my_inv <- pracma::pinv(t(my_w) %*% my_w)
+    my_inv <- solve(t(my_w) %*% my_w) # replaced pracma::pinv() to eliminate dep
     my_res <- my_inv %*% (t(my_w) %*% r[, e])
     beta01[e] <- matrix(my_res[(K + 1)])
     theta01[, e] <- matrix(my_res[1:K])

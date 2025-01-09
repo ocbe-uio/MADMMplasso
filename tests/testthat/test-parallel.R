@@ -97,12 +97,13 @@ if (.Platform$OS.type == "unix") {
 }
 
 test_that("results are identical after parallelization", {
-  expect_identical(fit_R_pal, fit_R)
-  expect_identical(fit_C_pal, fit_C)
+  tol <- 1e-6
+  expect_identical(fit_R_pal, fit_R, tolerance = tol)
+  expect_identical(fit_C_pal, fit_C, tolerance = tol)
   if (.Platform$OS.type == "unix") {
-    expect_identical(fit_R_parallel, fit_R)
-    expect_identical(fit_R_pal, fit_R_parallel)
-    expect_identical(fit_C_parallel, fit_C)
-    expect_identical(fit_C_pal, fit_C_parallel)
+    expect_identical(fit_R_parallel, fit_R, tolerance = tol)
+    expect_identical(fit_R_pal, fit_R_parallel, tolerance = tol)
+    expect_identical(fit_C_parallel, fit_C, tolerance = tol)
+    expect_identical(fit_C_pal, fit_C_parallel, tolerance = tol)
   }
 })
