@@ -65,7 +65,7 @@ jobs:
             T_and_F_symbol_linter(), undesirable_function_linter(),
             undesirable_operator_linter(),
             unnecessary_concatenation_linter(), unnecessary_lambda_linter(),
-            unnecessary_nested_if_linter(),
+            unnecessary_nesting_linter(),
             unnecessary_placeholder_linter(), unreachable_code_linter(),
             unused_import_linter(), vector_logic_linter(),
             whitespace_linter(), yoda_test_linter()

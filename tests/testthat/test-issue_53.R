@@ -69,7 +69,6 @@ y_train <- X %*% Beta + pliable + e
 y <- y_train
 colnames(y) <- paste0("y", seq_len(ncol(y)))
 TT <- tree_parms(y)
-
 gg1 <- matrix(0, 2, 2)
 gg1[1, ] <- c(0.02, 0.02)
 gg1[2, ] <- c(0.2, 0.2)
@@ -78,7 +77,8 @@ e.abs <- 1E-4
 e.rel <- 1E-2
 alpha <- 0.5
 tol <- 1E-3
-# Fitting models
+
+# Fitting models (legacy and C++ versions)
 set.seed(1235)
 fit_C <- MADMMplasso(
   X, Z, y,
@@ -97,6 +97,7 @@ fit_R <- MADMMplasso(
   pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = 2L
 )
 
+# Testing
 test_that("C++ and R versions basically output the same thing", {
   expect_named(fit_C$beta, names(fit_R$beta))
   tl <- 1e1

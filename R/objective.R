@@ -1,5 +1,5 @@
 objective <- function(beta0, theta0, beta, theta, X, Z, y, alpha, lambda, p, N, IB, W, beta1) {
-  loss <- (norm(y - model_p(beta0, theta0, beta = beta1, X = W, Z), type = "F")^2)
+  loss <- norm(y - model_p(beta0, theta0, beta1, W, Z), type = "F") ^ 2
   mse <- (1 / (2 * N)) * loss
 
   l_1 <- sum(abs(beta))

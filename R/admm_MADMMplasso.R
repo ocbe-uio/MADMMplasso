@@ -356,7 +356,7 @@ admm_MADMMplasso <- function(beta0, theta0, beta, beta_hat, theta, rho1, X, Z, m
     theta[, , jj] <- (beta_hat1[, -1])
     beta_hat[, jj] <- c(c(beta_hat1[, 1], as.vector(theta[, , jj])))
   }
-  y_hat <- model_p(beta0, theta0, beta = beta_hat, X = W_hat, Z)
+  y_hat <- model_p(beta0, theta0, beta_hat, W_hat, Z)
 
   out <- list(beta0 = beta0, theta0 = theta0, beta = beta, theta = theta, converge = converge, obj = obj, beta_hat = beta_hat, y_hat = y_hat)
 
