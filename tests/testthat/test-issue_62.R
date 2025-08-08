@@ -1,4 +1,3 @@
-library(MASS)
 set.seed(1235)
 N <- 100
 p <- 14
@@ -53,7 +52,7 @@ esd <- diag(6)
 e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-colnames(y) <- c(paste("y", seq_len(ncol(y)), sep = ""))
+colnames(y) <- paste0("y", seq_len(ncol(y)), sep = "")
 TT <- tree_parms(y)
 plot(TT$h_clust)
 
@@ -63,7 +62,7 @@ gg1[2, ] <- c(0.2, 0.2)
 nlambda <- 50
 e.abs <- 1E-4
 e.rel <- 1E-2
-alpha <- .5
+alpha <- 0.5
 tol <- 1E-3
 
 fit_C <- MADMMplasso(
