@@ -110,7 +110,7 @@ arma::field<arma::cube> admm_MADMMplasso_cpp(
   double res_pri = 0.;
   double res_dual = 0.;
   const arma::mat SVD_D = arma::diagmat(svd_w_d);
-  const arma::mat R_svd_inv = arma::inv((svd_w_tu.t() * SVD_D) / N);
+  const arma::mat R_svd_inv = arma::pinv((svd_w_tu.t() * SVD_D) / N);
   double rho = rho1;
   arma::cube Big_beta11 = V;
   arma::mat res_val;  // declared here because it's also needed outside the loop
