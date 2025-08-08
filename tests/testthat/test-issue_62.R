@@ -73,12 +73,13 @@ fit_C <- MADMMplasso(
   alph = TRUE, gg = gg1, tol = tol, cl = 2L, legacy = FALSE
 )
 
+r_cl <- ifelse(Sys.info()[["nodename"]] == "imb-0646", 1L, 2L)
 fit_R <- MADMMplasso(
   X = X, Z = Z, y = as.matrix(y),
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 1000, e.abs = e.abs, e.rel = e.rel,
   maxgrid = nlambda, nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE,
-  alph = TRUE, gg = gg1, tol = tol, cl = 2L, legacy = TRUE
+  alph = TRUE, gg = gg1, tol = tol, cl = r_cl, legacy = TRUE
 )
 
 # Testing
