@@ -66,10 +66,18 @@ e.rel <- 1E-2
 alpha <- .5
 tol <- 1E-3
 
-fit <- MADMMplasso(
+fit_C <- MADMMplasso(
   X = X, Z = Z, y = as.matrix(y),
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 1000, e.abs = e.abs, e.rel = e.rel,
   maxgrid = nlambda, nlambda = nlambda, rho = 5, tree = TT, my_print = TRUE,
   alph = TRUE, gg = gg1, tol = tol, cl = 2L, legacy = FALSE
+)
+
+fit_R <- MADMMplasso(
+  X = X, Z = Z, y = as.matrix(y),
+  alpha = alpha, my_lambda = NULL,
+  lambda_min = 0.001, max_it = 1000, e.abs = e.abs, e.rel = e.rel,
+  maxgrid = nlambda, nlambda = nlambda, rho = 5, tree = TT, my_print = TRUE,
+  alph = TRUE, gg = gg1, tol = tol, cl = 2L, legacy = TRUE
 )
