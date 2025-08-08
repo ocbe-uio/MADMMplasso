@@ -89,12 +89,13 @@ fit_C <- MADMMplasso(
 )
 
 set.seed(1235)
+r_cl <- ifelse(Sys.info()[["nodename"]] == "imb-0646", 1L, 2L)
 fit_R <- MADMMplasso(
   X, Z, y,
   alpha = alpha, my_lambda = NULL,
   lambda_min = 0.001, max_it = 5000, e.abs = e.abs, e.rel = e.rel, maxgrid = nlambda,
   nlambda = nlambda, rho = 5, tree = TT, my_print = FALSE, alph = 1,
-  pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = 2L
+  pal = FALSE, gg = gg1, tol = tol, legacy = TRUE, cl = r_cl
 )
 
 # Testing
