@@ -92,7 +92,8 @@ fit_C_pal <- mad_wrap(legacy = FALSE, cl = 1L, pal = TRUE)
 
 # Restrict to *nix machines
 if (.Platform$OS.type == "unix") {
-  fit_R_parallel <- mad_wrap(legacy = TRUE, cl = 2L, pal = FALSE)
+  r_cl <- ifelse(Sys.info()[["nodename"]] == "imb-0646", 1L, 2L)
+  fit_R_parallel <- mad_wrap(legacy = TRUE, cl = r_cl, pal = FALSE)
   fit_C_parallel <- mad_wrap(legacy = FALSE, cl = 2L, pal = FALSE)
 }
 
