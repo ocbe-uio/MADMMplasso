@@ -29,7 +29,7 @@ beta_6[11:14] <- c(-2, -2, -2, -2)
 
 Beta <- cbind(beta_1, beta_2, beta_3, beta_4, beta_5, beta_6)
 
-colnames(Beta) <- c(1:6)
+colnames(Beta) <- 1:6
 
 theta <- array(0, c(p, K, 6))
 theta[1, 1, 1] <- 2
@@ -53,7 +53,7 @@ esd <- diag(6)
 e <- MASS::mvrnorm(N, mu = rep(0, 6), Sigma = esd)
 y_train <- X %*% Beta + pliable + e
 y <- y_train
-colnames(y) <- c(paste("y", 1:(ncol(y)), sep = ""))
+colnames(y) <- c(paste("y", seq_len(ncol(y)), sep = ""))
 TT <- tree_parms(y)
 plot(TT$h_clust)
 
