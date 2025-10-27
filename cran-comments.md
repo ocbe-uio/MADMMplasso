@@ -1,13 +1,25 @@
-Resubmission of 1.0.0, addressing all points from reviewer. Namely:
+Dear CRAN Team,
+this is a resubmission of package 'MADMMplasso'. I have added the following changes:
 
-- Single quotes around ADMM have been removed
-- ADMM acronym has been explained in the package description
-- \value tag has been added to predict.MADMMplasso()
-- Wrapped examples have been unwrapped
-- cat() calls have been conditioned to a verbose argument
+* Delinted package
+* Fixed hanging tests on some machines
+* Fixed `solve()` error on small clinical data (issue #62)
 
-## R CMD check results
+Please upload to CRAN.
+Best, Waldir
 
-0 errors | 0 warnings | 1 note
+# Package MADMMplasso 1.0.1
 
-* This is a new release.
+Reporting is done by packager version 1.15.3
+
+
+## Test environments
+- R version 4.4.3 (2025-02-28)
+   Platform: x86_64-pc-linux-gnu
+   Running under: Ubuntu 25.04
+   ERROR: No check log found!
+- win-builder (devel)
+
+## Local test results
+
+## Local meta results
