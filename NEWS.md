@@ -1,4 +1,4 @@
-# MADMMplasso (development version)
+# MADMMplasso 1.0.1
 
 * Delinted package
 * Fixed hanging tests on some machines
